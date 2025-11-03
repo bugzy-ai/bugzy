@@ -1,0 +1,8 @@
+
+# Bugzy
+.bugzy/config.json
+.env
+.env.local
+
+# Claude Code
+.claude/.mcp.json

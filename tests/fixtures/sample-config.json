@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "test-project"
+  },
+  "subagents": {
+    "team-communicator": "slack",
+    "documentation-researcher": "notion",
+    "test-runner": "playwright"
+  }
+}
