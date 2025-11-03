@@ -69,13 +69,20 @@ function parseFrontmatter(markdown: string): { frontmatter: Record<string, any>;
  * Works in both CommonJS and ESM contexts
  */
 function getModuleDir(): string {
-  // For ESM (when import.meta.url is available)
-  if (typeof import.meta !== 'undefined' && import.meta.url) {
-    return path.dirname(fileURLToPath(import.meta.url));
+  try {
+    // For ESM (when import.meta.url is available)
+    // @ts-ignore - import.meta is available in ESM context
+    if (typeof import.meta !== 'undefined' && import.meta?.url) {
+      // @ts-ignore
+      return path.dirname(fileURLToPath(import.meta.url));
+    }
+  } catch {
+    // Fall through to CommonJS
   }
 
-  // For CommonJS (fallback)
-  return __dirname;
+  // For CommonJS
+  // @ts-ignore - __dirname is available in CommonJS context
+  return typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 }
 
 /**

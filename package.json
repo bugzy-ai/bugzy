@@ -1,7 +1,10 @@
 {
-  "name": "bugzy",
+  "name": "@bugzy-ai/bugzy",
   "version": "0.1.0",
   "description": "Open-source AI agent configuration for QA automation with Claude Code",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "keywords": [
     "ai",
     "testing",
@@ -26,17 +29,17 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     },
     "./tasks": {
-      "import": "./dist/tasks/index.js",
-      "types": "./dist/tasks/index.d.ts"
+      "types": "./dist/tasks/index.d.ts",
+      "import": "./dist/tasks/index.js"
     },
     "./subagents": {
-      "import": "./dist/subagents/index.js",
-      "types": "./dist/subagents/index.d.ts"
+      "types": "./dist/subagents/index.d.ts",
+      "import": "./dist/subagents/index.js"
     }
   },
   "main": "./dist/index.cjs",
@@ -58,7 +61,8 @@
     "test:ci": "vitest run",
     "type-check": "tsc --noEmit",
     "lint": "eslint src",
-    "prepublishOnly": "pnpm run build && pnpm run test:ci"
+    "prepublishOnly": "pnpm run build && pnpm run test:ci",
+    "publish:github": "node scripts/publish.js"
   },
   "dependencies": {
     "chalk": "^5.3.0",
