@@ -13,13 +13,13 @@
     "test-automation",
     "claude-code"
   ],
-  "homepage": "https://github.com/bugzy-ai/bugzy-oss#readme",
+  "homepage": "https://github.com/bugzy-ai/bugzy#readme",
   "bugs": {
-    "url": "https://github.com/bugzy-ai/bugzy-oss/issues"
+    "url": "https://github.com/bugzy-ai/bugzy/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bugzy-ai/bugzy-oss.git"
+    "url": "git+https://github.com/bugzy-ai/bugzy.git"
   },
   "license": "MIT",
   "author": "Bugzy Team",
