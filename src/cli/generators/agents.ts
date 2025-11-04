@@ -60,9 +60,14 @@ function formatAgentMarkdown(frontmatter: Record<string, any>, content: string):
   // Format frontmatter
   for (const [key, value] of Object.entries(frontmatter)) {
     if (value !== undefined && value !== null) {
-      // Quote string values
-      const formattedValue = typeof value === 'string' ? `"${value}"` : value;
-      lines.push(`${key}: ${formattedValue}`);
+      // Handle arrays (e.g., tools)
+      if (Array.isArray(value)) {
+        lines.push(`${key}: ${value.join(', ')}`);
+      } else {
+        // Quote string values
+        const formattedValue = typeof value === 'string' ? `"${value}"` : value;
+        lines.push(`${key}: ${formattedValue}`);
+      }
     }
   }
 
