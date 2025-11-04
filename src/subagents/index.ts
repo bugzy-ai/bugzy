@@ -5,6 +5,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 
 // Re-export all metadata (client-safe)
@@ -65,24 +66,61 @@ function parseFrontmatter(markdown: string): { frontmatter: Record<string, any>;
 }
 
 /**
- * Get the directory containing this module
- * Works in both CommonJS and ESM contexts
+ * Get the package root directory
+ * Uses Node's module resolution to reliably find the package root
+ * Works correctly with npm, yarn, and pnpm (handles symlinks)
  */
-function getModuleDir(): string {
+function getPackageRoot(): string {
   try {
-    // For ESM (when import.meta.url is available)
-    // @ts-ignore - import.meta is available in ESM context
-    if (typeof import.meta !== 'undefined' && import.meta?.url) {
-      // @ts-ignore
-      return path.dirname(fileURLToPath(import.meta.url));
-    }
-  } catch {
-    // Fall through to CommonJS
-  }
+    // Create a require function from the current module
+    // This works in both ESM and CJS contexts
+    let requireFn: NodeRequire;
 
-  // For CommonJS
-  // @ts-ignore - __dirname is available in CommonJS context
-  return typeof __dirname !== 'undefined' ? __dirname : process.cwd();
+    try {
+      // For ESM: create require from import.meta.url
+      // @ts-ignore - import.meta is available in ESM context
+      if (typeof import.meta !== 'undefined' && import.meta?.url) {
+        // @ts-ignore
+        requireFn = createRequire(import.meta.url);
+      } else {
+        // For CommonJS: use global require
+        requireFn = require;
+      }
+    } catch {
+      // Fallback to global require if available
+      // @ts-ignore - require is available in CommonJS context
+      requireFn = typeof require !== 'undefined' ? require : createRequire(__filename);
+    }
+
+    // Use Node's module resolution to find package.json
+    // This works correctly even with pnpm's symlink structure
+    const packageJsonPath = requireFn.resolve('@bugzy-ai/bugzy/package.json');
+    return path.dirname(packageJsonPath);
+  } catch (error) {
+    // Fallback: try to resolve relative to current file
+    // This handles development scenarios where the package isn't installed
+    try {
+      // @ts-ignore - import.meta is available in ESM context
+      if (typeof import.meta !== 'undefined' && import.meta?.url) {
+        // @ts-ignore
+        const currentDir = path.dirname(fileURLToPath(import.meta.url));
+        // From dist/subagents/index.js, go up to package root
+        return path.join(currentDir, '../..');
+      }
+    } catch {
+      // Do nothing, fall through
+    }
+
+    // Final fallback: use __dirname if available (CommonJS)
+    // @ts-ignore - __dirname is available in CommonJS context
+    if (typeof __dirname !== 'undefined') {
+      // @ts-ignore
+      return path.join(__dirname, '../..');
+    }
+
+    // Last resort: current working directory
+    return process.cwd();
+  }
 }
 
 /**
@@ -92,12 +130,12 @@ function getModuleDir(): string {
  * @returns Parsed template or undefined if not found
  */
 function loadTemplate(role: string, integration: string): SubAgentTemplate | undefined {
-  // Resolve template path relative to package root
-  // dist/subagents/index.js -> ../../templates/subagents/
-  const moduleDir = getModuleDir();
+  // Get package root using Node's module resolution
+  // This works correctly with npm, yarn, and pnpm
+  const packageRoot = getPackageRoot();
   const templatePath = path.join(
-    moduleDir,
-    '../../templates/subagents',
+    packageRoot,
+    'templates/subagents',
     role,
     `${integration}.md`
   );

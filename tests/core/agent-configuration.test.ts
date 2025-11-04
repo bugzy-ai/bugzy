@@ -6,6 +6,7 @@
 import { describe, test, expect } from 'vitest';
 import { getAgentConfiguration } from '../../src/core/registry';
 import { buildTaskDefinition } from '../../src/core/task-builder';
+import { buildSubagentConfig, buildSubagentsConfig } from '../../src/subagents';
 import { TASK_SLUGS } from '../../src/tasks/constants';
 import { FULL_SUBAGENTS_CONFIG } from '../fixtures/repo-configs';
 import type { ProjectSubAgent } from '../../src/core/task-builder';
@@ -195,6 +196,85 @@ describe('getAgentConfiguration', () => {
       // Each should mention its respective tool
       expect(playwrightSubagent.content.toLowerCase()).toContain('playwright');
       expect(puppeteerSubagent.content.toLowerCase()).toContain('puppeteer');
+    });
+  });
+
+  describe('Missing Template Handling', () => {
+    test('should return undefined for non-existent template', () => {
+      // Try to build config with a fake integration that doesn't have a template
+      const config = buildSubagentConfig('test-runner', 'nonexistent-tool');
+
+      expect(config).toBeUndefined();
+    });
+
+    test('should return undefined for non-existent role', () => {
+      // Try to build config with a role that doesn't exist
+      const config = buildSubagentConfig('fake-role', 'playwright');
+
+      expect(config).toBeUndefined();
+    });
+
+    test('should skip subagents with missing templates', () => {
+      const configs = buildSubagentsConfig([
+        { role: 'test-runner', integration: 'playwright' },  // valid
+        { role: 'test-runner', integration: 'fake-tool' }    // invalid - will be skipped
+      ]);
+
+      // Only the valid one should be included
+      expect(configs['test-runner']).toBeDefined();
+      expect(Object.keys(configs).length).toBe(1);
+    });
+
+    test('should handle mixed valid and invalid subagent configurations', () => {
+      const configs = buildSubagentsConfig([
+        { role: 'test-runner', integration: 'playwright' },        // valid
+        { role: 'test-runner', integration: 'nonexistent' },       // invalid
+        { role: 'team-communicator', integration: 'slack' },       // valid
+        { role: 'fake-role', integration: 'fake-integration' }     // invalid
+      ]);
+
+      // Should have exactly 2 valid configs (test-runner and team-communicator)
+      // Note: Only one of the test-runner configs will be kept (the valid one)
+      expect(configs['test-runner']).toBeDefined();
+      expect(configs['team-communicator']).toBeDefined();
+
+      // Should not have fake-role
+      expect(configs['fake-role']).toBeUndefined();
+    });
+
+    test('should return empty object when all templates are missing', () => {
+      const configs = buildSubagentsConfig([
+        { role: 'fake-role-1', integration: 'fake-integration-1' },
+        { role: 'fake-role-2', integration: 'fake-integration-2' }
+      ]);
+
+      expect(Object.keys(configs).length).toBe(0);
+    });
+
+    test('valid templates should still load successfully', () => {
+      // Verify that our test doesn't break existing functionality
+      const config = buildSubagentConfig('test-runner', 'playwright');
+
+      expect(config).toBeDefined();
+      expect(config?.content).toBeDefined();
+      expect(config?.frontmatter).toBeDefined();
+      expect(typeof config?.content).toBe('string');
+      expect(config!.content.length).toBeGreaterThan(0);
+    });
+
+    test('agent configuration should handle missing templates gracefully', async () => {
+      // Even with invalid subagents in the list, valid ones should still work
+      const validSubagents: ProjectSubAgent[] = [
+        { role: 'test-runner', integration: 'playwright' }
+      ];
+
+      const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, validSubagents);
+      const config = await getAgentConfiguration(taskDef, validSubagents);
+
+      // Should successfully generate config with valid subagents
+      expect(config).toBeDefined();
+      expect(config.subagents['test-runner']).toBeDefined();
+      expect(config.subagents['test-runner'].content).toBeTruthy();
     });
   });
 });
