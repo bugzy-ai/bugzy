@@ -92,12 +92,12 @@ function getModuleDir(): string {
  * @returns Parsed template or undefined if not found
  */
 function loadTemplate(role: string, integration: string): SubAgentTemplate | undefined {
-  // Resolve template path relative to this module (works in npm package)
-  // In production, templates are at: node_modules/bugzy/dist/subagents/templates/
+  // Resolve template path relative to package root
+  // dist/subagents/index.js -> ../../templates/subagents/
   const moduleDir = getModuleDir();
   const templatePath = path.join(
     moduleDir,
-    'templates',
+    '../../templates/subagents',
     role,
     `${integration}.md`
   );

@@ -20,8 +20,9 @@ program
 program
   .command('setup')
   .description('Setup or reconfigure project (auto-detects first-time vs existing)')
-  .action(async () => {
-    await setupProject();
+  .argument('[subagents...]', 'Optional subagent configurations (format: role=integration)')
+  .action(async (subagentArgs: string[]) => {
+    await setupProject(subagentArgs);
   });
 
 // Default command - start session (with optional prompt)

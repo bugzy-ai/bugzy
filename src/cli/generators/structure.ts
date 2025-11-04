@@ -49,9 +49,9 @@ export async function createProjectStructure(): Promise<void> {
  * Get the path to the package templates directory
  */
 function getTemplatesDir(): string {
-  // When running from dist/, templates are at package root
-  // dist/cli/generators/structure.js -> ../../../templates
-  return path.join(__dirname, '../../../templates/init');
+  // When running from bundled dist/cli/index.js, templates are at package root
+  // dist/cli/index.js -> ../../templates
+  return path.join(__dirname, '../../templates/init');
 }
 
 /**
