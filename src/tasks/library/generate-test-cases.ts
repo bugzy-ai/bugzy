@@ -9,17 +9,17 @@ import { EXPLORATION_INSTRUCTIONS } from '../templates/exploration-instructions'
 import { CLARIFICATION_INSTRUCTIONS } from '../templates/clarification-instructions';
 
 export const generateTestCasesTask: TaskTemplate = {
-  slug: TASK_SLUGS.GENERATE_TEST_CASES,
-  name: 'Generate Test Cases',
-  description: 'Generate E2E browser test cases from product documentation and test plan',
+   slug: TASK_SLUGS.GENERATE_TEST_CASES,
+   name: 'Generate Test Cases',
+   description: 'Generate E2E browser test cases from product documentation and test plan',
 
-  frontmatter: {
-    description: 'Generate E2E browser test cases from product documentation and test plan',
-    'allowed-tools': 'Read, Write, MultiEdit, Task',
-    'argument-hint': '--type [exploratory|functional|regression|smoke] --focus [optional-feature]',
-  },
+   frontmatter: {
+      description: 'Generate E2E browser test cases from product documentation and test plan',
+      'allowed-tools': 'Read, Write, MultiEdit, Task',
+      'argument-hint': '--type [exploratory|functional|regression|smoke] --focus [optional-feature]',
+   },
 
-  baseContent: `# Generate Test Cases Command
+   baseContent: `# Generate Test Cases Command
 
 ## SECURITY NOTICE
 **CRITICAL**: Never read the \`.env\` file. It contains ONLY secrets (passwords, API keys).
@@ -330,10 +330,10 @@ mkdir -p ./test-cases
 - Link each test case to relevant test plan sections
 - Consider external dependencies mentioned in documentation but only test UI interactions`,
 
-  optionalSubagents: [
-    {
-      role: 'documentation-researcher',
-      contentBlock: `#### 1.3 Gather Product Documentation
+   optionalSubagents: [
+      {
+         role: 'documentation-researcher',
+         contentBlock: `#### 1.3 Gather Product Documentation
 
 Use the documentation-researcher agent to gather comprehensive product documentation:
 
@@ -346,10 +346,10 @@ Use the documentation-researcher agent to explore all available product document
 - Authentication and authorization flows
 - Business rules and constraints
 \`\`\``
-    },
-    {
-      role: 'team-communicator',
-      contentBlock: `### Step 4.5: Team Communication
+      },
+      {
+         role: 'team-communicator',
+         contentBlock: `### Step 4.5: Team Communication
 
 Use the team-communicator agent to notify the product team about the new test cases:
 
@@ -377,7 +377,7 @@ The team communication should include:
 - Note this as a test case creation communication
 - Track team response to test coverage updates
 - Document any areas where team clarification was requested`
-    }
-  ],
-  requiredSubagents: []
+      }
+   ],
+   requiredSubagents: ['test-runner']
 };

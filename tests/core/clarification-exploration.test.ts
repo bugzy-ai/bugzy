@@ -3,6 +3,7 @@
  * Validates that exploration and clarification templates are properly integrated
  */
 
+import { describe, test, expect } from 'vitest';
 import { buildTaskDefinition } from '../../src/core/task-builder';
 import { TASK_SLUGS } from '../../src/tasks/constants';
 import { FULL_SUBAGENTS_CONFIG } from '../fixtures/repo-configs';
@@ -127,11 +128,11 @@ describe('Exploration Protocol Integration', () => {
       expect(task.content).toContain('Unclear/Blocked');
     });
 
-    test('references AU-12315 case as example', () => {
+    test('references TODO-456 case as example', () => {
       const task = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('AU-12315');
-      expect(task.content).toContain('fix ordering');
+      expect(task.content).toContain('TODO-456');
+      expect(task.content).toContain('fix sorting');
     });
   });
 
@@ -188,7 +189,7 @@ describe('Exploration Protocol Integration', () => {
 
       expect(task.content).toContain('Authentication & Login');
       expect(task.content).toContain('Ordering & Sorting');
-      expect(task.content).toContain('AU-12315');
+      expect(task.content).toContain('TODO-456');
     });
   });
 });

@@ -1,4 +1,5 @@
 ---
+subcommand_name: generate-test-cases
 description: Generate E2E browser test cases from product documentation and test plan
 allowed-tools: 'Read, Write, MultiEdit, Task'
 argument-hint: '--type [exploratory|functional|regression|smoke] --focus [optional-feature]'
@@ -112,7 +113,7 @@ Determine exploration depth based on requirement quality:
 
 **Examples:**
 - **Clear:** "Change 'Submit' button from blue (#007BFF) to green (#28A745) on /auth/login. Verify hover effect."
-- **Vague:** "Fix the ordering in Employee details page. The rows are mixed up for Manager users."
+- **Vague:** "Fix the sorting in todo list page. The items are mixed up for premium users."
 - **Unclear:** "Improve the dashboard performance. Users say it's slow."
 
 ### Step 1.5.2: Quick Exploration (1-2 min)
@@ -151,12 +152,12 @@ Determine exploration depth based on requirement quality:
    **Explored:** Role: [Admin], Path: [Steps], Behavior: [What happened]
 
    **Current State:** [Specific observations with examples]
-   - Example: "Admin view shows 21 fields: User ID, Employee Ref, Mobile Phone..."
+   - Example: "Admin view shows 8 sort options: By Title, By Due Date, By Priority..."
 
    **Requirement Says:** [What requirement expected]
 
    **Discrepancies:** [Specific differences]
-   - Example: "Manager missing 8 fields that Admin has"
+   - Example: "Premium users see 5 fewer sorting options than admins"
 
    **Ambiguities:**
    1. [First ambiguity with concrete example]
@@ -178,12 +179,12 @@ Determine exploration depth based on requirement quality:
 
 2. **Systematic Testing:** Test each matrix cell methodically
    ```
-   Example for "Employee Details Ordering":
+   Example for "Todo List Sorting":
    Matrix: User Roles × Feature Observations
 
-   Test 1: Admin Role → Navigate, document fields (count, names, order), screenshot
-   Test 2: Manager Role → Same employee, document fields, screenshot
-   Test 3: Compare → Side-by-side table, identify missing/reordered fields
+   Test 1: Admin Role → Navigate, document sort options (count, names, order), screenshot
+   Test 2: Basic User Role → Same todo list, document options, screenshot
+   Test 3: Compare → Side-by-side table, identify missing/reordered options
    ```
 
 3. **Document Patterns:** Consistent behavior? Role-based differences? What varies vs constant?
@@ -198,27 +199,27 @@ Determine exploration depth based on requirement quality:
 
    ### Test 1: Admin
    - Setup: [Preconditions] | Steps: [Actions]
-   - Observations: Field count=21, Fields=[list], Ordering=[sequence]
+   - Observations: Sort options=8, Options=[list], Ordering=[sequence]
    - Screenshot: [filename-admin.png]
 
-   ### Test 2: Manager
+   ### Test 2: Basic User
    - Setup: [Preconditions] | Steps: [Actions]
-   - Observations: Field count=13, Missing vs Admin=[8 fields], Ordering=[sequence]
-   - Screenshot: [filename-manager.png]
+   - Observations: Sort options=3, Missing vs Admin=[5 options], Ordering=[sequence]
+   - Screenshot: [filename-user.png]
 
    **Comparison Table:**
-   | Field | Admin Pos | Manager Pos | Notes |
-   |-------|-----------|-------------|-------|
-   | User ID | 1 | 1 | Match |
-   | Mobile | 6 | Not visible | Missing |
+   | Sort Option | Admin Pos | User Pos | Notes |
+   |-------------|-----------|----------|-------|
+   | By Title | 1 | 1 | Match |
+   | By Priority | 3 | Not visible | Missing |
 
    **Patterns:**
-   - Role-based field visibility
+   - Role-based feature visibility
    - Consistent relative ordering for visible fields
 
    **Critical Ambiguities:**
-   1. Field Visibility: Intentional Manager sees 8 fewer fields?
-   2. Ordering Definition: (A) All roles see all fields same order, OR (B) Roles see permitted fields in same relative order?
+   1. Option Visibility: Intentional basic users see 5 fewer sort options?
+   2. Sort Definition: (A) All roles see all options in same order, OR (B) Roles see permitted options in same relative order?
 
    **Clarification Questions:** [Specific, concrete based on findings]
    ```
@@ -237,10 +238,10 @@ Determine exploration depth based on requirement quality:
 
 **Example:**
 ```
-"Fix the ordering in Employee details"
-  ↓ Ambiguity: "ordering" = sequence OR visibility?
-  ↓ Moderate Exploration: Admin=21 fields, Manager=13 fields
-  ↓ Question: "Is Manager supposed to see all 21 fields (bug) or only 13 with consistent sequence (correct)?"
+"Fix the sorting in todo list"
+  ↓ Ambiguity: "sorting" = by date, priority, or completion status?
+  ↓ Moderate Exploration: Admin=8 sort options, User=3 sort options
+  ↓ Question: "Should basic users see all 8 sort options (bug) or only 3 with consistent sequence (correct)?"
 ```
 
 ### Step 1.5.6: Document Exploration Results
@@ -349,7 +350,7 @@ If ambiguity is detected, assess its severity:
 
 | Severity | Characteristics | Examples | Action |
 |----------|----------------|----------|--------|
-| 🔴 **CRITICAL** | Expected behavior undefined/contradictory; test outcome unpredictable; core functionality unclear; success criteria missing; multiple interpretations = different strategies | "Fix the issue" (what issue?), "Improve performance" (which metrics?), "Fix ordering in Employee details" (absolute? relative? visibility?) | **STOP** - Seek clarification before proceeding |
+| 🔴 **CRITICAL** | Expected behavior undefined/contradictory; test outcome unpredictable; core functionality unclear; success criteria missing; multiple interpretations = different strategies | "Fix the issue" (what issue?), "Improve performance" (which metrics?), "Fix sorting in todo list" (by date? priority? completion status?) | **STOP** - Seek clarification before proceeding |
 | 🟠 **HIGH** | Core underspecified but direction clear; affects majority of scenarios; vague success criteria; assumptions risky | "Fix ordering" (sequence OR visibility?), "Add validation" (what? messages?), "Update dashboard" (which widgets?) | **STOP** - Seek clarification before proceeding |
 | 🟡 **MEDIUM** | Specific details missing; general requirements clear; affects subset of cases; reasonable low-risk assumptions possible; wrong assumption = test updates not strategy overhaul | Missing field labels, unclear error message text, undefined timeouts, button placement not specified, date formats unclear | **PROCEED** - (1) Moderate exploration, (2) Document assumptions: "Assuming X because Y", (3) Proceed with creation/execution, (4) Async clarification (team-communicator), (5) Mark [ASSUMED: description] |
 | 🟢 **LOW** | Minor edge cases; documentation gaps don't affect execution; optional/cosmetic elements; minimal impact | Tooltip text, optional field validation, icon choice, placeholder text, tab order | **PROCEED** - (1) Mark [TO BE CLARIFIED: description], (2) Proceed, (3) Mention in report "Minor Details", (4) No blocking/async clarification |
@@ -367,7 +368,7 @@ Before asking, check if similar question was answered:
    - Not applicable → Ask as new
 4. **Update memory** - Store Q&A with task type, feature, pattern tags
 
-**Example:** Query "employee details field ordering" → Found 2025-10-15: "Should Manager see all Admin fields?" → Answer: "No, restricted for privacy" → Directly applicable → Use, no re-ask needed
+**Example:** Query "todo sorting priority" → Found 2025-01-15: "Should completed todos appear in main list?" → Answer: "No, move to separate archive view" → Directly applicable → Use, no re-ask needed
 
 ### Step 1.6.4: Formulate Clarification Questions
 
@@ -385,10 +386,10 @@ If clarification needed (CRITICAL/HIGH severity), formulate specific, concrete q
 **Why Important:** [Testing strategy impact]
 
 Example:
-Context: AU-12315 "Fix the ordering in Employee details to be as like when Admin opens details"
-Ambiguity: "ordering" = (A) same fields/sequence, or (B) same sequence for visible subset
-Question: Should Manager see all 21 Admin fields? Or subset (13 fields) in same relative order?
-Why Important: A requires absolute matching. B requires relative sequence only. UAT shows Manager=13, Admin=21.
+Context: TODO-456 "Fix the sorting in the todo list so items appear in the right order"
+Ambiguity: "sorting" = (A) by creation date, (B) by due date, (C) by priority level, or (D) custom user-defined order
+Question: Should todos be sorted by due date (soonest first) or priority (high to low)? Should completed items appear in the list or move to archive?
+Why Important: Different sort criteria require different test assertions. Current app shows 15 active todos + 8 completed in mixed order.
 ```
 
 ### Step 1.6.5: Communicate Clarification Request

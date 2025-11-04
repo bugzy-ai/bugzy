@@ -35,7 +35,7 @@ If ambiguity is detected, assess its severity:
 
 | Severity | Characteristics | Examples | Action |
 |----------|----------------|----------|--------|
-| 🔴 **CRITICAL** | Expected behavior undefined/contradictory; test outcome unpredictable; core functionality unclear; success criteria missing; multiple interpretations = different strategies | "Fix the issue" (what issue?), "Improve performance" (which metrics?), "Fix ordering in Employee details" (absolute? relative? visibility?) | **STOP** - Seek clarification before proceeding |
+| 🔴 **CRITICAL** | Expected behavior undefined/contradictory; test outcome unpredictable; core functionality unclear; success criteria missing; multiple interpretations = different strategies | "Fix the issue" (what issue?), "Improve performance" (which metrics?), "Fix sorting in todo list" (by date? priority? completion status?) | **STOP** - Seek clarification before proceeding |
 | 🟠 **HIGH** | Core underspecified but direction clear; affects majority of scenarios; vague success criteria; assumptions risky | "Fix ordering" (sequence OR visibility?), "Add validation" (what? messages?), "Update dashboard" (which widgets?) | **STOP** - Seek clarification before proceeding |
 | 🟡 **MEDIUM** | Specific details missing; general requirements clear; affects subset of cases; reasonable low-risk assumptions possible; wrong assumption = test updates not strategy overhaul | Missing field labels, unclear error message text, undefined timeouts, button placement not specified, date formats unclear | **PROCEED** - (1) Moderate exploration, (2) Document assumptions: "Assuming X because Y", (3) Proceed with creation/execution, (4) Async clarification (team-communicator), (5) Mark [ASSUMED: description] |
 | 🟢 **LOW** | Minor edge cases; documentation gaps don't affect execution; optional/cosmetic elements; minimal impact | Tooltip text, optional field validation, icon choice, placeholder text, tab order | **PROCEED** - (1) Mark [TO BE CLARIFIED: description], (2) Proceed, (3) Mention in report "Minor Details", (4) No blocking/async clarification |
@@ -53,7 +53,7 @@ Before asking, check if similar question was answered:
    - Not applicable → Ask as new
 4. **Update memory** - Store Q&A with task type, feature, pattern tags
 
-**Example:** Query "employee details field ordering" → Found 2025-10-15: "Should Manager see all Admin fields?" → Answer: "No, restricted for privacy" → Directly applicable → Use, no re-ask needed
+**Example:** Query "todo sorting priority" → Found 2025-01-15: "Should completed todos appear in main list?" → Answer: "No, move to separate archive view" → Directly applicable → Use, no re-ask needed
 
 ### Step {{STEP_NUMBER}}.4: Formulate Clarification Questions
 
@@ -71,10 +71,10 @@ If clarification needed (CRITICAL/HIGH severity), formulate specific, concrete q
 **Why Important:** [Testing strategy impact]
 
 Example:
-Context: AU-12315 "Fix the ordering in Employee details to be as like when Admin opens details"
-Ambiguity: "ordering" = (A) same fields/sequence, or (B) same sequence for visible subset
-Question: Should Manager see all 21 Admin fields? Or subset (13 fields) in same relative order?
-Why Important: A requires absolute matching. B requires relative sequence only. UAT shows Manager=13, Admin=21.
+Context: TODO-456 "Fix the sorting in the todo list so items appear in the right order"
+Ambiguity: "sorting" = (A) by creation date, (B) by due date, (C) by priority level, or (D) custom user-defined order
+Question: Should todos be sorted by due date (soonest first) or priority (high to low)? Should completed items appear in the list or move to archive?
+Why Important: Different sort criteria require different test assertions. Current app shows 15 active todos + 8 completed in mixed order.
 \`\`\`
 
 ### Step {{STEP_NUMBER}}.5: Communicate Clarification Request

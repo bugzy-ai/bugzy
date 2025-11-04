@@ -228,11 +228,11 @@ Use the format from Step 6.1 to ensure consistency (same structure as above).
 Organize resolved questions by topic for easy lookup:
 
 Topic: Authentication & Login
-- [2024-01-15] Resolved: Manager vs Admin field visibility
+- [2024-01-15] Resolved: User roles - basic users cannot edit shared todos
 - [2024-01-10] Resolved: Session timeout behavior
 
 Topic: Ordering & Sorting
-- [2024-01-20] Resolved: Fix ordering means relative order (AU-12315)
+- [2024-01-20] Resolved: Todo sorting should be by due date, completed items in separate archive (TODO-456)
 
 This indexed structure makes it easy for the clarification protocol to check: Have we asked about similar ordering issues before?
 

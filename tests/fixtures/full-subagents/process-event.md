@@ -1,4 +1,5 @@
 ---
+subcommand_name: process-event
 description: >-
   Process events flexibly to extract learnings, update tests, and track issues
   using the issue-tracker agent

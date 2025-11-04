@@ -1,4 +1,5 @@
 ---
+subcommand_name: explore-application
 description: >-
   Systematically explore application to discover UI elements, workflows, and
   behaviors
@@ -58,7 +59,7 @@ Determine exploration depth based on requirement quality:
 
 **Examples:**
 - **Clear:** "Change 'Submit' button from blue (#007BFF) to green (#28A745) on /auth/login. Verify hover effect."
-- **Vague:** "Fix the ordering in Employee details page. The rows are mixed up for Manager users."
+- **Vague:** "Fix the sorting in todo list page. The items are mixed up for premium users."
 - **Unclear:** "Improve the dashboard performance. Users say it's slow."
 
 ### Step {{STEP_NUMBER}}.2: Quick Exploration (1-2 min)
@@ -97,12 +98,12 @@ Determine exploration depth based on requirement quality:
    **Explored:** Role: [Admin], Path: [Steps], Behavior: [What happened]
 
    **Current State:** [Specific observations with examples]
-   - Example: "Admin view shows 21 fields: User ID, Employee Ref, Mobile Phone..."
+   - Example: "Admin view shows 8 sort options: By Title, By Due Date, By Priority..."
 
    **Requirement Says:** [What requirement expected]
 
    **Discrepancies:** [Specific differences]
-   - Example: "Manager missing 8 fields that Admin has"
+   - Example: "Premium users see 5 fewer sorting options than admins"
 
    **Ambiguities:**
    1. [First ambiguity with concrete example]
@@ -124,12 +125,12 @@ Determine exploration depth based on requirement quality:
 
 2. **Systematic Testing:** Test each matrix cell methodically
    ```
-   Example for "Employee Details Ordering":
+   Example for "Todo List Sorting":
    Matrix: User Roles × Feature Observations
 
-   Test 1: Admin Role → Navigate, document fields (count, names, order), screenshot
-   Test 2: Manager Role → Same employee, document fields, screenshot
-   Test 3: Compare → Side-by-side table, identify missing/reordered fields
+   Test 1: Admin Role → Navigate, document sort options (count, names, order), screenshot
+   Test 2: Basic User Role → Same todo list, document options, screenshot
+   Test 3: Compare → Side-by-side table, identify missing/reordered options
    ```
 
 3. **Document Patterns:** Consistent behavior? Role-based differences? What varies vs constant?
@@ -144,27 +145,27 @@ Determine exploration depth based on requirement quality:
 
    ### Test 1: Admin
    - Setup: [Preconditions] | Steps: [Actions]
-   - Observations: Field count=21, Fields=[list], Ordering=[sequence]
+   - Observations: Sort options=8, Options=[list], Ordering=[sequence]
    - Screenshot: [filename-admin.png]
 
-   ### Test 2: Manager
+   ### Test 2: Basic User
    - Setup: [Preconditions] | Steps: [Actions]
-   - Observations: Field count=13, Missing vs Admin=[8 fields], Ordering=[sequence]
-   - Screenshot: [filename-manager.png]
+   - Observations: Sort options=3, Missing vs Admin=[5 options], Ordering=[sequence]
+   - Screenshot: [filename-user.png]
 
    **Comparison Table:**
-   | Field | Admin Pos | Manager Pos | Notes |
-   |-------|-----------|-------------|-------|
-   | User ID | 1 | 1 | Match |
-   | Mobile | 6 | Not visible | Missing |
+   | Sort Option | Admin Pos | User Pos | Notes |
+   |-------------|-----------|----------|-------|
+   | By Title | 1 | 1 | Match |
+   | By Priority | 3 | Not visible | Missing |
 
    **Patterns:**
-   - Role-based field visibility
+   - Role-based feature visibility
    - Consistent relative ordering for visible fields
 
    **Critical Ambiguities:**
-   1. Field Visibility: Intentional Manager sees 8 fewer fields?
-   2. Ordering Definition: (A) All roles see all fields same order, OR (B) Roles see permitted fields in same relative order?
+   1. Option Visibility: Intentional basic users see 5 fewer sort options?
+   2. Sort Definition: (A) All roles see all options in same order, OR (B) Roles see permitted options in same relative order?
 
    **Clarification Questions:** [Specific, concrete based on findings]
    ```
@@ -183,10 +184,10 @@ Determine exploration depth based on requirement quality:
 
 **Example:**
 ```
-"Fix the ordering in Employee details"
-  ↓ Ambiguity: "ordering" = sequence OR visibility?
-  ↓ Moderate Exploration: Admin=21 fields, Manager=13 fields
-  ↓ Question: "Is Manager supposed to see all 21 fields (bug) or only 13 with consistent sequence (correct)?"
+"Fix the sorting in todo list"
+  ↓ Ambiguity: "sorting" = by date, priority, or completion status?
+  ↓ Moderate Exploration: Admin=8 sort options, User=3 sort options
+  ↓ Question: "Should basic users see all 8 sort options (bug) or only 3 with consistent sequence (correct)?"
 ```
 
 ### Step {{STEP_NUMBER}}.6: Document Exploration Results

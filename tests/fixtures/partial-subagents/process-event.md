@@ -1,9 +1,11 @@
 ---
-allowed-tools: Read, Write, MultiEdit, Task, Grep
-argument-hint: "[event description or structured data]"
-description: Process events flexibly to extract learnings, update tests, and track issues using the issue-tracker agent
+subcommand_name: process-event
+description: >-
+  Process events flexibly to extract learnings, update tests, and track issues
+  using the issue-tracker agent
+allowed-tools: 'Read, Write, MultiEdit, Task, Grep'
+argument-hint: '[event description or structured data]'
 ---
-
 # Process Event Command
 
 ## SECURITY NOTICE
@@ -47,6 +49,93 @@ Events come from two main sources:
 - **Where**: Component, service, or area affected
 - **Impact**: How this affects testing strategy
 - **Action Required**: What needs to be done in response
+
+### Step 1.5: Clarify Unclear Events
+
+If the event information is incomplete or ambiguous, seek clarification before processing:
+
+#### Detect Unclear Events
+
+Events may be unclear in several ways:
+- **Vague description**: "Something broke", "issue with login" (what specifically?)
+- **Missing context**: Which component, which environment, which user?
+- **Contradictory information**: Event data conflicts with other sources
+- **Unknown references**: Mentions unfamiliar features, components, or systems
+- **Unclear severity**: Impact or priority is ambiguous
+
+#### Assess Ambiguity Severity
+
+Classify the ambiguity level to determine appropriate response:
+
+**🔴 CRITICAL - STOP and seek clarification:**
+- Cannot identify which component is affected
+- Event data is contradictory or nonsensical
+- Unknown system or feature mentioned
+- Cannot determine if this requires immediate action
+- Example: Event says "production is down" but unclear which service
+
+**🟠 HIGH - STOP and seek clarification:**
+- Vague problem description that could apply to multiple areas
+- Missing critical context needed for proper response
+- Unclear which team or system is responsible
+- Example: "Login issue reported" (login button? auth service? session? which page?)
+
+**🟡 MEDIUM - Proceed with documented assumptions:**
+- Some details missing but core event is clear
+- Can infer likely meaning from context
+- Can proceed but should clarify async
+- Example: "Test failed on staging" (can assume main staging, but clarify which one)
+
+**🟢 LOW - Mark and proceed:**
+- Minor details missing (optional context)
+- Cosmetic or non-critical information gaps
+- Can document gap and continue
+- Example: Missing timestamp or exact user who reported issue
+
+#### Clarification Approach by Severity
+
+**For CRITICAL/HIGH ambiguity:**
+1. **Use team-communicator to ask specific questions**
+2. **WAIT for response before proceeding**
+3. **Document the clarification request in event history**
+
+Example clarification messages:
+- "Event mentions 'login issue' - can you clarify if this is:
+  • Login button not responding?
+  • Authentication service failure?
+  • Session management problem?
+  • Specific page or global?"
+
+- "Event references component 'XYZ' which is unknown. What system does this belong to?"
+
+- "Event data shows contradictory information: status=success but error_count=15. Which is correct?"
+
+**For MEDIUM ambiguity:**
+1. **Document assumption** with reasoning
+2. **Proceed with processing** based on assumption
+3. **Ask for clarification async** (non-blocking)
+4. **Mark in event history** for future reference
+
+Example: [ASSUMED: "login issue" refers to login button based on recent similar events]
+
+**For LOW ambiguity:**
+1. **Mark with [TO BE CLARIFIED: detail]**
+2. **Continue processing** normally
+3. **Document gap** in event history
+
+Example: [TO BE CLARIFIED: Exact timestamp of when issue was first observed]
+
+#### Document Clarification Process
+
+In event history, record:
+- **Ambiguity detected**: What was unclear
+- **Severity assessed**: CRITICAL/HIGH/MEDIUM/LOW
+- **Clarification requested**: Questions asked (if any)
+- **Response received**: Team's clarification
+- **Assumption made**: If proceeded with assumption
+- **Resolution**: How ambiguity was resolved
+
+This ensures future similar events can reference past clarifications and avoid redundant questions.
 
 ### Step 2: Load Context and Memory
 
@@ -101,6 +190,8 @@ Based on event type and content, generate 3-5 specific search queries:
 - Look for related test cases
 - Find relevant documentation
 - Check for known issues
+
+
 
 ### Step 4: Task Planning with Reasoning
 

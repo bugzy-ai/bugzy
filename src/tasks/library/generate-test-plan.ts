@@ -243,5 +243,5 @@ The team communication should include:
 - Track team response to this type of update`
     }
   ],
-  requiredSubagents: []
+  requiredSubagents: ['test-runner']
 };

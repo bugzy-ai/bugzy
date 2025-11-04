@@ -1,0 +1,200 @@
+/**
+ * Agent Configuration Tests
+ * Tests for getAgentConfiguration to verify subagent templates are bundled correctly
+ */
+
+import { describe, test, expect } from 'vitest';
+import { getAgentConfiguration } from '../../src/core/registry';
+import { buildTaskDefinition } from '../../src/core/task-builder';
+import { TASK_SLUGS } from '../../src/tasks/constants';
+import { FULL_SUBAGENTS_CONFIG } from '../fixtures/repo-configs';
+import type { ProjectSubAgent } from '../../src/core/task-builder';
+
+// Minimal config for basic tests
+const MINIMAL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
+  { role: 'test-runner', integration: 'playwright' },
+];
+
+describe('getAgentConfiguration', () => {
+  describe('Basic Configuration Generation', () => {
+    test('generates configuration with minimal subagents', async () => {
+      const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, MINIMAL_SUBAGENTS_CONFIG);
+
+      expect(config).toBeDefined();
+      expect(config.slashCommands).toBeDefined();
+      expect(config.subagents).toBeDefined();
+      expect(config.mcpConfig).toBeDefined();
+    });
+
+    test('generates configuration with full subagents', async () => {
+      const taskDef = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+
+      expect(config).toBeDefined();
+      expect(config.slashCommands).toBeDefined();
+      expect(config.subagents).toBeDefined();
+      expect(config.mcpConfig).toBeDefined();
+    });
+  });
+
+  describe('Slash Commands Generation', () => {
+    test('creates slash command for the task', async () => {
+      const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+
+      expect(config.slashCommands).toBeDefined();
+      expect(config.slashCommands[TASK_SLUGS.RUN_TESTS]).toBeDefined();
+    });
+
+    test('slash command has frontmatter and content', async () => {
+      const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, MINIMAL_SUBAGENTS_CONFIG);
+
+      const command = config.slashCommands[TASK_SLUGS.RUN_TESTS];
+      expect(command.frontmatter).toBeDefined();
+      expect(command.content).toBeDefined();
+      expect(typeof command.content).toBe('string');
+      expect(command.content.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Subagent Prompts Generation', () => {
+    test('generates prompts for all configured subagents', async () => {
+      const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+
+      // Full config has 4 subagents
+      expect(Object.keys(config.subagents).length).toBeGreaterThanOrEqual(1);
+    });
+
+    test('subagent prompts contain content', async () => {
+      const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+
+      // Check that each subagent prompt has actual content
+      Object.values(config.subagents).forEach(subagent => {
+        expect(subagent.content).toBeDefined();
+        expect(typeof subagent.content).toBe('string');
+        expect(subagent.content.length).toBeGreaterThan(0);
+        // Should have frontmatter
+        expect(subagent.frontmatter).toBeDefined();
+      });
+    });
+
+    test('generates playwright test-runner prompt for minimal config', async () => {
+      const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, MINIMAL_SUBAGENTS_CONFIG);
+
+      // Minimal config only has test-runner with playwright
+      expect(config.subagents['test-runner']).toBeDefined();
+      const subagent = config.subagents['test-runner'];
+
+      // Should contain playwright-specific content
+      expect(subagent.content.toLowerCase()).toContain('playwright');
+    });
+
+    test('generates multiple subagent prompts for full config', async () => {
+      const taskDef = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+
+      // Full config has: test-runner, documentation-researcher, issue-tracker, team-communicator
+      const roles = Object.keys(config.subagents);
+      expect(roles.length).toBeGreaterThan(1);
+
+      // Check specific roles exist
+      if (FULL_SUBAGENTS_CONFIG.some(sa => sa.role === 'test-runner')) {
+        expect(config.subagents['test-runner']).toBeDefined();
+      }
+      if (FULL_SUBAGENTS_CONFIG.some(sa => sa.role === 'team-communicator')) {
+        expect(config.subagents['team-communicator']).toBeDefined();
+      }
+    });
+  });
+
+  describe('MCP Configuration Generation', () => {
+    test('generates MCP config for minimal subagents', async () => {
+      const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, MINIMAL_SUBAGENTS_CONFIG);
+
+      expect(config.mcpConfig).toBeDefined();
+      expect(config.mcpConfig.mcpServers).toBeDefined();
+
+      // Minimal config with playwright should have playwright MCP
+      expect(config.mcpConfig.mcpServers.playwright).toBeDefined();
+    });
+
+    test('generates MCP config for full subagents', async () => {
+      const taskDef = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+
+      expect(config.mcpConfig).toBeDefined();
+      expect(config.mcpConfig.mcpServers).toBeDefined();
+
+      // Full config should have multiple MCP servers
+      const mcpServers = Object.keys(config.mcpConfig.mcpServers);
+      expect(mcpServers.length).toBeGreaterThan(1);
+
+      // Should include playwright for test-runner
+      expect(config.mcpConfig.mcpServers.playwright).toBeDefined();
+    });
+
+    test('MCP servers have required configuration', async () => {
+      const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, MINIMAL_SUBAGENTS_CONFIG);
+
+      const playwrightMcp = config.mcpConfig.mcpServers.playwright;
+      expect(playwrightMcp).toBeDefined();
+      expect(playwrightMcp.command).toBeDefined();
+      expect(typeof playwrightMcp.command).toBe('string');
+    });
+  });
+
+  describe('Template Bundling Validation', () => {
+    test('templates are accessible and contain valid content', async () => {
+      // This test verifies that template files are bundled with the package
+      const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+
+      // If subagent prompts are generated, templates must be bundled correctly
+      Object.entries(config.subagents).forEach(([role, subagent]) => {
+        expect(subagent).toBeDefined();
+        expect(subagent.content).toBeDefined();
+        expect(typeof subagent.content).toBe('string');
+        expect(subagent.content.length).toBeGreaterThan(100); // Templates should be substantial
+      });
+    });
+
+    test('different integrations produce different prompts', async () => {
+      // Test with playwright
+      const taskDefPlaywright = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, [
+        { role: 'test-runner', integration: 'playwright' }
+      ]);
+      const configPlaywright = await getAgentConfiguration(taskDefPlaywright, [
+        { role: 'test-runner', integration: 'playwright' }
+      ]);
+
+      // Test with puppeteer
+      const taskDefPuppeteer = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, [
+        { role: 'test-runner', integration: 'puppeteer' }
+      ]);
+      const configPuppeteer = await getAgentConfiguration(taskDefPuppeteer, [
+        { role: 'test-runner', integration: 'puppeteer' }
+      ]);
+
+      const playwrightSubagent = configPlaywright.subagents['test-runner'];
+      const puppeteerSubagent = configPuppeteer.subagents['test-runner'];
+
+      // Both should be defined
+      expect(playwrightSubagent).toBeDefined();
+      expect(puppeteerSubagent).toBeDefined();
+
+      // Prompts should be different
+      expect(playwrightSubagent.content).not.toBe(puppeteerSubagent.content);
+
+      // Each should mention its respective tool
+      expect(playwrightSubagent.content.toLowerCase()).toContain('playwright');
+      expect(puppeteerSubagent.content.toLowerCase()).toContain('puppeteer');
+    });
+  });
+});

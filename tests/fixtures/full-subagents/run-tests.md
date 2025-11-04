@@ -1,4 +1,5 @@
 ---
+subcommand_name: run-tests
 description: Select and run test cases using the test-runner agent
 allowed-tools: 'Read, LS, Glob, Grep, Task'
 argument-hint: '[test-id|tag|type|all] --filter [optional-filter]'
@@ -423,7 +424,7 @@ After analyzing test results, report any bugs discovered during test execution:
 
 #### 6.0 ⚠️ CRITICAL: Triage Failed Tests FIRST
 
-**⚠️ IMPORTANT: Do NOT report bugs without triaging first. The AU-12315 incident showed how untriaged test failures can lead to reporting expected behavior as bugs.**
+**⚠️ IMPORTANT: Do NOT report bugs without triaging first. The TODO-456 incident showed how untriaged test failures can lead to reporting expected behavior as bugs.**
 
 Before reporting bugs, understand why tests failed through exploration and clarification:
 
@@ -487,7 +488,7 @@ If exploration reveals ambiguity about whether this is a bug:
 - **WAIT** for response before proceeding
 
 **Common triage ambiguity scenarios:**
-- **CRITICAL**: Test expects specific behavior but unclear what's correct (e.g., AU-12315 "fix ordering" - should Manager see all Admin fields?)
+- **CRITICAL**: Test expects specific behavior but unclear what's correct (e.g., TODO-456 "fix sorting" - should completed todos appear in main list or archive?)
 - **HIGH**: Failure might be due to intentional changes not documented in test plan
 - **MEDIUM**: Unclear if edge case bug or expected behavior for that scenario
 - **LOW**: Minor visual differences that might be acceptable
@@ -538,7 +539,7 @@ TC-AAA: [UNCLEAR - BLOCKED] - Awaiting clarification
 
 **⚠️ Only proceed to Step 6.1 with tests classified as [CONFIRMED BUG]**
 
-This triage ensures we only report legitimate bugs and avoid noise from expected changes or test issues (lesson from AU-12315).
+This triage ensures we only report legitimate bugs and avoid noise from expected changes or test issues (lesson from TODO-456).
 
 #### 6.1 Identify Bugs to Report
 
@@ -559,7 +560,7 @@ Review the **triaged** failed tests from Step 6.0 and report only those classifi
 - Failures classified as "Unclear" (wait for clarification before reporting)
 - Test infrastructure issues (not product bugs)
 
-**Note**: Step 6.0 triage uses exploration + clarification to ensure we only report legitimate bugs. This prevents the issue from AU-12315 where a test failure was treated as a bug without understanding whether the behavior was expected.
+**Note**: Step 6.0 triage uses exploration + clarification to ensure we only report legitimate bugs. This prevents the issue from TODO-456 where a test failure was treated as a bug without understanding whether the behavior was expected.
 
 #### 6.2 Use Issue Tracker Agent
 

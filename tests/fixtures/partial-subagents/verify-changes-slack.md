@@ -1,10 +1,10 @@
 ---
-subcommand_name: generate-test-plan
-description: Generate a comprehensive test plan from product description
-allowed-tools: 'Read, Write, MultiEdit'
-argument-hint: <product-description>
+subcommand_name: verify-changes-slack
+description: Verify changes requested via Slack message
+allowed-tools: 'Read, Write, Edit, Bash, Grep, Glob, Task'
+argument-hint: ''
 ---
-# Generate Test Plan Command
+# Verify Changes - Slack Trigger
 
 ## SECURITY NOTICE
 **CRITICAL**: Never read the `.env` file. It contains ONLY secrets (passwords, API keys).
@@ -13,39 +13,79 @@ argument-hint: <product-description>
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The `.env` file access is blocked by settings.json
 
-Generate a comprehensive test plan from product description following the Brain Module specifications.
+## Context
 
-## Arguments
-Product description: $ARGUMENTS
+This task is triggered when a team member requests change verification via Slack. Common patterns:
+- "@bugzy test PR #123"
+- "@bugzy verify PROJ-456"
+- "@bugzy check the login feature on staging"
+- "Can you test the new checkout flow?"
 
-## Process
+## Parse Slack Message
 
-### Step 1: Load project context
-Read `.bugzy/runtime/project-context.md` to understand:
-- Project overview and key platform features
-- SDLC methodology and sprint duration
-- Testing environment and goals
-- Technical stack and constraints
-- QA workflow and processes
+Extract relevant information from the Slack event context ($ARGUMENTS):
 
-### Step 1.5: Process the product description
-Use the product description provided directly in the arguments, enriched with project context understanding.
+### Event Structure
+```json
+{
+  "eventType": "com.slack.message" or "com.slack.app_mention",
+  "event": {
+    "type": "message",
+    "channel": "C123456",
+    "user": "U123456",
+    "text": "message content",
+    "ts": "1234567890.123456",
+    "thread_ts": "1234567890.123456" (if in thread)
+  }
+}
+```
 
-### Step 1.6: Initialize environment variables tracking
-Create a list to track all TEST_ prefixed environment variables discovered throughout the process.
+### Information to Extract
+- **Message text**: The actual request content
+- **User**: Who made the request (for follow-up questions)
+- **Channel/Thread**: Where to post results
+- **References**: Extract PR numbers (#123), issue IDs (PROJ-456), URLs
+- **Context clues**: Feature names, environment mentions (staging, production)
+
+### Extraction Patterns
+Look for:
+- **PR references**: "#123", "PR 123", "pull request 123", GitHub PR URLs
+- **Issue IDs**: "PROJ-456", "BUG-123", Jira/Linear URLs
+- **URLs**: Deployment URLs, GitHub links, issue tracker links
+- **Feature names**: Quoted terms, capitalized phrases
+- **Environments**: "staging", "production", "preview", "dev"
+- **Actions**: "test", "verify", "check", "validate"
+
+
+## Verify Changes - Core Workflow
+
+### Step 1: Gather Information
+
+Review the provided context about what changed. This may include:
+- Pull request details and diff
+- Issue/ticket information
+- Feature description or bug report
+- Deployment URL or environment details
+- User feedback or testing request
+
+Extract key information:
+- **What changed**: Features added, bugs fixed, code refactored
+- **Scope**: Which parts of the application are affected
+- **Environment**: Where to test (production, preview, staging)
+- **Context**: Why the change was made
+
+### Step 2: Understand the Change - Detect Ambiguity and Explore
 
 
 
-### Step 1.7: Explore Product (If Needed)
-
-If product description is vague or incomplete, perform adaptive exploration to understand actual product features and behavior.
+Before proceeding with test creation or execution, ensure requirements are clear through ambiguity detection and adaptive exploration.
 
 
 ## Exploratory Testing Protocol
 
 Before creating or running formal tests, perform exploratory testing to validate requirements and understand actual system behavior. The depth of exploration should adapt to the clarity of requirements.
 
-### Step 1.7.1: Assess Requirement Clarity
+### Step 2.1: Assess Requirement Clarity
 
 Determine exploration depth based on requirement quality:
 
@@ -60,7 +100,7 @@ Determine exploration depth based on requirement quality:
 - **Vague:** "Fix the sorting in todo list page. The items are mixed up for premium users."
 - **Unclear:** "Improve the dashboard performance. Users say it's slow."
 
-### Step 1.7.2: Quick Exploration (1-2 min)
+### Step 2.2: Quick Exploration (1-2 min)
 
 **When:** Requirements CLEAR
 
@@ -80,7 +120,7 @@ Determine exploration depth based on requirement quality:
 
 **Time Limit:** 1-2 minutes
 
-### Step 1.7.3: Moderate Exploration (3-5 min)
+### Step 2.3: Moderate Exploration (3-5 min)
 
 **When:** Requirements VAGUE or Quick Exploration revealed discrepancies
 
@@ -114,7 +154,7 @@ Determine exploration depth based on requirement quality:
 
 **Time Limit:** 3-5 minutes
 
-### Step 1.7.4: Deep Exploration (5-10 min)
+### Step 2.4: Deep Exploration (5-10 min)
 
 **When:** Requirements UNCLEAR or critical ambiguities found
 
@@ -172,7 +212,7 @@ Determine exploration depth based on requirement quality:
 
 **Time Limit:** 5-10 minutes
 
-### Step 1.7.5: Link Exploration to Clarification
+### Step 2.5: Link Exploration to Clarification
 
 **Flow:** Requirement Analysis → Exploration → Clarification
 
@@ -188,7 +228,7 @@ Determine exploration depth based on requirement quality:
   ↓ Question: "Should basic users see all 8 sort options (bug) or only 3 with consistent sequence (correct)?"
 ```
 
-### Step 1.7.6: Document Exploration Results
+### Step 2.6: Document Exploration Results
 
 **Template:**
 ```markdown
@@ -211,7 +251,7 @@ Determine exploration depth based on requirement quality:
 
 **Memory Storage:** Feature behavior patterns, common ambiguity types, resolution approaches
 
-### Step 1.7.7: Integration with Test Creation
+### Step 2.7: Integration with Test Creation
 
 **Quick Exploration → Direct Test:**
 - Feature verified → Create test matching requirement → Reference screenshot
@@ -259,16 +299,12 @@ Are requirements clear with specifics?
 🔍 **Explore before assuming** | 📊 **Concrete observations > abstract interpretation** | ⏱️ **Adaptive depth: time ∝ uncertainty** | 🎯 **Exploration findings → specific clarifications** | 📝 **Always document** | 🔗 **Link exploration → ambiguity → clarification**
 
 
-### Step 1.8: Clarify Ambiguities
-
-If exploration or product description reveals ambiguous requirements, use the clarification protocol before generating the test plan.
-
 
 ## Clarification Protocol
 
 Before proceeding with test creation or execution, ensure requirements are clear and testable. Use this protocol to detect ambiguity, assess its severity, and determine the appropriate action.
 
-### Step 1.8.1: Detect Ambiguity
+### Step 2.1: Detect Ambiguity
 
 Scan for ambiguity signals:
 
@@ -288,7 +324,7 @@ Scan for ambiguity signals:
 - [ ] Consistent with existing system patterns?
 - [ ] Can write test assertions without assumptions?
 
-### Step 1.8.2: Assess Severity
+### Step 2.2: Assess Severity
 
 If ambiguity is detected, assess its severity:
 
@@ -299,7 +335,7 @@ If ambiguity is detected, assess its severity:
 | 🟡 **MEDIUM** | Specific details missing; general requirements clear; affects subset of cases; reasonable low-risk assumptions possible; wrong assumption = test updates not strategy overhaul | Missing field labels, unclear error message text, undefined timeouts, button placement not specified, date formats unclear | **PROCEED** - (1) Moderate exploration, (2) Document assumptions: "Assuming X because Y", (3) Proceed with creation/execution, (4) Async clarification (team-communicator), (5) Mark [ASSUMED: description] |
 | 🟢 **LOW** | Minor edge cases; documentation gaps don't affect execution; optional/cosmetic elements; minimal impact | Tooltip text, optional field validation, icon choice, placeholder text, tab order | **PROCEED** - (1) Mark [TO BE CLARIFIED: description], (2) Proceed, (3) Mention in report "Minor Details", (4) No blocking/async clarification |
 
-### Step 1.8.3: Check Memory for Similar Clarifications
+### Step 2.3: Check Memory for Similar Clarifications
 
 Before asking, check if similar question was answered:
 
@@ -314,7 +350,7 @@ Before asking, check if similar question was answered:
 
 **Example:** Query "todo sorting priority" → Found 2025-01-15: "Should completed todos appear in main list?" → Answer: "No, move to separate archive view" → Directly applicable → Use, no re-ask needed
 
-### Step 1.8.4: Formulate Clarification Questions
+### Step 2.4: Formulate Clarification Questions
 
 If clarification needed (CRITICAL/HIGH severity), formulate specific, concrete questions:
 
@@ -336,7 +372,7 @@ Question: Should todos be sorted by due date (soonest first) or priority (high t
 Why Important: Different sort criteria require different test assertions. Current app shows 15 active todos + 8 completed in mixed order.
 ```
 
-### Step 1.8.5: Communicate Clarification Request
+### Step 2.5: Communicate Clarification Request
 
 **For Slack-Triggered Tasks:** Use team-communicator subagent:
 ```
@@ -368,7 +404,7 @@ Clarification needed to proceed. I'll wait for response before testing.
 **Current Observation:** [What exploration revealed - concrete examples]
 ```
 
-### Step 1.8.6: Wait or Proceed Based on Severity
+### Step 2.6: Wait or Proceed Based on Severity
 
 **CRITICAL/HIGH → STOP and Wait:**
 - Do NOT create tests, run tests, or make assumptions
@@ -386,7 +422,7 @@ Clarification needed to proceed. I'll wait for response before testing.
 - Mention in report but don't prioritize, no blocking
 - *Rationale: Details don't affect strategy/results significantly*
 
-### Step 1.8.7: Document Clarification in Results
+### Step 2.7: Document Clarification in Results
 
 When reporting test results, always include an "Ambiguities" section if clarification occurred:
 
@@ -412,148 +448,291 @@ When reporting test results, always include an "Ambiguities" section if clarific
 🛑 **Block for CRITICAL/HIGH** | ✅ **Ask correctly > guess poorly** | 📝 **Document MEDIUM assumptions** | 🔍 **Check memory first** | 🎯 **Specific questions → specific answers**
 
 
-**Important Notes:**
-- **CRITICAL/HIGH ambiguities:** STOP test plan generation and seek clarification
-  - Examples: Undefined core features, unclear product scope, contradictory requirements
-- **MEDIUM ambiguities:** Document assumptions in test plan with [ASSUMED: reason] and seek async clarification
-  - Examples: Missing field lists, unclear validation rules, vague user roles
-- **LOW ambiguities:** Mark with [TO BE EXPLORED: detail] in test plan for future investigation
-  - Examples: Optional features, cosmetic details, non-critical edge cases
+After clarification and exploration, analyze the change to determine the verification approach:
 
-### Step 3: Prepare the test plan generation context
+#### 2.7 Identify Test Scope
+Based on the change description, exploration findings, and clarified requirements:
+- **Direct impact**: Which features/functionality are directly modified
+- **Indirect impact**: What else might be affected (dependencies, integrations)
+- **Regression risk**: Existing functionality that should be retested
+- **New functionality**: Features that need new test coverage
 
-**After ensuring requirements are clear through exploration and clarification:**
+#### 2.8 Determine Verification Strategy
+Plan your testing approach based on validated requirements:
+- **Priority areas**: Critical paths that must work
+- **Test types needed**: Functional, regression, integration, UI/UX
+- **Test data requirements**: What test accounts, data, or scenarios needed
+- **Success criteria**: What determines the change is working correctly (now clearly defined)
 
-Based on the gathered information:
-- **goal**: Extract the main purpose and objectives from all available documentation
-- **knowledge**: Combine product description with discovered documentation insights
-- **testPlan**: Use the standard test plan template structure, enriched with documentation findings
-- **gaps**: Identify areas lacking documentation that will need exploration
+### Step 3: Search for Existing Test Cases
 
-### Step 4: Generate the test plan using the prompt template
+Look in the `./test-cases/` directory for relevant test coverage:
 
-You are an expert QA Test Plan Writer. Using the gathered information and context from the product description provided, you will now produce a comprehensive test plan in Markdown format. The plan is strictly for exploratory and regression testing via the web UI, focusing on what a user can do and see in a browser.
+#### 3.1 Identify Applicable Test Cases
+Search for test cases that cover:
+- Features mentioned in the change
+- User flows affected by the change
+- Regression tests for the modified area
+- Related functionality that might break
 
-Writing Instructions:
-- **Use Product Terminology:** Incorporate exact terms and labels from the product description for features and UI elements (to ensure the test plan uses official naming).
-- **Scope – UI Only:** Include only test scenarios that involve interacting with the application through the browser (clicking buttons, filling forms, navigating pages, etc.). Do not include any tests or details about backend processes, databases, or APIs.
-- **Test Data - IMPORTANT:**
-  - DO NOT include test data values in the test plan body
-  - Test data goes ONLY to the `.env.example` file
-  - In the test plan, reference `.env.example` for test data requirements
-  - Define test data as environment variables prefixed with TEST_ (e.g., TEST_BASE_URL, TEST_USER_EMAIL, TEST_USER_PASSWORD)
-  - DO NOT GENERATE VALUES FOR THE ENV VARS, ONLY THE KEYS
-  - Track all TEST_ variables for extraction to .env.example in Step 7
-- **DO NOT INCLUDE TEST SCENARIOS**
-- **Incorporate All Relevant Info:** If the product description mentions specific requirements, constraints, or acceptance criteria (such as field validations, role-based access rules, important parameters), make sure these are reflected in the test plan. Do not add anything not supported by the given information.
+Use grep/glob to find test cases by:
+- Feature names or keywords
+- File paths mentioned in changes
+- User role or persona
+- Test tags or categories
 
-### Step 5: Create the test plan file
+#### 3.2 Evaluate Coverage
+For each relevant test case found:
+- **Does it cover the change?** Is the new/modified functionality tested?
+- **Is it sufficient?** Does it test edge cases and error conditions?
+- **Is it current?** Does it reflect the latest changes?
 
-Read the test plan template from `.bugzy/runtime/templates/test-plan-template.md` and use it as the base structure. Fill in the placeholders with information extracted from BOTH the product description AND documentation research:
+Document:
+- Test cases that should be run as-is
+- Test cases that need updates
+- Coverage gaps that need new test cases
 
-1. Read the template file from `.bugzy/runtime/templates/test-plan-template.md`
-2. Replace placeholders like:
-   - `[ProjectName]` with the actual project name from the product description
-   - `[Date]` with the current date
-   - Feature sections with actual features identified from all documentation sources
-   - Test data requirements based on the product's needs and API documentation
-   - Risks based on the complexity, known issues, and technical constraints
-3. Add any product-specific sections that may be needed based on discovered documentation
-4. **Mark ambiguities based on severity:**
-   - CRITICAL/HIGH: Should be clarified before plan creation (see Step 1.8)
-   - MEDIUM: Mark with [ASSUMED: reason] and note assumption
-   - LOW: Mark with [TO BE EXPLORED: detail] for future investigation
-5. Include references to source documentation for traceability
+### Step 4: Create New Test Cases
 
-### Step 6: Save the test plan
+If coverage gaps exist, create new test cases using the `generate-test-cases` task:
 
-Save the generated test plan to a file named `test-plan.md` in the project root with appropriate frontmatter:
+#### 4.1 Determine What's Missing
+Identify specific scenarios that aren't covered by existing test cases:
+- New user flows introduced by the change
+- Edge cases for new functionality
+- Error handling and validation
+- Integration points with other features
+- Different user roles or permissions
 
-```yaml
+#### 4.2 Generate Test Cases
+Use the Task tool to invoke generate-test-cases:
+
+```
+Use the generate-test-cases task with the following context:
+- Feature/change description: [specific description]
+- Scope: [what needs testing]
+- Existing coverage: [what's already tested]
+- Gap areas: [what's missing]
+```
+
+The task will create new test case files in `./test-cases/` following the standard format.
+
+### Step 5: Run Tests
+
+### Step 5: Execute Tests Using Test-Runner
+
+Use the test-runner agent to execute both existing and newly created test cases:
+
+```
+Use the test-runner agent to execute test cases for verifying the changes.
+
+**Test Run Configuration**:
+- test_run_folder: ./test-runs/[YYYYMMDD-HHMMSS]
+- Test cases: [list of test case file paths from Steps 3 and 4]
+
+The agent will:
+1. Execute each test case in the appropriate order (considering dependencies)
+2. Record video of test execution (automatic with --save-video)
+3. Generate structured test artifacts per schema (.bugzy/runtime/templates/test-result-schema.md):
+   - summary.json (outcome, video filename, failure details)
+   - steps.json (structured steps with timestamps and video times)
+4. Handle blocker test failures (skip dependent tests)
+5. Return detailed execution report
+
+Expected output:
+- Pass/fail status for each test
+- Execution time and statistics
+- Failed steps and error details
+- Video file locations
+- Artifact locations in test-run folder
+```
+
+**After test execution**:
+- Analyze results for patterns and critical issues
+- Identify any unexpected behaviors requiring clarification
+- Prepare findings for team communication (Slack thread)
+
+Execute the relevant test cases and collect results:
+
+#### 5.1 Prepare Test Execution
+- **List test cases to run**: Both existing and newly created
+- **Set environment**: Ensure TEST_BASE_URL and other variables are set correctly
+- **Check test data**: Verify test accounts and data are available
+- **Create test run folder**: ./test-runs/[YYYYMMDD-HHMMSS]
+
+#### 5.2 Analyze Results
+For each test run, note:
+- **Status**: Pass, Fail, Error, Blocked
+- **Key findings**: What worked, what didn't
+- **Screenshots**: Visual evidence of issues
+- **Error messages**: Specific failures encountered
+- **Duration**: How long testing took
+
+Aggregate results across all test cases:
+- Total test cases run
+- Passed vs. failed count
+- Critical issues found
+- Recommendations for next steps
+
+### Step 6: Communicate Results
+
+### Step 6: Communicate Verification Results to Slack
+
+Use the team-communicator agent to post results back to the Slack thread and handle clarifications:
+
+#### 6.1 Post Initial Acknowledgment (Optional)
+
+For complex verifications that will take time:
+
+```
+Use the team-communicator agent to post acknowledgment.
+
+**Channel**: [extracted from event.channel]
+**Thread**: [extracted from event.thread_ts or event.ts]
+**Message**: "On it! 🚀 Verifying [brief description]..."
+```
+
+#### 6.2 Post Verification Results
+
+After completing verification, post results to the Slack thread:
+
+```
+Use the team-communicator agent to post verification results.
+
+**Channel**: [extracted-channel-id]
+**Thread**: [extracted-thread-ts or message-ts for new thread]
+
+**Message**:
+### ✅ Change Verification Complete
+
+**What was tested**: [Brief description extracted from Slack message]
+**Environment**: [URL or environment name if mentioned]
+
+**Results Summary**:
+• ✅ [X] tests passed
+• ❌ [Y] tests failed
+• ⏭️ [Z] tests skipped (if any blocker failures)
+• 📝 [Total] test cases (existing + new)
+
+[If all tests passed:]
+All tests passed successfully! ✨
+
+[If tests failed:]
+**Issues Found**:
+• [Critical issue 1 with severity]
+• [Critical issue 2 with severity]
+• [Total count] issues discovered
+
+**Test Coverage**:
+• Existing test cases: [list key ones]
+• New test cases created: [list new ones]
+
+**Details**: Test artifacts in ./test-runs/[timestamp]/
+**Next Steps**: [Recommended actions]
+
+[If critical issues found:]
+<@[user-id]> - Critical issues found that need attention
+
 ---
-version: 1.0.0
-lifecycle_phase: initial
-created_at: [current date]
-updated_at: [current date]
-last_exploration: null
-total_discoveries: 0
-status: draft
-author: claude
-tags: [functional, security, performance]
----
+🤖 Full test report available in test-runs folder
 ```
 
-### Step 7: Extract and save environment variables
+**Slack Formatting Guidelines**:
+- **Keep it concise**: Scannable bullet points
+- **Use emojis**: Visual indicators (✅ ❌ ⚠️ 📝 🔴 🟠 🟡 🟢)
+- **Link to details**: Don't overwhelm with details in Slack
+- **Thread appropriately**: Reply in existing thread to keep channel clean
+- **Tag user**: @mention requesting user for critical issues
+- **Offer follow-up**: "Need more details? Just ask!"
 
-**CRITICAL**: Test data values must ONLY go to .env.example, NOT in the test plan document.
+#### 6.3 Request Clarifications (if needed)
 
-After saving the test plan:
-
-1. **Parse the test plan** to find all TEST_ prefixed environment variables mentioned:
-   - Look in the Testing Environment section
-   - Search for any TEST_ variables referenced
-   - Extract variables from configuration or setup sections
-   - Common patterns include: TEST_BASE_URL, TEST_USER_*, TEST_API_*, TEST_ADMIN_*, etc.
-
-2. **Create .env.example file** with all discovered variables:
-   ```bash
-   # Application Configuration
-   TEST_BASE_URL=
-   
-   # Test User Credentials
-   TEST_USER_EMAIL=
-   TEST_USER_PASSWORD=
-   TEST_ADMIN_EMAIL=
-   TEST_ADMIN_PASSWORD=
-   
-   # API Configuration
-   TEST_API_KEY=
-   TEST_API_SECRET=
-   
-   # Other Test Data
-   TEST_DB_NAME=
-   TEST_TIMEOUT=
-   ```
-
-3. **Add helpful comments** for each variable group to guide users in filling values
-
-4. **Save the file** as `.env.example` in the project root
-
-5. **Verify test plan references .env.example**:
-   - Ensure test plan DOES NOT contain test data values
-   - Ensure test plan references `.env.example` for test data requirements
-   - Add instruction: "Copy .env.example to .env and fill in actual values before running tests"
-
-### Step 7.5: Team Communication
-
-Use the team-communicator agent to notify the product team about the new test plan:
+If exploration revealed ambiguities during verification (Step 2.5 - MEDIUM severity):
 
 ```
-Use the team-communicator agent to:
-1. Post an update about the test plan creation
-2. Provide a brief summary of coverage areas and key features
-3. Mention any areas that need exploration or clarification
-4. Ask for team review and feedback on the test plan
-5. Include a link or reference to the test-plan.md file
-6. Use appropriate channel and threading for the update
+Use the team-communicator agent to ask clarification in Slack thread.
+
+**Check memory first**: Query for similar past clarifications
+
+**Channel**: [same channel]
+**Thread**: [same thread]
+
+**Message**:
+### ⚠️ Need Clarification
+
+While verifying [change description], I found something unclear:
+
+**Question**: [Specific unclear aspect with concrete example]
+
+**Options I see**:
+1. [Option A] - [implications]
+2. [Option B] - [implications]
+
+**What I observed**: [Exploration findings]
+**Why it matters**: [Impact on testing]
+
+Which approach should I use?
 ```
 
-The team communication should include:
-- **Test plan scope**: Brief overview of what will be tested
-- **Coverage highlights**: Key features and user flows included
-- **Areas needing clarification**: Any uncertainties discovered during documentation research
-- **Review request**: Ask team to review and provide feedback
-- **Next steps**: Mention plan to generate test cases after review
+**Wait for response** in thread before proceeding with affected tests.
 
-**Update team communicator memory:**
-- Record this communication in the team-communicator memory
-- Note this as a test plan creation communication
-- Track team response to this type of update
+#### 6.4 Handle Multi-turn Conversations
 
-### Step 8: Final summary
+For follow-up questions from the user:
+- Reference the original verification execution
+- Provide additional details from test artifacts
+- Offer to re-run specific tests if needed
+- Maintain conversation context
 
-Provide a summary of:
-- Test plan created successfully at `test-plan.md`
-- Environment variables extracted to `.env.example`
-- Number of TEST_ variables discovered
-- Instructions for the user to create their .env file from the template
+#### 6.5 Update Memory
+
+After completing Slack interaction, update team-communicator memory:
+- Record this verification request and interaction pattern
+- Note the requester (user ID) and their communication preferences
+- Track what level of detail they prefer in Slack
+- Document any clarifications provided for future reference
+- Record team response patterns to different types of results
+
+#### 6.6 Response Timing
+
+**Timing Strategy**:
+- Acknowledgment: Quick (optional, for >5 min tasks)
+- Results: When complete (don't spam progress updates)
+- Clarifications: As soon as ambiguity detected (don't delay)
+- Follow-ups: Responsive to user questions
+
+#### 6.7 Error Handling
+
+If verification cannot be completed:
+
+```
+**Channel**: [same channel]
+**Thread**: [same thread]
+
+**Message**:
+### ⚠️ Verification Blocked
+
+I couldn't complete the verification because:
+
+[Clear explanation of what went wrong]
+
+**What I need**:
+• [Missing information 1]
+• [Missing information 2]
+
+**Alternatives**:
+• [Alternative approach 1]
+• [Alternative approach 2]
+
+Let me know how you'd like to proceed!
+```
+
+**Don't leave user hanging** - always provide clear next steps or ask for help.
+
+Structure your findings clearly with:
+- **Executive Summary**: Overall result (✅ Pass / ❌ Fail / ⚠️ Partial)
+- **Test Coverage**: What was tested
+- **Results Detail**: Pass/fail for each test case
+- **Issues Found**: List any problems discovered
+- **Screenshots/Evidence**: Link to test run folders
+- **Recommendations**: Next steps or actions needed
