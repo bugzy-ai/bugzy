@@ -36,8 +36,9 @@ describe('config utilities', () => {
       expect(config).toEqual(sampleConfig);
     });
 
-    it('should throw error if config file does not exist', async () => {
-      await expect(loadConfig()).rejects.toThrow();
+    it('should return null if config file does not exist', async () => {
+      const config = await loadConfig();
+      expect(config).toBeNull();
     });
 
     it('should throw error if config file is invalid JSON', async () => {

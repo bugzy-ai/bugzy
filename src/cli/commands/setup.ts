@@ -14,6 +14,7 @@ import { generateCommands } from '../generators/commands';
 import { generateAgents } from '../generators/agents';
 import { generateMCPConfig, getMCPServersFromSubagents } from '../generators/mcp';
 import { generateEnvExample } from '../generators/env';
+import { getBanner } from '../utils/banner';
 
 /**
  * Parse CLI arguments in format "role=integration"
@@ -77,7 +78,8 @@ export async function setupProject(cliArgs: string[] = []): Promise<void> {
  * @param cliSubagents - Optional pre-parsed CLI subagent configuration
  */
 async function firstTimeSetup(cliSubagents?: Record<string, string>): Promise<void> {
-  console.log(chalk.cyan.bold('\n🐛 Bugzy OSS - Project Setup\n'));
+  console.log(getBanner());
+  console.log(chalk.cyan('  Project Setup\n'));
 
   // Step 1: Create folder structure
   let spinner = ora('Creating project structure').start();
@@ -151,7 +153,8 @@ async function firstTimeSetup(cliSubagents?: Record<string, string>): Promise<vo
  * Reconfigure existing project
  */
 async function reconfigureProject(): Promise<void> {
-  console.log(chalk.cyan.bold('\n🐛 Bugzy OSS - Reconfigure\n'));
+  console.log(getBanner());
+  console.log(chalk.cyan('  Reconfigure\n'));
 
   // Load existing config
   const existingConfig = await loadConfig();

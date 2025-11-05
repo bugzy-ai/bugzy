@@ -21,14 +21,14 @@ export interface BugzyConfig {
 /**
  * Load configuration from .bugzy/config.json
  * @param configPath - Path to config file (default: .bugzy/config.json)
- * @returns Parsed configuration
- * @throws Error if config file does not exist or is invalid
+ * @returns Parsed configuration or null if file doesn't exist
+ * @throws Error if config file exists but is invalid
  */
-export async function loadConfig(configPath: string = '.bugzy/config.json'): Promise<BugzyConfig> {
+export async function loadConfig(configPath: string = '.bugzy/config.json'): Promise<BugzyConfig | null> {
   const fullPath = path.join(process.cwd(), configPath);
 
   if (!fs.existsSync(fullPath)) {
-    throw new Error(`Config file not found: ${fullPath}`);
+    return null;
   }
 
   try {

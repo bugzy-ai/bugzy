@@ -9,6 +9,7 @@ import ora from 'ora';
 import { loadConfig } from '../utils/config';
 import { loadEnvFiles, validateEnvVars } from '../utils/env';
 import { validateProjectStructure, getRequiredMCPs, checkClaudeAvailable } from '../utils/validation';
+import { getBanner } from '../utils/banner';
 
 /**
  * Start a Claude Code session
@@ -17,7 +18,8 @@ import { validateProjectStructure, getRequiredMCPs, checkClaudeAvailable } from 
  * @param prompt - Optional initial prompt for Claude
  */
 export async function startSession(prompt?: string): Promise<void> {
-  console.log(chalk.cyan.bold('\n🐛 Bugzy OSS - Starting session\n'));
+  console.log(getBanner());
+  console.log(chalk.cyan('  Starting session\n'));
 
   // Step 1: Load configuration
   let spinner = ora('Loading configuration').start();
