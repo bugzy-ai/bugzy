@@ -12,12 +12,20 @@ export const sampleSubAgents: ProjectSubAgent[] = [
   {
     role: 'documentation-researcher',
     integration: 'notion'
+  },
+  {
+    role: 'test-code-generator',
+    integration: 'playwright'
   }
 ];
 
 export const minimalSubAgents: ProjectSubAgent[] = [
   {
     role: 'test-runner',
+    integration: 'playwright'
+  },
+  {
+    role: 'test-code-generator',
     integration: 'playwright'
   }
 ];

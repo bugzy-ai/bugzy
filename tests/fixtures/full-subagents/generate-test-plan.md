@@ -456,11 +456,11 @@ Based on the gathered information:
 
 ### Step 4: Generate the test plan using the prompt template
 
-You are an expert QA Test Plan Writer. Using the gathered information and context from the product description provided, you will now produce a comprehensive test plan in Markdown format. The plan is strictly for exploratory and regression testing via the web UI, focusing on what a user can do and see in a browser.
+You are an expert QA Test Plan Writer with expertise in both manual and automated testing strategies. Using the gathered information and context from the product description provided, you will now produce a comprehensive test plan in Markdown format that includes an automation strategy.
 
 Writing Instructions:
 - **Use Product Terminology:** Incorporate exact terms and labels from the product description for features and UI elements (to ensure the test plan uses official naming).
-- **Scope – UI Only:** Include only test scenarios that involve interacting with the application through the browser (clicking buttons, filling forms, navigating pages, etc.). Do not include any tests or details about backend processes, databases, or APIs.
+- **Testing Scope:** The plan covers both automated E2E testing via Playwright and exploratory manual testing. Focus on what a user can do and see in a browser.
 - **Test Data - IMPORTANT:**
   - DO NOT include test data values in the test plan body
   - Test data goes ONLY to the `.env.example` file
@@ -470,6 +470,48 @@ Writing Instructions:
   - Track all TEST_ variables for extraction to .env.example in Step 7
 - **DO NOT INCLUDE TEST SCENARIOS**
 - **Incorporate All Relevant Info:** If the product description mentions specific requirements, constraints, or acceptance criteria (such as field validations, role-based access rules, important parameters), make sure these are reflected in the test plan. Do not add anything not supported by the given information.
+- **Test Automation Strategy Section - REQUIRED:** Include a comprehensive "Test Automation Strategy" section with the following subsections:
+
+  **## Test Automation Strategy**
+
+  ### Automated Test Coverage
+  - Identify critical user paths to automate (login, checkout, core features)
+  - Define regression test scenarios for automation
+  - Specify API endpoints that need automated testing
+  - List smoke test scenarios for CI/CD pipeline
+
+  ### Exploratory Testing Areas
+  - New features not yet automated
+  - Complex edge cases requiring human judgment
+  - Visual/UX validation requiring subjective assessment
+  - Scenarios that are not cost-effective to automate
+
+  ### Test Data Management
+  - Environment variables strategy (which vars go in .env.example vs .env)
+  - Dynamic test data generation approach (use data generators)
+  - API-based test data setup (10-20x faster than UI)
+  - Test data isolation and cleanup strategy
+
+  ### Automation Approach
+  - **Framework:** Playwright + TypeScript (already scaffolded)
+  - **Pattern:** Page Object Model for all pages
+  - **Selectors:** Prioritize role-based selectors (getByRole, getByLabel, getByText)
+  - **Components:** Reusable component objects for common UI elements
+  - **Fixtures:** Custom fixtures for authenticated sessions and common setup
+  - **API for Speed:** Use Playwright's request context to create test data via API
+  - **Best Practices:** Reference `.bugzy/runtime/testing-best-practices.md` for patterns
+
+  ### Test Organization
+  - Automated tests location: `./tests/specs/[feature]/`
+  - Page Objects location: `./tests/pages/`
+  - Manual test cases location: `./test-cases/` (human-readable documentation)
+  - Test case naming: TC-XXX-feature-description.md
+  - Automated test naming: feature.spec.ts
+
+  ### Automation Decision Criteria
+  Define which scenarios warrant automation:
+  - ✅ Automate: Frequent execution, critical paths, regression tests, CI/CD integration
+  - ❌ Keep Manual: Rare edge cases, exploratory tests, visual validation, one-time checks
 
 ### Step 5: Create the test plan file
 
@@ -523,17 +565,17 @@ After saving the test plan:
    ```bash
    # Application Configuration
    TEST_BASE_URL=
-   
+
    # Test User Credentials
    TEST_USER_EMAIL=
    TEST_USER_PASSWORD=
    TEST_ADMIN_EMAIL=
    TEST_ADMIN_PASSWORD=
-   
+
    # API Configuration
    TEST_API_KEY=
    TEST_API_SECRET=
-   
+
    # Other Test Data
    TEST_DB_NAME=
    TEST_TIMEOUT=

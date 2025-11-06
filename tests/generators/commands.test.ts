@@ -31,14 +31,17 @@ describe('generateCommands', () => {
 
     const files = fs.readdirSync(commandsDir);
 
+    // Only non-cloud commands should be generated
     expect(files).toContain('generate-test-plan.md');
     expect(files).toContain('generate-test-cases.md');
     expect(files).toContain('explore-application.md');
     expect(files).toContain('run-tests.md');
-    expect(files).toContain('handle-message.md');
-    expect(files).toContain('process-event.md');
-    expect(files).toContain('verify-changes-manual.md');
-    expect(files).toContain('verify-changes-slack.md');
+    expect(files).toContain('verify-changes.md'); // Renamed from verify-changes-manual
+
+    // Cloud-only commands should not be generated
+    expect(files).not.toContain('handle-message.md');
+    expect(files).not.toContain('process-event.md');
+    expect(files).not.toContain('verify-changes-slack.md');
   });
 
   it('should generate valid markdown files with frontmatter', async () => {

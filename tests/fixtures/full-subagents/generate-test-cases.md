@@ -1,6 +1,6 @@
 ---
 subcommand_name: generate-test-cases
-description: Generate E2E browser test cases from product documentation and test plan
+description: Generate manual test case documentation AND automated Playwright test scripts from test plan
 allowed-tools: 'Read, Write, MultiEdit, Task'
 argument-hint: '--type [exploratory|functional|regression|smoke] --focus [optional-feature]'
 ---
@@ -13,7 +13,15 @@ argument-hint: '--type [exploratory|functional|regression|smoke] --focus [option
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The `.env` file access is blocked by settings.json
 
-Generate comprehensive end-to-end browser test cases from product documentation and test plan.
+Generate comprehensive test artifacts including BOTH manual test case documentation AND automated Playwright test scripts.
+
+## Overview
+
+This command generates:
+1. **Manual Test Case Documentation** (in `./test-cases/`) - Human-readable test cases in markdown format
+2. **Automated Playwright Tests** (in `./tests/specs/`) - Executable TypeScript test scripts
+3. **Page Object Models** (in `./tests/pages/`) - Reusable page classes for automated tests
+4. **Supporting Files** (fixtures, helpers, components) - As needed for test automation
 
 ## Arguments
 Arguments: $ARGUMENTS
@@ -30,55 +38,29 @@ Extract the following from arguments:
 #### 1.1 Read Test Plan
 Read the test plan from `test-plan.md` to understand:
 - Test items and features
-- Testing approach and strategy
+- Testing approach and automation strategy
+- Test Automation Strategy section (automated vs exploratory)
 - Pass/fail criteria
 - Test environment and data requirements
+- Automation decision criteria
 
-#### 1.2 Check Existing Test Cases and Build Capability Map
-List all files in `./test-cases/` and analyze each test case to:
-- Avoid creating overlapping test cases
+#### 1.2 Read Testing Best Practices Guide
+Read `.bugzy/runtime/testing-best-practices.md` to understand:
+- Page Object Model patterns and structure
+- Selector strategy (role-based → test IDs → CSS)
+- Test organization conventions
+- Authentication patterns
+- Async operations and waiting strategies
+- Common anti-patterns to avoid
+
+#### 1.3 Check Existing Test Cases and Tests
+- List all files in `./test-cases/` to understand existing manual test coverage
+- List all files in `./tests/specs/` to understand existing automated tests
 - Determine next test case ID (TC-XXX format)
-- Understand existing coverage
-- Build a capability map for dependency detection
+- Identify existing Page Objects in `./tests/pages/`
+- Avoid creating overlapping test cases or duplicate automation
 
-**Capability Map Analysis:**
-For each existing test case file, extract:
-1. **Test ID** from frontmatter (e.g., TC-001)
-2. **Test title** from frontmatter
-3. **Capabilities provided** by analyzing test steps:
-   - `login` - Test performs login/authentication
-   - `logout` - Test performs logout
-   - `create_project` - Test creates a new project
-   - `navigate_dashboard` - Test accesses dashboard
-   - `update_settings` - Test modifies settings
-   - `session_management` - Test manages session state
-   - Other domain-specific capabilities based on test actions
-4. **Authentication requirement**: Does test include login steps or start from authenticated state?
-5. **Blocker potential**: Is this a foundational test (login, critical setup) that other tests might depend on?
-
-Example capability map structure:
-```
-TC-001:
-  title: "Login and Basic Navigation"
-  capabilities: [login, authentication, navigate_dashboard]
-  provides_auth: true
-  is_blocker: true  (foundational - many tests depend on login)
-
-TC-003:
-  title: "Project Settings Update"
-  capabilities: [update_settings, form_validation]
-  requires_auth: true
-  is_blocker: false
-```
-
-**Blocker Detection Heuristics:**
-Mark as blocker if test:
-- Provides login/authentication capability
-- Creates critical test data (first project, first user)
-- Sets up required system state
-- Is explicitly marked as "smoke test" for login/auth
-
-#### 1.3 Gather Product Documentation
+#### 1.4 Gather Product Documentation
 
 Use the documentation-researcher agent to gather comprehensive product documentation:
 
@@ -90,6 +72,7 @@ Use the documentation-researcher agent to explore all available product document
 - Error messages and edge cases
 - Authentication and authorization flows
 - Business rules and constraints
+- API endpoints for test data setup
 ```
 
 ### Step 1.5: Explore Features (If Needed)
@@ -473,247 +456,170 @@ When reporting test results, always include an "Ambiguities" section if clarific
 - **MEDIUM ambiguities:** Document assumptions explicitly in test case with [ASSUMED: reason]
 - **LOW ambiguities:** Mark with [TO BE CLARIFIED: detail] in test case notes section
 
-### Step 2: Generate Test Cases
+### Step 2: Generate Manual Test Cases AND Automated Tests
 
-**After ensuring requirements are clear through exploration and clarification:**
+Use the test-code-generator agent to generate both manual test case documentation and automated Playwright test scripts:
 
-Generate test cases following these STRICT RULES:
-
-#### Core Requirements
-1. **Browser-only scope** – Include only actions visible in a web browser; no API, DB, log, or file checks
-2. **No hallucination** – Never invent UI labels, flows, data, or dependency details not present in documentation
-3. **Reuse exact terminology** from product documentation
-4. **Each test starts from clean browser session**
-5. **Include login steps** at the beginning if authentication is required
-6. **Keep steps atomic** – One user action or system response per step
-7. **No ambiguous steps** – Be specific (e.g., "Click on 'Submit'" not "Click on 'Submit' or 'Save'")
-8. **Use KEY format** for credentials and test data defined in the .env.example file (e.g., TEST_USERNAME, TEST_PASSWORD)
-9. **Tests must be independent** – Can run in parallel without dependencies
-10. **NO OVERLAPPING TEST CASES** – Each test must cover unique scenarios
-
-#### Test Case Structure
-Each test case must include:
-- **title**: One-line purpose describing what is being tested
-- **steps**: Numbered list of atomic actions
-- **expected**: One-line description of expected outcome
-- **priority**: high, medium, or low (based on criticality)
-- **type**: Match the --type parameter or determine from context
-
-#### Test Type Guidelines
-
-**Exploratory Tests**:
-- Focus on discovering undocumented behaviors
-- Test boundary conditions and edge cases
-- Try unusual user paths and workflows
-- Test error handling and recovery
-
-**Functional Tests**:
-- Cover core business functionality
-- Test happy paths and main workflows
-- Validate business rules and requirements
-- Ensure features work as documented
-
-**Regression Tests**:
-- Cover previously fixed bugs
-- Test critical paths that must not break
-- Validate core functionality after changes
-
-**Smoke Tests**:
-- Basic sanity checks
-- Verify application is accessible
-- Test most critical functionality briefly
-- Quick health check of the system
-
-### Step 2.5: Automatic Dependency Detection
-
-For each generated test case, automatically detect dependencies:
-
-Use the capability map from Step 1.2 to identify which existing tests this new test depends on.
-
-**Dependency Detection Rules:**
-
-1. **Authentication Dependency**
-   - IF test steps include "login" OR "enter credentials" OR "authenticate"
-   - AND test is NOT itself the login test
-   - THEN depends on the login test (typically TC-001)
-   - SET requires_auth = true
-
-2. **Data Dependency**
-   - IF test steps require "existing project" OR "project must exist"
-   - THEN depends on test that provides `create_project` capability
-   - Example: "Update project settings" depends on project creation test
-
-3. **Navigation Dependency**
-   - IF test assumes specific starting page (e.g., "From dashboard...")
-   - THEN depends on test that provides navigation to that page
-   - Example: Test starting at dashboard depends on login test
-
-4. **Feature Dependency**
-   - IF test builds upon another feature (e.g., "Edit saved test case")
-   - THEN depends on test that creates that feature
-   - Example: Edit test case depends on create test case
-
-**Blocker Determination:**
-Mark new test as blocker if it:
-- Provides login/authentication functionality
-- Creates foundational test data needed by multiple other tests
-- Sets up critical system state
-- Is a smoke test for core functionality
-
-**Capability Extraction:**
-Analyze new test steps to extract capabilities it provides:
 ```
-Examples:
-- "Click login button" → provides: [login, authentication]
-- "Create new project" → provides: [create_project, project_data]
-- "Navigate to settings" → provides: [navigate_settings]
-- "Update user profile" → provides: [update_profile, user_data]
+Use the test-code-generator agent to:
+1. Analyze the test plan and identify test scenarios
+2. For each test scenario:
+   a. Generate manual test case documentation (markdown file in ./test-cases/)
+   b. Decide if automation is warranted based on automation decision criteria
+   c. If automating: Generate Playwright test script (.spec.ts file in ./tests/specs/)
+   d. Create or update Page Objects as needed (in ./tests/pages/)
+   e. Link manual test case to automated test (and vice versa)
+3. Generate supporting files:
+   - Fixtures for common setup (authenticated users, test data)
+   - Helper functions for data generation
+   - Component objects for reusable UI elements
+   - TypeScript types as needed
+4. Follow best practices from .bugzy/runtime/testing-best-practices.md:
+   - Page Object Model pattern
+   - Role-based selectors (getByRole, getByLabel, getByText)
+   - Use environment variables for test data
+   - API for test data setup (faster than UI)
+   - Proper async/await patterns
+   - Test independence (can run in parallel)
+5. Update .env.example with any new environment variables
+
+Arguments to pass:
+- Test type: {type}
+- Focus area: {focus or "all features"}
+- Test plan: test-plan.md
+- Existing test cases: ./test-cases/
+- Existing automated tests: ./tests/specs/
+- Best practices guide: .bugzy/runtime/testing-best-practices.md
 ```
 
-**Output:**
-For each new test case, determine:
-- `dependencies`: Array of TC-IDs (e.g., ["TC-001"])
-- `blocker`: Boolean (true/false)
-- `requires_auth`: Boolean (true/false)
-- `capabilities`: Array of strings (e.g., ["update_settings", "form_validation"])
+The test-code-generator agent will:
+- Generate manual test case files with proper frontmatter (id, title, automated, automated_test)
+- Generate automated Playwright test scripts following best practices
+- Create Page Object Models with semantic selectors
+- Add fixtures and helpers as needed
+- Link manual and automated tests bidirectionally
+- Decide which scenarios to automate based on test plan criteria
+- Follow the testing best practices guide meticulously
 
-### Step 2.6: Validate Dependency Graph
+### Step 2.5: Validate Generated Artifacts
 
-After detecting dependencies, validate the dependency graph:
+After the test-code-generator completes, verify:
 
-1. **Check for Circular Dependencies**
-   - Ensure no test depends on itself (directly or indirectly)
-   - Example invalid: TC-005 → TC-003 → TC-005
+1. **Manual Test Cases (in `./test-cases/`)**:
+   - Each has unique TC-XXX ID
+   - Frontmatter includes `automated: true/false` flag
+   - If automated, includes `automated_test` path reference
+   - Contains human-readable steps and expected results
+   - References environment variables for test data
 
-2. **Verify Referenced Tests Exist**
-   - All dependency TC-IDs must reference existing test cases
-   - Warn if dependency references non-existent test
+2. **Automated Tests (in `./tests/specs/`)**:
+   - Organized by feature in subdirectories
+   - Each test file references manual test case ID in comments
+   - Uses Page Object Model pattern
+   - Follows role-based selector priority
+   - Uses environment variables for test data
+   - Includes proper TypeScript typing
 
-3. **Check Blocker Test Ordering**
-   - Blocker tests should not depend on non-blocker tests
-   - Blockers should be executable independently
+3. **Page Objects (in `./tests/pages/`)**:
+   - Extend BasePage class
+   - Use semantic selectors (getByRole, getByLabel, getByText)
+   - Contain only actions, no assertions
+   - Properly typed with TypeScript
 
-4. **Validate Authentication Logic**
-   - If requires_auth = true, must have dependency on login test
-   - Login test itself should have requires_auth = false
+4. **Supporting Files**:
+   - Fixtures created for common setup (in `./tests/fixtures/`)
+   - Helper functions for data generation (in `./tests/helpers/`)
+   - Component objects for reusable UI elements (in `./tests/components/`)
+   - Types defined as needed (in `./tests/types/`)
 
-**Validation Output:**
-- Report any validation errors or warnings
-- Suggest fixes for detected issues
-- Continue with valid dependencies even if some validation fails
+### Step 3: Create Directories if Needed
 
-### Step 3: Create Test Case Files
-
-For each generated test case:
-
-1. **Determine Test Case ID**:
-   - Check existing files in `./test-cases/`
-   - Use next available ID (TC-001, TC-002, etc.)
-   - Format: TC-XXX-brief-description.md
-
-2. **Create File with Frontmatter (with automatic dependency metadata)**:
-   ```yaml
-   ---
-   id: TC-XXX
-   title: [Test case title]
-   priority: [high|medium|low]
-   type: [exploratory|functional|regression|smoke]
-   status: draft
-   dependencies: [Array of TC-IDs from Step 2.5 dependency detection]
-   blocker: [true|false, from Step 2.5 blocker determination]
-   requires_auth: [true|false, from Step 2.5 auth detection]
-   capabilities: [Array of capabilities from Step 2.5 capability extraction]
-   created_at: [current date]
-   updated_at: [current date]
-   tags: [relevant tags]
-   related_plan_section: [section from test plan]
-   ---
-   ```
-
-   **Auto-populated Dependency Fields:**
-   - `dependencies`: Array of test case IDs this test depends on (e.g., ["TC-001"])
-   - `blocker`: Boolean indicating if this test is a blocker for other tests
-   - `requires_auth`: Boolean indicating if test requires authentication
-   - `capabilities`: Array of capabilities this test provides (e.g., ["login", "authentication"])
-
-   **Examples:**
-   ```yaml
-   # Login test (blocker)
-   dependencies: []
-   blocker: true
-   requires_auth: false
-   capabilities: ["login", "authentication", "session_creation"]
-
-   # Settings update test (depends on login)
-   dependencies: ["TC-001"]
-   blocker: false
-   requires_auth: true
-   capabilities: ["update_settings", "form_validation"]
-   ```
-
-3. **Add Test Case Content**:
-   ```markdown
-   ## Test Case: [Title]
-   
-   ### Preconditions
-   - [Any setup requirements]
-   
-   ### Test Steps
-   1. [Step 1]
-   2. [Step 2]
-   ...
-   
-   ### Expected Result
-   [Expected outcome]
-   
-   ### Test Data
-   - [Any specific test data requirements]
-   ```
-
-### Step 4: Create Test Cases Directory if Needed
-
-If `./test-cases/` doesn't exist, create it first:
+Ensure required directories exist:
 ```bash
 mkdir -p ./test-cases
+mkdir -p ./tests/specs
+mkdir -p ./tests/pages
+mkdir -p ./tests/components
+mkdir -p ./tests/fixtures
+mkdir -p ./tests/helpers
 ```
+
+### Step 4: Update .env.example (if needed)
+
+If new environment variables were introduced:
+- Read current `.env.example`
+- Add new TEST_* variables with empty values
+- Group variables logically with comments
+- Document what each variable is for
 
 ### Step 4.5: Team Communication
 
-Use the team-communicator agent to notify the product team about the new test cases:
+Use the team-communicator agent to notify the product team about the new test cases and automated tests:
 
 ```
 Use the team-communicator agent to:
-1. Post an update about test case creation
-2. Provide summary of test coverage and case count
-3. Highlight any areas where clarification is needed
-4. Share key test cases that validate critical functionality
-5. Ask for team review and validation of test scenarios
-6. Mention if any uncertainties were discovered that need exploration
+1. Post an update about test case and automation creation
+2. Provide summary of coverage:
+   - Number of manual test cases created
+   - Number of automated tests created
+   - Features covered by automation
+   - Areas kept manual-only (and why)
+3. Highlight key automated test scenarios
+4. Share command to run automated tests: npx playwright test
+5. Ask for team review and validation
+6. Mention any areas needing exploration or clarification
 7. Use appropriate channel and threading for the update
 ```
 
 The team communication should include:
-- **Test cases created**: Number and types of test cases generated
-- **Coverage areas**: Features and workflows now covered by tests
-- **Key scenarios**: Important test cases that validate critical functionality
-- **Clarification needed**: Any uncertainties or gaps that need team input
-- **Review request**: Ask team to validate test scenarios are realistic
-- **Next steps**: Mention plans for test execution or further exploration
+- **Test artifacts created**: Manual test cases + automated tests count
+- **Automation coverage**: Which features are now automated
+- **Manual-only areas**: Why some tests are kept manual (rare scenarios, exploratory)
+- **Key automated scenarios**: Critical paths now covered by automation
+- **Running tests**: Command to execute automated tests
+- **Review request**: Ask team to validate scenarios and review test code
+- **Next steps**: Plans for CI/CD integration or additional test coverage
 
 **Update team communicator memory:**
-- Record this communication in the team-communicator memory
-- Note this as a test case creation communication
-- Track team response to test coverage updates
-- Document any areas where team clarification was requested
+- Record this communication
+- Note test case and automation creation
+- Track team feedback on automation approach
+- Document any clarifications requested
+
+### Step 5: Final Summary
+
+Provide a comprehensive summary showing:
+
+**Manual Test Cases:**
+- Number of manual test cases created
+- List of test case files with IDs and titles
+- Automation status for each (automated: yes/no)
+
+**Automated Tests:**
+- Number of automated test scripts created
+- List of spec files with test counts
+- Page Objects created or updated
+- Fixtures and helpers added
+
+**Test Coverage:**
+- Features covered by manual tests
+- Features covered by automated tests
+- Areas kept manual-only (and why)
+
+**Next Steps:**
+- Command to run automated tests: `npx playwright test`
+- Instructions to run specific test file
+- Note about copying .env.example to .env
+- Mention any exploration needed for edge cases
 
 ### Important Notes
 
-- **Ambiguity Handling:** Use exploration (Step 1.5) and clarification (Step 1.6) protocols before generating test cases
-  - CRITICAL/HIGH severity ambiguities → STOP and seek clarification
-  - MEDIUM severity → Document assumptions with [ASSUMED: reason]
-  - LOW severity → Mark gaps with [TO BE CLARIFIED: detail]
-- Only use [TO BE EXPLORED] for LOW severity gaps that don't affect core test logic
-- Group related test cases by feature area using consistent naming
-- Ensure test case IDs are sequential and unique
-- Link each test case to relevant test plan sections
-- Consider external dependencies mentioned in documentation but only test UI interactions
+- **Both Manual AND Automated**: Generate both artifacts - they serve different purposes
+- **Manual Test Cases**: Documentation, reference, can be executed manually when needed
+- **Automated Tests**: Fast, repeatable, for CI/CD and regression testing
+- **Automation Decision**: Not all test cases need automation - rare edge cases can stay manual
+- **Linking**: Manual test cases reference automated tests; automated tests reference manual test case IDs
+- **Best Practices**: Always follow `.bugzy/runtime/testing-best-practices.md` for automation patterns
+- **Ambiguity Handling**: Use exploration (Step 1.5) and clarification (Step 1.6) protocols before generating
+- **Environment Variables**: Use `process.env.VAR_NAME` in tests, update .env.example as needed
+- **Test Independence**: Each test must be runnable in isolation and in parallel

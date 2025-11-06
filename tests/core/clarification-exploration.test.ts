@@ -267,7 +267,7 @@ describe('Protocol Flow Validation', () => {
 
     const exploration = task.content.indexOf('Step 1.5: Explore Features');
     const clarification = task.content.indexOf('Step 1.6: Clarify Ambiguities');
-    const generation = task.content.indexOf('### Step 2: Generate Test Cases');
+    const generation = task.content.indexOf('### Step 2: Generate Manual Test Cases AND Automated Tests');
 
     expect(exploration).toBeGreaterThan(-1);
     expect(clarification).toBeGreaterThan(exploration);

@@ -121,6 +121,17 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     model: 'sonnet',
     color: 'cyan',
     version: '1.0.0'
+  },
+  'test-code-generator': {
+    role: 'test-code-generator',
+    name: 'Test Code Generator',
+    description: 'Generate automated Playwright test scripts and Page Objects',
+    icon: 'code',
+    integrations: [INTEGRATIONS.playwright],
+    model: 'sonnet',
+    color: 'purple',
+    isRequired: true, // Required for automated test generation
+    version: '1.0.0'
   }
 };
 

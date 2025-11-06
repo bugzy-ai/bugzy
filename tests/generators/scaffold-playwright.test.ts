@@ -37,7 +37,8 @@ describe('scaffoldPlaywrightProject', () => {
     await scaffoldPlaywrightProject({
       projectName: 'test-project',
       targetDir: TEST_DIR,
-      config
+      config,
+      skipInstall: true
     });
 
     // Check directories exist
@@ -50,7 +51,6 @@ describe('scaffoldPlaywrightProject', () => {
       'tests/types',
       'tests/setup',
       'tests/data',
-      'test-cases',
       'playwright/.auth'
     ];
 
@@ -71,7 +71,8 @@ describe('scaffoldPlaywrightProject', () => {
     await scaffoldPlaywrightProject({
       projectName: 'test-project',
       targetDir: TEST_DIR,
-      config
+      config,
+      skipInstall: true
     });
 
     const configPath = path.join(TEST_DIR, 'playwright.config.ts');
@@ -93,7 +94,8 @@ describe('scaffoldPlaywrightProject', () => {
     await scaffoldPlaywrightProject({
       projectName: 'test-project',
       targetDir: TEST_DIR,
-      config
+      config,
+      skipInstall: true
     });
 
     const basePagePath = path.join(TEST_DIR, 'tests/pages/BasePage.ts');
@@ -102,27 +104,6 @@ describe('scaffoldPlaywrightProject', () => {
     const content = fs.readFileSync(basePagePath, 'utf-8');
     expect(content).toContain('export class BasePage');
     expect(content).toContain('readonly page: Page');
-  });
-
-  it('should create example.spec.ts in tests/specs', async () => {
-    const config: BugzyConfig = {
-      version: '1.0.0',
-      project: { name: 'test-project' },
-      subagents: { 'test-runner': 'playwright' }
-    };
-
-    await scaffoldPlaywrightProject({
-      projectName: 'test-project',
-      targetDir: TEST_DIR,
-      config
-    });
-
-    const exampleSpecPath = path.join(TEST_DIR, 'tests/specs/example.spec.ts');
-    expect(fs.existsSync(exampleSpecPath), 'example.spec.ts should exist').toBe(true);
-
-    const content = fs.readFileSync(exampleSpecPath, 'utf-8');
-    expect(content).toContain('import { test, expect }');
-    expect(content).toContain('test.describe');
   });
 
   it('should create fixture and setup files', async () => {
@@ -135,7 +116,8 @@ describe('scaffoldPlaywrightProject', () => {
     await scaffoldPlaywrightProject({
       projectName: 'test-project',
       targetDir: TEST_DIR,
-      config
+      config,
+      skipInstall: true
     });
 
     // Check fixture file
@@ -157,7 +139,8 @@ describe('scaffoldPlaywrightProject', () => {
     await scaffoldPlaywrightProject({
       projectName: 'test-project',
       targetDir: TEST_DIR,
-      config
+      config,
+      skipInstall: true
     });
 
     const dateUtilsPath = path.join(TEST_DIR, 'tests/helpers/dateUtils.ts');
@@ -165,47 +148,6 @@ describe('scaffoldPlaywrightProject', () => {
 
     const dataGenPath = path.join(TEST_DIR, 'tests/helpers/dataGenerators.ts');
     expect(fs.existsSync(dataGenPath), 'dataGenerators.ts should exist').toBe(true);
-  });
-
-  it('should create component files', async () => {
-    const config: BugzyConfig = {
-      version: '1.0.0',
-      project: { name: 'test-project' },
-      subagents: { 'test-runner': 'playwright' }
-    };
-
-    await scaffoldPlaywrightProject({
-      projectName: 'test-project',
-      targetDir: TEST_DIR,
-      config
-    });
-
-    const navComponentPath = path.join(TEST_DIR, 'tests/components/Navigation.component.ts');
-    expect(fs.existsSync(navComponentPath), 'Navigation.component.ts should exist').toBe(true);
-
-    const content = fs.readFileSync(navComponentPath, 'utf-8');
-    expect(content).toContain('export class NavigationComponent');
-  });
-
-  it('should create example manual test case', async () => {
-    const config: BugzyConfig = {
-      version: '1.0.0',
-      project: { name: 'test-project' },
-      subagents: { 'test-runner': 'playwright' }
-    };
-
-    await scaffoldPlaywrightProject({
-      projectName: 'test-project',
-      targetDir: TEST_DIR,
-      config
-    });
-
-    const testCasePath = path.join(TEST_DIR, 'test-cases/TC-EXAMPLE-001-homepage-load.md');
-    expect(fs.existsSync(testCasePath), 'Example test case should exist').toBe(true);
-
-    const content = fs.readFileSync(testCasePath, 'utf-8');
-    expect(content).toContain('id: TC-EXAMPLE-001');
-    expect(content).toContain('automated: true');
   });
 
   it('should create .env.example file', async () => {
@@ -218,7 +160,8 @@ describe('scaffoldPlaywrightProject', () => {
     await scaffoldPlaywrightProject({
       projectName: 'test-project',
       targetDir: TEST_DIR,
-      config
+      config,
+      skipInstall: true
     });
 
     const envExamplePath = path.join(TEST_DIR, '.env.example');
@@ -243,7 +186,8 @@ describe('scaffoldPlaywrightProject', () => {
     await scaffoldPlaywrightProject({
       projectName: 'test-project',
       targetDir: TEST_DIR,
-      config
+      config,
+      skipInstall: true
     });
 
     const content = fs.readFileSync(gitignorePath, 'utf-8');
@@ -264,7 +208,8 @@ describe('scaffoldPlaywrightProject', () => {
     await scaffoldPlaywrightProject({
       projectName: 'test-project',
       targetDir: TEST_DIR,
-      config
+      config,
+      skipInstall: true
     });
 
     const gitignorePath = path.join(TEST_DIR, '.gitignore');

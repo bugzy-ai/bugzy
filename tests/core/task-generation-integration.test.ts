@@ -222,21 +222,21 @@ describe('Task Generation Integration - Partial Subagents (3: issue, team, test 
 
 describe('Specific Task Content Validation', () => {
   describe('generate-test-cases', () => {
-    test('includes capability map analysis in full config', () => {
+    test('includes test-code-generator delegation in full config', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
-      expect(task.content).toContain('Capability Map Analysis');
-      expect(task.content).toContain('Build a capability map for dependency detection');
+      expect(task.content).toContain('test-code-generator agent');
+      expect(task.content).toContain('generate both manual test case documentation and automated Playwright test scripts');
     });
 
     test('includes documentation gathering step when configured', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
-      expect(task.content).toContain('#### 1.3 Gather Product Documentation');
+      expect(task.content).toContain('#### 1.4 Gather Product Documentation');
       expect(task.content).toContain('Use the documentation-researcher agent');
     });
 
     test('skips documentation gathering step when not configured', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, PARTIAL_SUBAGENTS_CONFIG);
-      expect(task.content).not.toContain('#### 1.3 Gather Product Documentation');
+      expect(task.content).not.toContain('#### 1.4 Gather Product Documentation');
       expect(task.content).not.toContain('Use the documentation-researcher agent');
     });
 
