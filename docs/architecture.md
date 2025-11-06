@@ -133,7 +133,7 @@ Configuration (.bugzy/config.json)
          │
          ├──► Commands Generator ──► .claude/commands/*.md
          ├──► Agents Generator   ──► .claude/agents/*.md
-         ├──► MCP Generator      ──► .claude/.mcp.json
+         ├──► MCP Generator      ──► .mcp.json
          ├──► Env Generator      ──► .env.example
          └──► Structure Generator ──► .bugzy/runtime/
 ```
@@ -161,7 +161,7 @@ Configuration (.bugzy/config.json)
    ├─ Create .bugzy/runtime/ structure
    ├─ Generate task commands (.claude/commands/)
    ├─ Generate subagent configs (.claude/agents/)
-   ├─ Generate MCP config (.claude/.mcp.json)
+   ├─ Generate MCP config (.mcp.json)
    └─ Generate .env.example template
 
 6. Update .gitignore if needed

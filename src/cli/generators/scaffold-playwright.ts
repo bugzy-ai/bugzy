@@ -12,6 +12,7 @@ export interface ScaffoldOptions {
   projectName: string;
   targetDir: string;
   config: BugzyConfig;
+  skipInstall?: boolean;
 }
 
 /**
@@ -19,7 +20,7 @@ export interface ScaffoldOptions {
  * Creates complete Playwright project structure with best practices
  */
 export async function scaffoldPlaywrightProject(options: ScaffoldOptions): Promise<void> {
-  const { projectName, targetDir } = options;
+  const { projectName, targetDir, skipInstall = false } = options;
 
   console.log('\n🎭 Scaffolding Playwright test automation project...\n');
 
@@ -36,7 +37,7 @@ export async function scaffoldPlaywrightProject(options: ScaffoldOptions): Promi
   await updateGitignore(targetDir);
 
   // Step 5: Install dependencies if needed
-  if (needsInstall) {
+  if (needsInstall && !skipInstall) {
     await installDependencies(targetDir);
   }
 
@@ -77,7 +78,24 @@ async function createDirectoryStructure(targetDir: string): Promise<void> {
  * Copy template files and process placeholders
  */
 async function copyTemplateFiles(targetDir: string, projectName: string): Promise<void> {
-  const templatesDir = path.join(__dirname, '../../templates/playwright');
+  // Try multiple possible template locations (for development vs production)
+  const possiblePaths = [
+    path.join(__dirname, '../../templates/playwright'),  // When running from dist
+    path.join(process.cwd(), 'templates/playwright'),     // When running from project root
+    path.join(__dirname, '../../../templates/playwright'), // When running tests
+  ];
+
+  let templatesDir = '';
+  for (const possiblePath of possiblePaths) {
+    if (fs.existsSync(possiblePath)) {
+      templatesDir = possiblePath;
+      break;
+    }
+  }
+
+  if (!templatesDir) {
+    throw new Error('Templates directory not found. Searched paths: ' + possiblePaths.join(', '));
+  }
 
   // Template files and their destinations
   const templates = [

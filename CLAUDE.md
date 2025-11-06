@@ -73,7 +73,7 @@ Save to .bugzy/config.json
 Generate files:
   - .claude/commands/*.md (8 task commands)
   - .claude/agents/*.md (configured subagents)
-  - .claude/.mcp.json (MCP server config)
+  - .mcp.json (MCP server config)
   - .env.example (environment template)
 ```
 

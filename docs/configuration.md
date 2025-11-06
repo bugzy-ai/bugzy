@@ -303,7 +303,7 @@ When you run `bugzy setup`, these files are regenerated:
 
 ## MCP Server Configuration
 
-Bugzy automatically generates `.claude/.mcp.json` based on your subagent configuration.
+Bugzy automatically generates `.mcp.json` based on your subagent configuration.
 
 ### Example MCP Configuration
 

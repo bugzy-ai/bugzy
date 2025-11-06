@@ -13,7 +13,7 @@ import { buildMCPConfig } from '../../mcp';
  */
 export async function generateMCPConfig(mcpServers: string[]): Promise<void> {
   const cwd = process.cwd();
-  const mcpConfigPath = path.join(cwd, '.claude', '.mcp.json');
+  const mcpConfigPath = path.join(cwd, '.mcp.json');
 
   // Build MCP configuration using core library
   const mcpConfig = buildMCPConfig(mcpServers);

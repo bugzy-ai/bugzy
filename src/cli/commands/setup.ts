@@ -9,7 +9,7 @@ import inquirer from 'inquirer';
 import ora from 'ora';
 import { loadConfig, saveConfig, configExists, createDefaultConfig } from '../utils/config';
 import { getAllSubAgents, getRequiredSubAgents } from '../../subagents';
-import { createProjectStructure, updateGitignore } from '../generators/structure';
+import { createProjectStructure, updateGitignore, generateClaudeMd } from '../generators/structure';
 import { generateCommands } from '../generators/commands';
 import { generateAgents } from '../generators/agents';
 import { generateMCPConfig, getMCPServersFromSubagents } from '../generators/mcp';
@@ -170,12 +170,17 @@ async function firstTimeSetup(cliSubagents?: Record<string, string>): Promise<vo
   // Step 4: Generate everything
   await regenerateAll(subagents);
 
-  // Step 5: Update .gitignore (first time only)
+  // Step 5: Generate CLAUDE.md in project root
+  spinner = ora('Creating CLAUDE.md').start();
+  await generateClaudeMd();
+  spinner.succeed(chalk.green('Created CLAUDE.md'));
+
+  // Step 6: Update .gitignore (first time only)
   spinner = ora('Updating .gitignore').start();
   await updateGitignore();
   spinner.succeed(chalk.green('Updated .gitignore'));
 
-  // Step 6: Scaffold Playwright project (if test-runner is configured)
+  // Step 7: Scaffold Playwright project (if test-runner is configured)
   if (subagents['test-runner'] && !isPlaywrightScaffolded(process.cwd())) {
     await scaffoldPlaywrightProject({
       projectName,
@@ -293,13 +298,18 @@ async function reconfigureProject(): Promise<void> {
   }
 
   // Update configuration
-  const spinner = ora('Updating configuration').start();
+  let spinner = ora('Updating configuration').start();
   existingConfig.subagents = newSubagents;
   await saveConfig(existingConfig);
   spinner.succeed(chalk.green('Updated .bugzy/config.json'));
 
   // Regenerate everything
   await regenerateAll(newSubagents);
+
+  // Generate CLAUDE.md if it doesn't exist
+  spinner = ora('Creating CLAUDE.md').start();
+  await generateClaudeMd();
+  spinner.succeed(chalk.green('Created CLAUDE.md'));
 
   // Success message
   console.log(chalk.green.bold('\n✅ Reconfiguration complete!\n'));
