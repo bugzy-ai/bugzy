@@ -1,0 +1,278 @@
+# Testing Best Practices Reference
+
+## Page Object Model (POM) Architecture
+
+**Core Principle**: Separate locators, actions, and assertions into distinct layers to isolate UI changes from test logic.
+
+### Page Object Structure
+
+```typescript
+import { type Page, type Locator } from '@playwright/test';
+
+export class LoginPage {
+  readonly page: Page;
+
+  // Centralized selectors as readonly properties
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+  readonly loginButton: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.emailInput = page.getByLabel('Email');
+    this.passwordInput = page.getByLabel('Password');
+    this.loginButton = page.getByRole('button', { name: 'Sign In' });
+  }
+
+  async navigate(): Promise<void> {
+    await this.page.goto('/login');
+  }
+
+  async login(email: string, password: string): Promise<void> {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.loginButton.click();
+  }
+}
+```
+
+### Key Rules for Page Objects
+
+- ✅ Define all locators as `readonly` properties
+- ✅ Initialize locators in constructor
+- ✅ Use method names that describe actions (login, fillEmail, clickSubmit)
+- ✅ Return data, never assert in page objects
+- ❌ Never put `expect()` assertions in page objects
+- ❌ Never use hardcoded waits (`waitForTimeout`)
+
+## Selector Priority (Most to Least Resilient)
+
+1. **Role-based**: `page.getByRole('button', { name: 'Submit' })` - Best for semantic HTML
+2. **Label**: `page.getByLabel('Email')` - Perfect for form inputs
+3. **Text**: `page.getByText('Welcome back')` - Good for headings/static content
+4. **Placeholder**: `page.getByPlaceholder('Enter email')` - Inputs without labels
+5. **Test ID**: `page.getByTestId('submit-btn')` - Stable but requires data-testid attributes
+6. **CSS selectors**: `page.locator('.btn-primary')` - Avoid; breaks with styling changes
+
+### When to Use Test IDs
+
+Add `data-testid` attributes for:
+- Critical user flows (checkout, login, signup)
+- Complex components (data tables, multi-step forms)
+- Elements where role-based selectors are ambiguous
+
+```html
+<button data-testid="checkout-submit">Complete Purchase</button>
+```
+
+```typescript
+await page.getByTestId('checkout-submit').click();
+```
+
+## Test Organization
+
+### File Structure by Feature
+
+```
+tests/
+├── specs/              # Tests organized by feature
+│   ├── auth/
+│   │   └── login.spec.ts
+│   └── checkout/
+│       └── purchase-flow.spec.ts
+├── pages/              # Page Object Models
+│   ├── LoginPage.ts
+│   └── CheckoutPage.ts
+├── components/         # Reusable UI components
+├── fixtures/           # Custom test fixtures
+├── helpers/            # Utility functions
+└── setup/              # Global setup/teardown
+```
+
+### Test Structure
+
+```typescript
+test.describe('Purchase flow', () => {
+  test.beforeEach(async ({ page }) => {
+    // Common setup
+  });
+
+  test('should complete purchase with credit card', async ({ page }) => {
+    // Arrange: Set up page objects
+    const checkoutPage = new CheckoutPage(page);
+
+    // Act: Perform actions
+    await checkoutPage.fillPaymentInfo({/*...*/});
+    await checkoutPage.submitOrder();
+
+    // Assert: Verify outcomes
+    await expect(page).toHaveURL('/confirmation');
+  });
+});
+```
+
+## Authentication & Session Management
+
+**Always authenticate once and reuse session state** across tests.
+
+```typescript
+// tests/setup/auth.setup.ts
+import { test as setup } from '@playwright/test';
+
+const authFile = 'playwright/.auth/user.json';
+
+setup('authenticate', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Email').fill(process.env.USER_EMAIL!);
+  await page.getByLabel('Password').fill(process.env.USER_PASSWORD!);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await page.waitForURL('/dashboard');
+  await page.context().storageState({ path: authFile });
+});
+```
+
+Configure in `playwright.config.ts`:
+
+```typescript
+projects: [
+  { name: 'setup', testMatch: /.*\.setup\.ts/ },
+  {
+    name: 'chromium',
+    use: { storageState: 'playwright/.auth/user.json' },
+    dependencies: ['setup'],
+  },
+]
+```
+
+## Async Operations & Waiting
+
+### Use Built-in Auto-waiting
+
+Playwright automatically waits for elements to be:
+- Visible
+- Enabled
+- Stable (not animating)
+- Ready to receive events
+
+```typescript
+// ✅ GOOD: Auto-waiting
+await page.click('#submit');
+await expect(page.locator('.result')).toBeVisible();
+
+// ❌ BAD: Manual arbitrary wait
+await page.click('#submit');
+await page.waitForTimeout(3000);
+```
+
+### Explicit Waiting (when needed)
+
+```typescript
+// Wait for element state
+await page.locator('.loading').waitFor({ state: 'hidden' });
+
+// Wait for URL change
+await page.waitForURL('**/dashboard');
+
+// Wait for network request
+const response = await page.waitForResponse(
+  resp => resp.url().includes('/api/data') && resp.status() === 200
+);
+```
+
+## Common Anti-Patterns to Avoid
+
+| ❌ Anti-Pattern | ✅ Correct Approach |
+|----------------|-------------------|
+| `await page.waitForTimeout(3000)` | `await expect(element).toBeVisible()` |
+| `const el = await page.$('.btn')` | `await page.locator('.btn').click()` |
+| Tests depend on execution order | Each test is fully independent |
+| Assertions in Page Objects | Assertions only in test files |
+| `#app > div:nth-child(2) > button` | `page.getByRole('button', { name: 'Submit' })` |
+| `retries: 5` to mask flakiness | `retries: 2` + fix root cause |
+
+## Debugging Workflow
+
+When a test fails:
+
+1. **Reproduce locally**: `npx playwright test failing-test.spec.ts --headed`
+2. **Enable trace**: `npx playwright test --trace on`
+3. **View trace**: `npx playwright show-trace test-results/.../trace.zip`
+4. **Identify failure**: Scrub timeline, check DOM snapshots
+5. **Review network**: Look for failed API calls
+6. **Check console**: JavaScript errors/warnings
+7. **Fix selector**: Use inspector's locator picker
+8. **Verify fix**: Run test 10 times to ensure stability
+
+## API Testing for Speed
+
+**Use API calls for test setup** (10-20x faster than UI):
+
+```typescript
+test('should display user dashboard', async ({ request, page }) => {
+  // FAST: Create test data via API
+  await request.post('/api/users', {
+    data: { name: 'Test User', email: 'test@example.com' }
+  });
+
+  // UI: Test the actual user experience
+  await page.goto('/dashboard');
+  await expect(page.getByText('Test User')).toBeVisible();
+});
+```
+
+## Configuration Essentials
+
+```typescript
+// playwright.config.ts
+export default defineConfig({
+  testDir: './tests/specs',
+  fullyParallel: true,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+
+  timeout: 30000,
+  expect: { timeout: 5000 },
+
+  use: {
+    baseURL: process.env.BASE_URL,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    actionTimeout: 10000,
+  },
+});
+```
+
+## Production-Ready Checklist
+
+**Configuration:**
+- [ ] Parallel execution enabled (`fullyParallel: true`)
+- [ ] Retry strategy configured (2 in CI, 0 locally)
+- [ ] Base URL from environment variables
+- [ ] Artifact capture optimized (`on-first-retry`)
+
+**Architecture:**
+- [ ] Page Object Model for all major pages
+- [ ] Component Objects for reusable UI elements
+- [ ] Custom fixtures for common setup
+- [ ] Tests organized by feature/user journey
+
+**Best Practices:**
+- [ ] No `waitForTimeout()` usage
+- [ ] Tests are independent (run in any order)
+- [ ] Assertions in test files, not Page Objects
+- [ ] Role-based selectors prioritized
+- [ ] No hardcoded credentials
+
+**CI/CD:**
+- [ ] Tests run on every pull request
+- [ ] Artifacts uploaded (reports, traces)
+- [ ] Failure notifications configured
+
+---
+
+**Remember**: The three critical pillars are:
+1. **Page Object Model** - Isolate UI changes from test logic
+2. **Role-based selectors** - Resist breakage
+3. **Authentication state reuse** - Maximize speed
