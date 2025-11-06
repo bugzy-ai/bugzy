@@ -95,6 +95,22 @@ async function createRuntimeFiles(): Promise<void> {
 }
 
 /**
+ * Generate CLAUDE.md in project root from template
+ */
+export async function generateClaudeMd(): Promise<void> {
+  const cwd = process.cwd();
+  const templatesDir = getTemplatesDir();
+  const claudeMdPath = path.join(cwd, 'CLAUDE.md');
+
+  // Only create if it doesn't exist (don't overwrite user modifications)
+  if (!fs.existsSync(claudeMdPath)) {
+    const templatePath = path.join(templatesDir, 'CLAUDE.md');
+    const content = fs.readFileSync(templatePath, 'utf-8');
+    fs.writeFileSync(claudeMdPath, content, 'utf-8');
+  }
+}
+
+/**
  * Update .gitignore to include Bugzy entries
  */
 export async function updateGitignore(): Promise<void> {

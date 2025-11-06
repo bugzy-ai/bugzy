@@ -131,5 +131,5 @@ Key information includes: QA workflow, story status management, bug reporting gu
 - Videos remain in `.playwright-mcp/` folder - external service uploads to GCS
 - Store ONLY video filename in summary.json: `{ "video": { "filename": "test-abc123.webm" } }`
 - Do NOT copy, move, or delete video files
-
+- DO NOT CREATE ANY SUMMARY, REPORT, OR WHATEVER FILES APART FROM THOSE ACTUAL BEING ASKED FOR. NO ADDITIONAL FILES IN THE ROOT FOLDER!!!!!
 <!-- Additional cross-domain information below -->
