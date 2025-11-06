@@ -9,6 +9,22 @@ import { TASK_TEMPLATES } from '../../tasks';
 import { buildTaskDefinition, type ProjectSubAgent } from '../../core/task-builder';
 
 /**
+ * Command filter for local vs cloud environments
+ * - false: skip generation (cloud-only commands)
+ * - string: rename command (use string as new filename)
+ * - undefined/not present: generate with original slug
+ */
+const COMMAND_FILTER: Record<string, boolean | string> = {
+  // Cloud-only commands (skip in local environment)
+  'handle-message': false,
+  'process-event': false,
+  'verify-changes-slack': false,
+
+  // Rename commands for local environment
+  'verify-changes-manual': 'verify-changes',
+};
+
+/**
  * Generate all task command files
  * Generates one .md file per task in the library
  *
@@ -38,6 +54,17 @@ export async function generateCommands(subagents: Record<string, string>): Promi
 
   // Generate command files for all tasks
   for (const [slug, template] of Object.entries(TASK_TEMPLATES)) {
+    // Apply command filter
+    const filterValue = COMMAND_FILTER[slug];
+
+    // Skip if explicitly filtered out (false)
+    if (filterValue === false) {
+      continue;
+    }
+
+    // Use renamed slug if specified, otherwise use original
+    const outputSlug = typeof filterValue === 'string' ? filterValue : slug;
+
     try {
       // Try to build task definition with current subagent config
       // Tasks with missing required subagents will throw an error
@@ -46,17 +73,17 @@ export async function generateCommands(subagents: Record<string, string>): Promi
       // Format as markdown with frontmatter
       const content = formatCommandMarkdown(taskDef.frontmatter, taskDef.content);
 
-      // Write to file
-      const filePath = path.join(commandsDir, `${slug}.md`);
+      // Write to file with potentially renamed slug
+      const filePath = path.join(commandsDir, `${outputSlug}.md`);
       fs.writeFileSync(filePath, content, 'utf-8');
     } catch (error) {
       // Task requires subagents that aren't configured
       // Still generate the file with base content so users can see what's available
       const content = formatCommandMarkdown(template.frontmatter, template.baseContent);
-      const filePath = path.join(commandsDir, `${slug}.md`);
+      const filePath = path.join(commandsDir, `${outputSlug}.md`);
       fs.writeFileSync(filePath, content, 'utf-8');
 
-      console.warn(`Warning: Generated ${slug} without required subagents: ${(error as Error).message}`);
+      console.warn(`Warning: Generated ${outputSlug} without required subagents: ${(error as Error).message}`);
     }
   }
 }
