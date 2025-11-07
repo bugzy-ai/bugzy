@@ -9,12 +9,12 @@ import { TASK_SLUGS } from '../constants';
 export const runTestsTask: TaskTemplate = {
   slug: TASK_SLUGS.RUN_TESTS,
   name: 'Run Tests',
-  description: 'Select and run test cases using the test-runner agent',
+  description: 'Execute automated Playwright tests, analyze failures, and fix test issues automatically',
 
   frontmatter: {
-    description: 'Select and run test cases using the test-runner agent',
-    'allowed-tools': 'Read, LS, Glob, Grep, Task',
-    'argument-hint': '[test-id|tag|type|all] --filter [optional-filter]',
+    description: 'Execute automated Playwright tests, analyze failures, and fix test issues automatically',
+    'allowed-tools': 'Read, Bash, Glob, Grep, Task',
+    'argument-hint': '[file-pattern|tag|all] (e.g., "auth", "@smoke", "tests/specs/login.spec.ts")',
   },
 
   baseContent: `# Run Tests Command
@@ -26,372 +26,209 @@ export const runTestsTask: TaskTemplate = {
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The \`.env\` file access is blocked by settings.json
 
-Select and execute test cases using the test-runner agent based on various criteria.
+Execute automated Playwright tests, analyze failures using JSON reports, automatically fix test issues, and log product bugs.
 
 ## Arguments
 Arguments: \$ARGUMENTS
 
 ## Parse Arguments
 Extract the following from arguments:
-- **selector**: Test selection criteria (test ID, tag, type, or "all")
-- **filter**: Optional additional filter (e.g., priority, status)
+- **selector**: Test selection criteria
+  - File pattern: "auth" → finds tests/specs/**/*auth*.spec.ts
+  - Tag: "@smoke" → runs tests with @smoke annotation
+  - Specific file: "tests/specs/login.spec.ts"
+  - All tests: "all" or "" → runs entire test suite
 
 ## Process
 
-### Step 1: Identify Test Cases to Run
+### Step 1: Identify Automated Tests to Run
 
-#### 1.1 List Available Test Cases
-Check the \`./test-cases/\` directory for available test case files:
+#### 1.1 Understand Test Selection
+Parse the selector argument to determine which tests to run:
+
+**File Pattern** (e.g., "auth", "login"):
+- Find matching test files: \`tests/specs/**/*[pattern]*.spec.ts\`
+- Example: "auth" → finds all test files with "auth" in the name
+
+**Tag** (e.g., "@smoke", "@regression"):
+- Run tests with specific Playwright tag annotation
+- Use Playwright's \`--grep\` option
+
+**Specific File** (e.g., "tests/specs/auth/login.spec.ts"):
+- Run that specific test file
+
+**All Tests** ("all" or no selector):
+- Run entire test suite: \`tests/specs/**/*.spec.ts\`
+
+#### 1.2 Find Matching Test Files
+Use glob patterns to find test files:
 \`\`\`bash
-ls ./test-cases/
+# For file pattern
+ls tests/specs/**/*[pattern]*.spec.ts
+
+# For specific file
+ls tests/specs/auth/login.spec.ts
+
+# For all tests
+ls tests/specs/**/*.spec.ts
 \`\`\`
 
-#### 1.2 Parse Selection Criteria
-Based on the provided arguments, determine which test cases to run:
+#### 1.3 Validate Test Files Exist
+Check that at least one test file was found:
+- If no tests found, inform user and suggest available tests
+- List available test files if selection was unclear
 
-**If specific test ID provided** (e.g., TC-001, TC-002):
-- Look for exact match: \`./test-cases/TC-XXX-*.md\`
+### Step 2: Execute Automated Playwright Tests
 
-**If test type provided** (exploratory, functional, regression, smoke):
-- Search for all test cases with matching type in frontmatter
-- Use grep to find files with \`type: [specified-type]\`
+#### 2.1 Build Playwright Command
+Construct the Playwright test command based on the selector:
 
-**If tag provided**:
-- Search for test cases containing the specified tag in frontmatter
-- Use grep to find files with the tag in the \`tags:\` field
-
-**If "all" specified**:
-- Select all test cases in the directory
-
-**If priority filter provided**:
-- Further filter selected test cases by priority (high, medium, low)
-
-### Step 2: Validate Selected Test Cases
-
-For each selected test case:
-1. Read the file to ensure it exists and is valid
-2. Check that the test case has:
-   - Valid frontmatter with required fields (id, title, type, status)
-   - Test steps section
-   - Expected result section
-3. Collect test case metadata (ID, title, priority, type, **dependencies, blocker, requires_auth**)
-
-### Step 2.5: Parse Dependencies and Build Execution Order
-
-🚨 **BLOCKER TESTS**: Tests with \`blocker: true\` will stop dependent tests if they fail, saving time and preventing cascading false failures
-
-Analyze dependencies and sort tests for optimal execution:
-
-#### 2.5.1 Extract Dependency Information
-For each selected test case, extract from frontmatter:
-- \`id\`: Test case ID (e.g., TC-001)
-- \`dependencies\`: Array of TC-IDs this test depends on
-- \`blocker\`: Boolean indicating if failure blocks dependent tests
-- \`requires_auth\`: Boolean indicating authentication requirement
-
-#### 2.5.2 Build Dependency Graph
-Create a directed graph structure:
-\`\`\`
-Example:
-TC-001 (blocker=true) → [TC-003, TC-004, TC-005, TC-006]
-TC-003 (blocker=false) → []
-TC-004 (blocker=false) → []
+**For file pattern or specific file**:
+\`\`\`bash
+npx playwright test [selector] --reporter=json
 \`\`\`
 
-#### 2.5.3 Topological Sort for Execution Order
-Sort tests so that:
-1. **Blocker tests run first** (tests with blocker=true)
-2. **Dependencies run before dependents**
-3. **Independent tests can run in any order**
-
-Algorithm:
-\`\`\`
-1. Identify all tests with no dependencies → add to execution list
-2. For remaining tests, add to list only after all dependencies are added
-3. Result: Tests in dependency-respecting order
+**For tag**:
+\`\`\`bash
+npx playwright test --grep "[tag]" --reporter=json
 \`\`\`
 
-Example ordering:
-\`\`\`
-Input: TC-005, TC-003, TC-001, TC-004
-Dependencies:
-  TC-001: [] (no deps, blocker=true)
-  TC-003: [TC-001]
-  TC-004: [TC-001]
-  TC-005: [TC-001]
-
-Output: TC-001, TC-003, TC-004, TC-005
+**For all tests**:
+\`\`\`bash
+npx playwright test --reporter=json
 \`\`\`
 
-#### 2.5.4 Identify Blocker Tests
+**Output**: JSON report will be written to \`test-results/.last-run.json\` or configure custom path with \`--reporter=json,outputFile=results.json\`
 
-🚨 **Critical**: Create a blocker tracking list:
+#### 2.2 Execute Tests via Bash
+Run the Playwright command:
+\`\`\`bash
+npx playwright test [selector] --reporter=json --output=test-results/
 \`\`\`
-blocker_tests = {
-  "TC-001": {
-    name: "Login and Authentication",
-    dependents: ["TC-003", "TC-004", "TC-005", "TC-006"]
+
+Wait for execution to complete. This may take several minutes depending on test count.
+
+#### 2.3 Locate and Read JSON Report
+After execution completes, find and read the JSON report:
+
+1. Check for report file:
+   \`\`\`bash
+   ls test-results/.last-run.json
+   # OR
+   ls results.json
+   \`\`\`
+
+2. Read the JSON report file to analyze results
+
+### Step 3: Analyze Test Results from JSON Report
+
+#### 3.1 Parse JSON Report
+The Playwright JSON reporter produces structured output with:
+\`\`\`json
+{
+  "suites": [
+    {
+      "title": "Test suite name",
+      "file": "tests/specs/auth/login.spec.ts",
+      "specs": [
+        {
+          "title": "should login successfully",
+          "ok": true,
+          "tests": [
+            {
+              "status": "passed",
+              "duration": 1234
+            }
+          ]
+        },
+        {
+          "title": "should show error for invalid credentials",
+          "ok": false,
+          "tests": [
+            {
+              "status": "failed",
+              "duration": 2345,
+              "error": {
+                "message": "expect(locator).toBeVisible()\\n\\nCall log:\\n- expect.toBeVisible with timeout 5000ms\\n- waiting for locator('.error-message')\\n\\nTimeout 5000ms exceeded.",
+                "stack": "Error: expect(locator).toBeVisible()..."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "stats": {
+    "total": 10,
+    "expected": 8,
+    "unexpected": 2,
+    "skipped": 0
   }
 }
 \`\`\`
 
-**Why this matters:**
-- If TC-001 fails, ALL dependent tests (TC-003, TC-004, TC-005, TC-006) will be automatically skipped
-- This prevents wasting time (~8-10 minutes) on tests that cannot succeed without login
-- Skipped tests are tracked separately from failures in the final report
-- Time savings are calculated and reported (assume ~2 min per skipped test)
+#### 3.2 Extract Test Results
+From the JSON report, extract:
+- **Total tests**: Number of tests executed
+- **Passed tests**: Tests with status "passed"
+- **Failed tests**: Tests with status "failed" or "timedOut"
+- **Skipped tests**: Tests with status "skipped"
+- **Duration**: Total execution time
 
-This list will be used to track failed blockers during execution and generate skip analysis.
+For each failed test, collect:
+- Test file path
+- Test title/name
+- Error message
+- Stack trace
+- Duration
+- Any attached screenshots or traces
 
-### Step 3: Execute Test Cases
-
-#### 3.1 Create Test Run Folder
-Create a single test-run folder for this entire test execution session:
-
-1. Generate a timestamp for this test run:
-   \`\`\`bash
-   date +"%Y%m%d-%H%M%S"
-   \`\`\`
-
-2. Create the test-run folder:
-   \`\`\`bash
-   mkdir -p ./test-runs/[YYYYMMDD-HHMMSS]
-   \`\`\`
-
-3. Store the folder path for use in all test executions.
-
-**Important**: This folder will be shared across ALL test cases in this run to keep results organized together.
-
-#### 3.2 Prepare Test Execution
-Create a summary of test cases to be executed:
-\`\`\`
-Test Execution Plan:
-- Total test cases: [count]
-- Types: [list of types]
-- Priorities: [distribution]
-- Test IDs: [list of IDs]
-- Test Run Folder: ./test-runs/[YYYYMMDD-HHMMSS]
-\`\`\`
-
-#### 3.3 Run Tests with Blocker Evaluation
-
-Before each test execution, evaluate if test should be skipped due to blocker failures:
-
-Initialize tracking variables:
-\`\`\`
-failed_tests = []        # List of test IDs that failed
-failed_blockers = []     # List of blocker test IDs that failed
-skipped_tests = []       # List of test IDs that were skipped
-\`\`\`
-
-For each test case (in dependency-sorted order from Step 2.5):
-
-**STEP 3.3.1: Evaluate Dependencies Before Execution**
-\`\`\`
-Check if test should be skipped:
-
-IF test has dependencies:
-  FOR each dependency_id in test.dependencies:
-    IF dependency_id in failed_tests OR dependency_id in skipped_tests:
-      # This test must be skipped
-      SKIP_ACTION = true
-
-      # Find the root cause (blocker failure)
-      IF dependency_id in failed_blockers:
-        SKIP_REASON = "Dependency failed: {dependency_id} ({test_name}) - {failure_reason}"
-      ELSE:
-        SKIP_REASON = "Dependency skipped: {dependency_id} ({test_name})"
-
-      # Generate skip result without execution
-      GO TO Step 3.3.3 (Generate Skip Result)
-\`\`\`
-
-**STEP 3.3.2: Execute Test (if not skipped)**
-If test should NOT be skipped, invoke the test-runner agent:
-
-\`\`\`
-Use the test-runner agent to execute the test case at [test-case-file-path].
-
-**CRITICAL**: Provide the test-run folder path as a parameter:
-- test_run_folder: ./test-runs/[YYYYMMDD-HHMMSS]
-
-The agent MUST use this folder and should NOT create a new timestamped folder.
-All test artifacts must be stored in: [test_run_folder]/[TEST-ID]/
-
-The agent should:
-1. Parse the test case file to get the test ID
-2. Create a subfolder: [test_run_folder]/[TEST-ID]/
-3. Execute the browser automation steps (video recording is automatic with --save-video)
-4. After test execution, record video filename from .playwright-mcp/ folder:
-   - Find the latest video file in .playwright-mcp/ folder (look for .webm files)
-   - Store ONLY the filename in summary.json (do NOT copy or move the video)
-   - Record video metadata (size, duration)
-5. Generate structured test artifacts following the schema in \`.bugzy/runtime/templates/test-result-schema.md\`:
-   - summary.json (test outcome with video filename reference and failure details)
-   - steps.json (structured steps with timestamps, video times, and detailed descriptions)
-   - Video file remains in .playwright-mcp/ folder (external service uploads to GCS)
-6. Return detailed execution report including:
-   - Pass/fail status
-   - Execution time
-   - Failed steps (if any)
-   - Video file location and size
-   - Any errors or issues encountered (should be in summary.json's failureReason)
-   - Artifact location: [test_run_folder]/[TEST-ID]/
-
-Note: All test information must go into the 3 required files. Do not generate test-log.md or findings.md - this information belongs in steps.json and summary.json respectively.
-\`\`\`
-
-**STEP 3.3.3: Generate Skip Result (no execution)**
-
-If test is being skipped (from Step 3.3.1):
-
-1. Create test case folder: \`[test_run_folder]/[TEST-ID]/\`
-
-2. Generate \`summary.json\` with SKIP status:
-   \`\`\`json
-   {
-     "testRun": {
-       "id": "TC-XXX",
-       "testCaseName": "[Test case name]",
-       "status": "SKIP",
-       "type": "[test type]",
-       "priority": "[priority]",
-       "skipReason": "[SKIP_REASON from Step 3.3.1]",
-       "duration": { "minutes": 0, "seconds": 0 }
-     },
-     "executionSummary": {
-       "totalPhases": 0,
-       "phasesCompleted": 0,
-       "overallResult": "Test skipped due to dependency failure"
-     },
-     "metadata": {
-       "executionId": "[from BUGZY_EXECUTION_ID env var]",
-       "startTime": "[current timestamp]",
-       "endTime": "[current timestamp]",
-       "testRunFolder": "[test_run_folder]"
-     }
-   }
-   \`\`\`
-
-3. Generate \`steps.json\` with empty steps:
-   \`\`\`json
-   {
-     "steps": [],
-     "summary": {
-       "totalSteps": 0,
-       "successfulSteps": 0,
-       "failedSteps": 0,
-       "skippedSteps": 0,
-       "skipNote": "Test was not executed because dependency [DEP-ID] failed or was skipped"
-     }
-   }
-   \`\`\`
-
-4. Add test ID to \`skipped_tests\` list
-5. Report: "SKIPPED TC-XXX: [test name] (Reason: [SKIP_REASON])"
-6. Continue to next test
-
-**STEP 3.3.4: Post-Execution Tracking**
-After test-runner agent completes (or after generating skip result):
-
-1. **Record test outcome:**
-   \`\`\`
-   IF test was executed (Step 3.3.2):
-     - Parse test result from agent output
-     - status = PASS or FAIL
-     - IF status is FAIL:
-       - Add test.id to failed_tests list
-       - IF test.blocker is true:
-         - Add test.id to failed_blockers list
-         - Report: "⚠️ BLOCKER FAILURE: {test.id} - Dependent tests will be skipped"
-     - ELSE:
-       - Report: "✅ PASSED: {test.id}"
-
-   IF test was skipped (Step 3.3.3):
-     - Add test.id to skipped_tests list
-     - Report: "⏭️ SKIPPED: {test.id}"
-   \`\`\`
-
-2. **Continue to next test** in execution order
-
-### Step 4: Aggregate Results with Skip Analysis
-
-After all test cases have been executed:
-
-#### 4.1 Collect Results
-Gather all test execution results from the test-runner agent outputs
-
-#### 4.2 Generate Enhanced Summary Report with Skip Analysis
-Create a comprehensive test execution summary:
+#### 3.3 Generate Summary Statistics
 \`\`\`markdown
 ## Test Execution Summary
+- Total Tests: [count]
+- Passed: [count] ([percentage]%)
+- Failed: [count] ([percentage]%)
+- Skipped: [count] ([percentage]%)
+- Total Duration: [time]
+\`\`\`
+
+### Step 4: Generate Detailed Results Report
+
+After analyzing the JSON report:
+
+#### 4.1 Create Comprehensive Summary
+Generate a detailed test execution report:
+\`\`\`markdown
+## Test Execution Results
 
 ### Overall Statistics
 - Total Tests: [count]
-- **Executed: [count]**
 - Passed: [count] ([percentage]%)
 - Failed: [count] ([percentage]%)
-- **Skipped: [count] ([percentage]%)**
-- **Time Saved by Skipping: [estimated minutes]** (assume ~2 min per skipped test)
-- Total Execution Time: [actual time spent]
-
-### Results by Type
-- Smoke Tests: [passed]/[executed] (skipped: [count])
-- Functional Tests: [passed]/[executed] (skipped: [count])
-- Regression Tests: [passed]/[executed] (skipped: [count])
-- Exploratory Tests: [passed]/[executed] (skipped: [count])
-
-### Blocker Analysis
-
-Show blocker impact if any blockers failed:
-
-IF any blocker tests failed:
-  \`\`\`
-  ⚠️ Critical Blocker Failure Detected
-
-  Failed Blocker: TC-XXX ([Test name])
-  Failure Reason: [failure reason from summary.json]
-  Impact: [N] dependent tests were automatically skipped
-  Affected Tests: [list of skipped test IDs]
-
-  Dependency Impact Visualization:
-  TC-XXX ([Test name]) [FAILED] ❌
-    ├── TC-YYY ([Test name]) [SKIPPED] ⏭️
-    ├── TC-ZZZ ([Test name]) [SKIPPED] ⏭️
-    └── TC-AAA ([Test name]) [SKIPPED] ⏭️
-  \`\`\`
+- Skipped: [count] ([percentage]%)
+- Total Duration: [time in minutes and seconds]
 
 ### Failed Tests
-[List each failed test with:
-- Test ID and title
-- Failure reason (from summary.json failureReason)
-- Failed step
-- Whether this is a blocker test
-- Link to detailed report in test-runs folder]
-
-### Skipped Tests
-
-List skipped tests with skip reasons:
-
-[For each skipped test:
-- Test ID and title
-- Skip reason (from summary.json skipReason)
-- Which dependency caused the skip
-- Estimated time saved]
+[For each failed test from JSON report:
+- **Test**: [file path] › [test title]
+- **Error**: [error message from JSON]
+- **Duration**: [test duration]
+- **Trace**: [trace file path if available]
+]
 
 ### Passed Tests
-[List of passed test IDs and titles]
+[List passed test titles for reference]
+
+### Skipped Tests
+[List any skipped tests with reason]
 
 ### Recommendations
-[Based on results, suggest:
-- **If blocker failed: Fix the blocker test first, then re-run dependent tests**
-- Tests that need investigation
-- Potential bugs to report
-- Areas needing more test coverage
-- Suggested re-run command for skipped tests after fixing blocker]
-
-Example:
-"Fix TC-001 (Login) first, then re-run with: /run-tests TC-003 TC-004 TC-005 TC-006"
+Based on test results:
+- Failed tests need triage (product bug vs test issue)
+- Tests with timeouts may need wait conditions
+- Tests with selector errors may need selector updates
+- Flaky tests (if re-run shows inconsistency) need stabilization
 \`\`\`
 
 ### Step 5: Learning Integration
@@ -457,165 +294,90 @@ If selected test cases have formatting issues:
 
 ### Important Notes
 
-- The test-runner agent handles all browser automation and result capture
-- Test execution may take significant time depending on the number and complexity of tests
+- Automated Playwright tests are executed via bash command, not through agents
+- Test execution may take several minutes depending on the number and complexity of tests
+- JSON reports provide structured test results for analysis
+- Test failures are automatically triaged (product bugs vs test issues)
+- Test issues are automatically fixed by the test-debugger-fixer subagent
+- Product bugs are logged via issue tracker after triage
 - All results are analyzed for learning opportunities and team communication
 - Critical failures trigger immediate team notification
-- Test results feed back into the learning system for continuous improvement
-- Consider running smoke tests first for quick validation before full test suites
-- Video recording is automatic with --save-video flag (already configured in MCP)
-- Videos remain in .playwright-mcp/ folder - external service uploads to GCS (do NOT copy or move)
-- Test results follow the schema defined in \`.bugzy/runtime/templates/test-result-schema.md\`
-- Steps must include video timestamps for UI synchronization`,
+- Consider running smoke tests first (@smoke tag) for quick validation before full test suites
+- Playwright automatically captures traces, screenshots, and videos on failures
+- Test artifacts are stored in test-results/ directory
+- Reference .bugzy/runtime/testing-best-practices.md for test patterns and anti-patterns
+
+### Step 6: Triage Failed Tests
+
+After analyzing test results, triage each failure to determine if it's a product bug or test issue:
+
+#### 6.0 Triage Failed Tests FIRST
+
+**⚠️ IMPORTANT: Do NOT report bugs without triaging first.**
+
+For each failed test:
+
+1. **Read failure details** from JSON report (error message, stack trace)
+2. **Classify the failure:**
+   - **Product bug**: Application behaves incorrectly
+   - **Test issue**: Test code needs fixing (selector, timing, assertion)
+3. **Document classification** for next steps
+
+**Classification Guidelines:**
+- **Product Bug**: Correct test code, unexpected application behavior
+- **Test Issue**: Selector not found, timeout, race condition, wrong assertion
+
+{{TEST_DEBUGGER_FIXER_INSTRUCTIONS}}
+
+{{ISSUE_TRACKER_INSTRUCTIONS}}`,
 
   optionalSubagents: [
     {
+      role: 'test-debugger-fixer',
+      contentBlock: `
+
+#### 6.1 Fix Test Issues Automatically
+
+For each test classified as **[TEST ISSUE]**, use the test-debugger-fixer agent to automatically fix the test:
+
+\`\`\`
+Use the test-debugger-fixer agent to fix test issues:
+
+For each failed test classified as a test issue (not a product bug), provide:
+- Test file path: [from JSON report]
+- Test name/title: [from JSON report]
+- Error message: [from JSON report]
+- Stack trace: [from JSON report]
+- Trace file path: [if available]
+
+The agent will:
+1. Read the failing test file
+2. Analyze the failure details
+3. Open browser via Playwright MCP to debug if needed
+4. Identify the root cause (brittle selector, missing wait, race condition, etc.)
+5. Apply appropriate fix to the test code
+6. Rerun the test to verify the fix
+7. Repeat up to 3 times if needed
+8. Report success or escalate as likely product bug
+
+After test-debugger-fixer completes:
+- If fix succeeded: Mark test as fixed, add to "Tests Fixed" list
+- If still failing after 3 attempts: Reclassify as potential product bug for Step 6.1
+\`\`\`
+
+**Track Fixed Tests:**
+- Maintain list of tests fixed automatically
+- Include fix description (e.g., "Updated selector from CSS to role-based")
+- Note verification status (test now passes)
+`
+    },
+    {
       role: 'issue-tracker',
-      contentBlock: `### Step 6: Issue Tracking
+      contentBlock: `
 
-After analyzing test results, report any bugs discovered during test execution:
+#### 6.2 Log Product Bugs via Issue Tracker
 
-#### 6.0 ⚠️ CRITICAL: Triage Failed Tests FIRST
-
-**⚠️ IMPORTANT: Do NOT report bugs without triaging first. The TODO-456 incident showed how untriaged test failures can lead to reporting expected behavior as bugs.**
-
-Before reporting bugs, understand why tests failed through exploration and clarification:
-
-**For each failed test (status: FAIL):**
-
-**Step 1: Quick Exploration** (if failure reason unclear)
-
-Understand actual vs. expected behavior through adaptive exploration:
-
-**Assess Clarity:**
-- Clear failure reason → Quick exploration (1-2 min)
-- Vague failure → Moderate exploration (3-5 min)
-- Unclear/ambiguous → Deep exploration (5-10 min)
-
-**Exploration Steps:**
-1. Navigate and manually test the failed scenario
-2. Capture screenshots and document observations
-3. Compare actual behavior vs. test expectations
-4. Key questions:
-   - What actually happened vs. what the test expected?
-   - Has behavior changed recently (deployment, feature update)?
-   - Is this failure a bug or an expected change?
-   - Can you reproduce the failure manually?
-
-**Document Findings:**
-- Current behavior observed (with concrete examples)
-- Expected behavior per test case
-- Discrepancies identified
-- Screenshots/evidence captured
-
-**Step 2: Assess Ambiguity and Clarify**
-
-If exploration reveals ambiguity about whether this is a bug:
-
-**Detect Ambiguity Signals:**
-- Vague expectations in test case
-- Missing acceptance criteria
-- Multiple valid interpretations
-- Contradictory information
-- Quick check: Can you determine PASS/FAIL without assumptions?
-
-**Assess Severity:**
-
-| Severity | When to Use | Action |
-|----------|------------|--------|
-| 🔴 **CRITICAL** | Expected behavior completely undefined; cannot determine if bug or feature | **STOP** - Seek clarification before reporting |
-| 🟠 **HIGH** | Core functionality unclear; failure could be bug OR intentional change | **STOP** - Seek clarification before reporting |
-| 🟡 **MEDIUM** | Specific details missing but general direction clear; low-risk assumptions possible | **DOCUMENT** assumptions, proceed with classification, ask async clarification |
-| 🟢 **LOW** | Minor edge case or cosmetic difference; minimal impact | **MARK** for future clarification, proceed with classification |
-
-**Check Memory First:**
-- Query team-communicator memory for similar past clarifications
-- Search by feature name, ambiguity pattern, or ticket keywords
-- If similar question was answered before, use that answer
-
-**Clarify if Needed (for CRITICAL/HIGH):**
-- Formulate specific, concrete questions with context
-- Provide exploration findings as evidence
-- Offer options if possible
-- Use team-communicator for Slack triggers
-- **WAIT** for response before proceeding
-
-**Common triage ambiguity scenarios:**
-- **CRITICAL**: Test expects specific behavior but unclear what's correct (e.g., TODO-456 "fix sorting" - should completed todos appear in main list or archive?)
-- **HIGH**: Failure might be due to intentional changes not documented in test plan
-- **MEDIUM**: Unclear if edge case bug or expected behavior for that scenario
-- **LOW**: Minor visual differences that might be acceptable
-
-**Step 3: Classify the Failure**
-
-Based on exploration and clarification, categorize each failure:
-
-1. **Confirmed Bug** → Proceed to Step 6.1 to report via issue tracker
-   - Actual product defect confirmed
-   - Behavior doesn't match requirements
-   - Not an expected change
-
-2. **Test Needs Update** → Update test case instead of reporting bug
-   - Behavior changed intentionally
-   - Test expectations are outdated
-   - Document in learnings and update test
-
-3. **Known Issue** → Skip reporting
-   - Already documented in learnings.md
-   - Already tracked in issue system (check issue-tracker memory)
-   - Accepted limitation or won't-fix
-
-4. **Unclear/Blocked** → Wait for clarification
-   - Team needs to confirm expected behavior
-   - Cannot determine if bug or feature
-   - Document uncertainty and pause bug reporting
-
-**Document Triage Results:**
-
-For each failed test, create quick classification:
-\`\`\`
-TC-XXX: [CONFIRMED BUG] - Actual defect verified via exploration
-  Reason: [Brief description of why this is a bug]
-  Evidence: [Observation from exploration]
-
-TC-YYY: [TEST UPDATE NEEDED] - Intentional change, update test
-  Reason: [Why test needs updating]
-  Evidence: [What changed]
-
-TC-ZZZ: [KNOWN ISSUE] - Already tracked/documented
-  Reason: [Reference to existing issue or learning]
-
-TC-AAA: [UNCLEAR - BLOCKED] - Awaiting clarification
-  Reason: [What is ambiguous]
-  Question Asked: [Clarification question]
-\`\`\`
-
-**⚠️ Only proceed to Step 6.1 with tests classified as [CONFIRMED BUG]**
-
-This triage ensures we only report legitimate bugs and avoid noise from expected changes or test issues (lesson from TODO-456).
-
-#### 6.1 Identify Bugs to Report
-
-Review the **triaged** failed tests from Step 6.0 and report only those classified as **Confirmed Bugs**:
-
-**Report bugs for** (from triage Step 6.0, classification: "Confirmed Bug"):
-- Tests classified as actual product defects after exploration
-- Unexpected errors or exceptions confirmed to be product bugs
-- Incorrect behavior that doesn't match clarified requirements
-- Performance issues confirmed as regressions (not infrastructure)
-- UI rendering problems verified as bugs (not expected changes)
-- Data validation failures confirmed as product defects
-
-**Do NOT report bugs for** (these should be handled in triage Step 6.0):
-- Tests with status SKIP (skipped due to blocker failures, not bugs)
-- Failures classified as "Test Needs Update" (handle via test case updates)
-- Failures classified as "Known Issue" (already documented or tracked)
-- Failures classified as "Unclear" (wait for clarification before reporting)
-- Test infrastructure issues (not product bugs)
-
-**Note**: Step 6.0 triage uses exploration + clarification to ensure we only report legitimate bugs. This prevents the issue from TODO-456 where a test failure was treated as a bug without understanding whether the behavior was expected.
-
-#### 6.2 Use Issue Tracker Agent
+After triage in Step 6.0, for tests classified as **[PRODUCT BUG]**, use the issue-tracker agent to log bugs:
 
 For each bug to report, use the issue-tracker agent:
 
@@ -632,27 +394,29 @@ Use issue-tracker agent to:
    - **Description**:
      - What happened vs. what was expected
      - Impact on users
-     - Test case reference: TC-XXX
+     - Test reference: [file path] › [test title]
    - **Reproduction Steps**:
-     - Copy steps from the test case file
+     - List steps from the failing test
      - Include specific test data used
-     - Note any preconditions (e.g., "requires_auth: true")
+     - Note any setup requirements from test file
    - **Test Execution Details**:
-     - Test run folder: [test_run_folder]/[TEST-ID]/
-     - Failure reason from summary.json
-     - Failed step information from steps.json
-     - Video file reference (if available)
+     - Test file: [file path from JSON report]
+     - Test name: [test title from JSON report]
+     - Error message: [from JSON report]
+     - Stack trace: [from JSON report]
+     - Trace file: [path if available]
+     - Screenshots: [paths if available]
    - **Environment Details**:
-     - Browser and version
-     - Test environment URL
+     - Browser and version (from Playwright config)
+     - Test environment URL (from .env.example BASE_URL)
      - Timestamp of failure
    - **Severity/Priority**: Based on:
-     - Test priority (high/medium/low)
+     - Test type (smoke tests = high priority)
      - User impact
-     - Blocker status (if this is a blocker test)
+     - Frequency (always fails vs flaky)
    - **Additional Context**:
-     - Error messages or stack traces
-     - Related test cases (dependencies)
+     - Error messages or stack traces from JSON report
+     - Related test files (if part of test suite)
      - Relevant learnings from learnings.md
 
 3. Track created issues:
@@ -723,5 +487,5 @@ The team communication should include:
 - Note team priorities based on their responses`
     }
   ],
-  requiredSubagents: ['test-runner']
+  requiredSubagents: ['test-runner', 'test-debugger-fixer']
 };

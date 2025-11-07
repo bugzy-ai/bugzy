@@ -12,6 +12,9 @@ import * as TestRunnerPuppeteer from './test-runner/puppeteer';
 // Test Code Generator templates
 import * as TestCodeGeneratorPlaywright from './test-code-generator/playwright';
 
+// Test Debugger & Fixer templates
+import * as TestDebuggerFixerPlaywright from './test-debugger-fixer/playwright';
+
 // Team Communicator templates
 import * as TeamCommunicatorSlack from './team-communicator/slack';
 
@@ -43,6 +46,12 @@ export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
     playwright: {
       frontmatter: TestCodeGeneratorPlaywright.FRONTMATTER,
       content: TestCodeGeneratorPlaywright.CONTENT,
+    },
+  },
+  'test-debugger-fixer': {
+    playwright: {
+      frontmatter: TestDebuggerFixerPlaywright.FRONTMATTER,
+      content: TestDebuggerFixerPlaywright.CONTENT,
     },
   },
   'team-communicator': {

@@ -14,6 +14,7 @@ import type { ProjectSubAgent } from '../../src/core/task-builder';
 // Minimal config for basic tests
 const MINIMAL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
   { role: 'test-runner', integration: 'playwright' },
+  { role: 'test-debugger-fixer', integration: 'playwright' },
 ];
 
 describe('getAgentConfiguration', () => {
@@ -169,18 +170,22 @@ describe('getAgentConfiguration', () => {
     test('different integrations produce different prompts', async () => {
       // Test with playwright
       const taskDefPlaywright = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, [
-        { role: 'test-runner', integration: 'playwright' }
+        { role: 'test-runner', integration: 'playwright' },
+        { role: 'test-debugger-fixer', integration: 'playwright' }
       ]);
       const configPlaywright = await getAgentConfiguration(taskDefPlaywright, [
-        { role: 'test-runner', integration: 'playwright' }
+        { role: 'test-runner', integration: 'playwright' },
+        { role: 'test-debugger-fixer', integration: 'playwright' }
       ]);
 
       // Test with puppeteer
       const taskDefPuppeteer = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, [
-        { role: 'test-runner', integration: 'puppeteer' }
+        { role: 'test-runner', integration: 'puppeteer' },
+        { role: 'test-debugger-fixer', integration: 'puppeteer' }
       ]);
       const configPuppeteer = await getAgentConfiguration(taskDefPuppeteer, [
-        { role: 'test-runner', integration: 'puppeteer' }
+        { role: 'test-runner', integration: 'puppeteer' },
+        { role: 'test-debugger-fixer', integration: 'puppeteer' }
       ]);
 
       const playwrightSubagent = configPlaywright.subagents['test-runner'];
@@ -265,7 +270,8 @@ describe('getAgentConfiguration', () => {
     test('agent configuration should handle missing templates gracefully', async () => {
       // Even with invalid subagents in the list, valid ones should still work
       const validSubagents: ProjectSubAgent[] = [
-        { role: 'test-runner', integration: 'playwright' }
+        { role: 'test-runner', integration: 'playwright' },
+        { role: 'test-debugger-fixer', integration: 'playwright' }
       ];
 
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, validSubagents);

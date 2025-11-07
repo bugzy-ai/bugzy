@@ -132,6 +132,17 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     color: 'purple',
     isRequired: true, // Required for automated test generation
     version: '1.0.0'
+  },
+  'test-debugger-fixer': {
+    role: 'test-debugger-fixer',
+    name: 'Test Debugger & Fixer',
+    description: 'Debug and fix failing automated tests automatically',
+    icon: 'wrench',
+    integrations: [INTEGRATIONS.playwright],
+    model: 'sonnet',
+    color: 'yellow',
+    isRequired: true, // Required for automated test execution and fixing
+    version: '1.0.0'
   }
 };
 

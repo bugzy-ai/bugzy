@@ -6,6 +6,10 @@ export const sampleSubAgents: ProjectSubAgent[] = [
     integration: 'playwright'
   },
   {
+    role: 'test-debugger-fixer',
+    integration: 'playwright'
+  },
+  {
     role: 'team-communicator',
     integration: 'slack'
   },
@@ -22,6 +26,10 @@ export const sampleSubAgents: ProjectSubAgent[] = [
 export const minimalSubAgents: ProjectSubAgent[] = [
   {
     role: 'test-runner',
+    integration: 'playwright'
+  },
+  {
+    role: 'test-debugger-fixer',
     integration: 'playwright'
   },
   {
