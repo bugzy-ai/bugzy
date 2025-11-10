@@ -223,14 +223,14 @@ describe('Template Variable Replacement', () => {
 
 describe('Backwards Compatibility', () => {
   test('tasks without exploration/clarification still work', () => {
-    // verify-changes tasks use core template which includes exploration/clarification
-    const task = buildTaskDefinition(TASK_SLUGS.VERIFY_CHANGES_MANUAL, FULL_SUBAGENTS_CONFIG);
+    // verify-changes task uses core template which includes exploration/clarification
+    const task = buildTaskDefinition(TASK_SLUGS.VERIFY_CHANGES, FULL_SUBAGENTS_CONFIG);
 
     expect(task).toBeDefined();
-    expect(task.slug).toBe(TASK_SLUGS.VERIFY_CHANGES_MANUAL);
+    expect(task.slug).toBe(TASK_SLUGS.VERIFY_CHANGES);
     // Should contain core workflow content
     expect(task.content).toContain('Verify Changes');
-    expect(task.content).toContain('## Context');
+    expect(task.content).toContain('## Overview');
   });
 
   test('all tasks still build without errors', () => {

@@ -30,8 +30,7 @@ describe('getAgentConfiguration', () => {
       'run-tests',
       'handle-message',
       'process-event',
-      'verify-changes-manual',
-      'verify-changes-slack'
+      'verify-changes'
     ];
 
     for (const slug of validSlugs) {

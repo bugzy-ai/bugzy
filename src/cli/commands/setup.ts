@@ -227,39 +227,45 @@ async function reconfigureProject(): Promise<void> {
     const currentIntegration = existingConfig.subagents[subagent.role];
 
     if (currentIntegration) {
-      // Currently configured - offer to keep, change, or remove
-      const choices = [
-        { name: `Keep ${currentIntegration}`, value: 'keep' },
-        { name: 'Change to different integration', value: 'change' },
-      ];
+      // Auto-keep required subagents with only one integration
+      if (subagent.isRequired && subagent.integrations.length === 1) {
+        newSubagents[subagent.role] = subagent.integrations[0].id;
+        console.log(chalk.gray(`✓ ${subagent.name}: ${subagent.integrations[0].name} (required)`));
+      } else {
+        // Currently configured - offer to keep, change, or remove
+        const choices = [
+          { name: `Keep ${currentIntegration}`, value: 'keep' },
+          { name: 'Change to different integration', value: 'change' },
+        ];
 
-      // Only allow removal if not required
-      if (!subagent.isRequired) {
-        choices.push({ name: 'Remove', value: 'remove' });
-      }
+        // Only allow removal if not required
+        if (!subagent.isRequired) {
+          choices.push({ name: 'Remove', value: 'remove' });
+        }
 
-      const { action } = await inquirer.prompt([{
-        type: 'list',
-        name: 'action',
-        message: `${subagent.name} (currently: ${currentIntegration})`,
-        choices
-      }]);
-
-      if (action === 'keep') {
-        newSubagents[subagent.role] = currentIntegration;
-      } else if (action === 'change') {
-        const { integration } = await inquirer.prompt([{
+        const { action } = await inquirer.prompt([{
           type: 'list',
-          name: 'integration',
-          message: `Select new integration for ${subagent.name}:`,
-          choices: subagent.integrations.map(i => ({
-            name: i.name,
-            value: i.id
-          }))
+          name: 'action',
+          message: `${subagent.name} (currently: ${currentIntegration})`,
+          choices
         }]);
-        newSubagents[subagent.role] = integration;
+
+        if (action === 'keep') {
+          newSubagents[subagent.role] = currentIntegration;
+        } else if (action === 'change') {
+          const { integration } = await inquirer.prompt([{
+            type: 'list',
+            name: 'integration',
+            message: `Select new integration for ${subagent.name}:`,
+            choices: subagent.integrations.map(i => ({
+              name: i.name,
+              value: i.id
+            }))
+          }]);
+          newSubagents[subagent.role] = integration;
+        }
+        // If 'remove', don't add to newSubagents
       }
-      // If 'remove', don't add to newSubagents
     } else {
       // Not currently configured - offer to add (if optional)
       if (!subagent.isRequired) {
@@ -283,16 +289,23 @@ async function reconfigureProject(): Promise<void> {
         }
       } else {
         // Required but not configured - must configure
-        const { integration } = await inquirer.prompt([{
-          type: 'list',
-          name: 'integration',
-          message: `${subagent.name} (required) - ${subagent.description}`,
-          choices: subagent.integrations.map(i => ({
-            name: i.name,
-            value: i.id
-          }))
-        }]);
-        newSubagents[subagent.role] = integration;
+        if (subagent.integrations.length === 1) {
+          // Auto-configure if only one integration
+          newSubagents[subagent.role] = subagent.integrations[0].id;
+          console.log(chalk.gray(`✓ ${subagent.name}: ${subagent.integrations[0].name} (required)`));
+        } else {
+          // Prompt if multiple integrations
+          const { integration } = await inquirer.prompt([{
+            type: 'list',
+            name: 'integration',
+            message: `${subagent.name} (required) - ${subagent.description}`,
+            choices: subagent.integrations.map(i => ({
+              name: i.name,
+              value: i.id
+            }))
+          }]);
+          newSubagents[subagent.role] = integration;
+        }
       }
     }
   }

@@ -18,8 +18,6 @@ const COMMAND_FILTER: Record<string, boolean | string> = {
   // Cloud-only commands (skip in local environment)
   'handle-message': false,
   'process-event': false,
-  'verify-changes-slack': false,
-  'verify-changes-manual': false,
 };
 
 /**
