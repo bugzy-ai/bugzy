@@ -12,8 +12,7 @@ export const TASK_SLUGS = {
   HANDLE_MESSAGE: 'handle-message',
   PROCESS_EVENT: 'process-event',
   RUN_TESTS: 'run-tests',
-  VERIFY_CHANGES_MANUAL: 'verify-changes-manual',
-  VERIFY_CHANGES_SLACK: 'verify-changes-slack',
+  VERIFY_CHANGES: 'verify-changes',
 } as const;
 
 /**

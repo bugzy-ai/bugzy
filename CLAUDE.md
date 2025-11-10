@@ -124,9 +124,22 @@ Task templates use placeholders that are replaced at build time:
 
 ### Optional vs Required Subagents
 
-- **Required**: Must be configured for task to work (e.g., test-runner)
-- **Optional**: Enhance task functionality if configured (e.g., documentation-researcher)
-- Task builder validates required subagents exist before building
+**CRITICAL DISTINCTION:**
+
+- **Required Subagents**: Must ALWAYS be configured for task to work
+  - Examples: `test-runner`, `test-debugger-fixer`
+  - **Instructions should be embedded directly in `baseContent`** (no placeholders)
+  - Why: They're always present, so conditional injection is unnecessary complexity
+  - Listed in `requiredSubagents` array for validation
+
+- **Optional Subagents**: May or may not be configured (user choice)
+  - Examples: `documentation-researcher`, `team-communicator`, `issue-tracker`
+  - **Instructions use placeholders** like `{{ROLE_NAME_INSTRUCTIONS}}`
+  - Why: Placeholder gets replaced with instructions if configured, or empty string if not
+  - Listed in `optionalSubagents` array with contentBlock
+
+**Common Mistake to Avoid:**
+DO NOT use placeholders for required subagents. If a subagent is required, embed its instructions directly in baseContent. Placeholders are ONLY for optional subagents where the content needs conditional inclusion.
 
 ### Environment Variable Handling
 

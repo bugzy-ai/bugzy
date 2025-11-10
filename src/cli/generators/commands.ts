@@ -19,9 +19,7 @@ const COMMAND_FILTER: Record<string, boolean | string> = {
   'handle-message': false,
   'process-event': false,
   'verify-changes-slack': false,
-
-  // Rename commands for local environment
-  'verify-changes-manual': 'verify-changes',
+  'verify-changes-manual': false,
 };
 
 /**

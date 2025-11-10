@@ -14,8 +14,7 @@ import { generateTestPlanTask } from './library/generate-test-plan';
 import { handleMessageTask } from './library/handle-message';
 import { processEventTask } from './library/process-event';
 import { runTestsTask } from './library/run-tests';
-import { verifyChangesManualTask } from './library/verify-changes-manual';
-import { verifyChangesSlackTask } from './library/verify-changes-slack';
+import { verifyChangesTask } from './library/verify-changes';
 
 import type { TaskTemplate } from './types';
 import { TASK_SLUGS } from './constants';
@@ -31,8 +30,7 @@ export const TASK_TEMPLATES: Record<string, TaskTemplate> = {
   [TASK_SLUGS.HANDLE_MESSAGE]: handleMessageTask,
   [TASK_SLUGS.PROCESS_EVENT]: processEventTask,
   [TASK_SLUGS.RUN_TESTS]: runTestsTask,
-  [TASK_SLUGS.VERIFY_CHANGES_MANUAL]: verifyChangesManualTask,
-  [TASK_SLUGS.VERIFY_CHANGES_SLACK]: verifyChangesSlackTask,
+  [TASK_SLUGS.VERIFY_CHANGES]: verifyChangesTask,
 };
 
 /**

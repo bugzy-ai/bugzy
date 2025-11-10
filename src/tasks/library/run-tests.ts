@@ -193,44 +193,6 @@ For each failed test, collect:
 - Total Duration: [time]
 \`\`\`
 
-### Step 4: Generate Detailed Results Report
-
-After analyzing the JSON report:
-
-#### 4.1 Create Comprehensive Summary
-Generate a detailed test execution report:
-\`\`\`markdown
-## Test Execution Results
-
-### Overall Statistics
-- Total Tests: [count]
-- Passed: [count] ([percentage]%)
-- Failed: [count] ([percentage]%)
-- Skipped: [count] ([percentage]%)
-- Total Duration: [time in minutes and seconds]
-
-### Failed Tests
-[For each failed test from JSON report:
-- **Test**: [file path] › [test title]
-- **Error**: [error message from JSON]
-- **Duration**: [test duration]
-- **Trace**: [trace file path if available]
-]
-
-### Passed Tests
-[List passed test titles for reference]
-
-### Skipped Tests
-[List any skipped tests with reason]
-
-### Recommendations
-Based on test results:
-- Failed tests need triage (product bug vs test issue)
-- Tests with timeouts may need wait conditions
-- Tests with selector errors may need selector updates
-- Flaky tests (if re-run shows inconsistency) need stabilization
-\`\`\`
-
 ### Step 5: Learning Integration
 
 **Extract and document learnings from test results:**
@@ -267,6 +229,60 @@ Update \`learnings.md\` with new insights:
 - [Failures that might indicate bugs]
 - [Unexpected behaviors to explore]
 \`\`\`
+
+### Step 6: Triage Failed Tests
+
+After analyzing test results, triage each failure to determine if it's a product bug or test issue:
+
+#### 6.0 Triage Failed Tests FIRST
+
+**⚠️ IMPORTANT: Do NOT report bugs without triaging first.**
+
+For each failed test:
+
+1. **Read failure details** from JSON report (error message, stack trace)
+2. **Classify the failure:**
+   - **Product bug**: Application behaves incorrectly
+   - **Test issue**: Test code needs fixing (selector, timing, assertion)
+3. **Document classification** for next steps
+
+**Classification Guidelines:**
+- **Product Bug**: Correct test code, unexpected application behavior
+- **Test Issue**: Selector not found, timeout, race condition, wrong assertion
+
+#### 6.1 Fix Test Issues Automatically
+
+For each test classified as **[TEST ISSUE]**, use the test-debugger-fixer agent to automatically fix the test:
+
+\`\`\`
+Use the test-debugger-fixer agent to fix test issues:
+
+For each failed test classified as a test issue (not a product bug), provide:
+- Test file path: [from JSON report]
+- Test name/title: [from JSON report]
+- Error message: [from JSON report]
+- Stack trace: [from JSON report]
+- Trace file path: [if available]
+
+The agent will:
+1. Read the failing test file
+2. Analyze the failure details
+3. Open browser via Playwright MCP to debug if needed
+4. Identify the root cause (brittle selector, missing wait, race condition, etc.)
+5. Apply appropriate fix to the test code
+6. Rerun the test to verify the fix
+7. Repeat up to 3 times if needed
+8. Report success or escalate as likely product bug
+
+After test-debugger-fixer completes:
+- If fix succeeded: Mark test as fixed, add to "Tests Fixed" list
+- If still failing after 3 attempts: Reclassify as potential product bug for Step 6.1
+\`\`\`
+
+**Track Fixed Tests:**
+- Maintain list of tests fixed automatically
+- Include fix description (e.g., "Updated selector from CSS to role-based")
+- Note verification status (test now passes)
 
 {{ISSUE_TRACKER_INSTRUCTIONS}}
 
@@ -306,71 +322,9 @@ If selected test cases have formatting issues:
 - Playwright automatically captures traces, screenshots, and videos on failures
 - Test artifacts are stored in test-results/ directory
 - Reference .bugzy/runtime/testing-best-practices.md for test patterns and anti-patterns
-
-### Step 6: Triage Failed Tests
-
-After analyzing test results, triage each failure to determine if it's a product bug or test issue:
-
-#### 6.0 Triage Failed Tests FIRST
-
-**⚠️ IMPORTANT: Do NOT report bugs without triaging first.**
-
-For each failed test:
-
-1. **Read failure details** from JSON report (error message, stack trace)
-2. **Classify the failure:**
-   - **Product bug**: Application behaves incorrectly
-   - **Test issue**: Test code needs fixing (selector, timing, assertion)
-3. **Document classification** for next steps
-
-**Classification Guidelines:**
-- **Product Bug**: Correct test code, unexpected application behavior
-- **Test Issue**: Selector not found, timeout, race condition, wrong assertion
-
-{{TEST_DEBUGGER_FIXER_INSTRUCTIONS}}
-
-{{ISSUE_TRACKER_INSTRUCTIONS}}`,
+`,
 
   optionalSubagents: [
-    {
-      role: 'test-debugger-fixer',
-      contentBlock: `
-
-#### 6.1 Fix Test Issues Automatically
-
-For each test classified as **[TEST ISSUE]**, use the test-debugger-fixer agent to automatically fix the test:
-
-\`\`\`
-Use the test-debugger-fixer agent to fix test issues:
-
-For each failed test classified as a test issue (not a product bug), provide:
-- Test file path: [from JSON report]
-- Test name/title: [from JSON report]
-- Error message: [from JSON report]
-- Stack trace: [from JSON report]
-- Trace file path: [if available]
-
-The agent will:
-1. Read the failing test file
-2. Analyze the failure details
-3. Open browser via Playwright MCP to debug if needed
-4. Identify the root cause (brittle selector, missing wait, race condition, etc.)
-5. Apply appropriate fix to the test code
-6. Rerun the test to verify the fix
-7. Repeat up to 3 times if needed
-8. Report success or escalate as likely product bug
-
-After test-debugger-fixer completes:
-- If fix succeeded: Mark test as fixed, add to "Tests Fixed" list
-- If still failing after 3 attempts: Reclassify as potential product bug for Step 6.1
-\`\`\`
-
-**Track Fixed Tests:**
-- Maintain list of tests fixed automatically
-- Include fix description (e.g., "Updated selector from CSS to role-based")
-- Note verification status (test now passes)
-`
-    },
     {
       role: 'issue-tracker',
       contentBlock: `
