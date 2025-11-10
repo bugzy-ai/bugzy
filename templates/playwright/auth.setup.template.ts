@@ -1,5 +1,6 @@
 import { test as setup, expect } from '@playwright/test';
 import path from 'path';
+import { mkdir } from 'fs/promises';
 
 /**
  * Authentication Setup
@@ -14,7 +15,7 @@ import path from 'path';
  * - More stable tests (no repeated login operations)
  */
 
-const authFile = path.join(__dirname, '../playwright/.auth/user.json');
+const authFile = path.join(__dirname, '../.auth/user.json');
 
 setup('authenticate', async ({ page }) => {
   // Skip if no authentication is needed
@@ -49,6 +50,9 @@ setup('authenticate', async ({ page }) => {
   // Check for a user-specific element (e.g., user menu, profile icon)
   // Adjust based on your application
   // await expect(page.getByRole('button', { name: /profile|account/i })).toBeVisible();
+
+  // Create .auth directory if it doesn't exist
+  await mkdir(path.dirname(authFile), { recursive: true });
 
   // Save authentication state to file
   await page.context().storageState({ path: authFile });

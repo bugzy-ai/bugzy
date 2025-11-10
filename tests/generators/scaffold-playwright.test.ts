@@ -51,7 +51,7 @@ describe('scaffoldPlaywrightProject', () => {
       'tests/types',
       'tests/setup',
       'tests/data',
-      'playwright/.auth'
+      'tests/.auth'
     ];
 
     for (const dir of expectedDirs) {
@@ -194,7 +194,7 @@ describe('scaffoldPlaywrightProject', () => {
     expect(content).toContain('# Playwright');
     expect(content).toContain('test-results/');
     expect(content).toContain('playwright-report/');
-    expect(content).toContain('playwright/.auth/');
+    expect(content).toContain('tests/.auth/');
     expect(content).toContain('.env');
   });
 

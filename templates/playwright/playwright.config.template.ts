@@ -65,6 +65,7 @@ export default defineConfig({
     // Setup project - runs once before other tests
     {
       name: 'setup',
+      testDir: './tests/setup',
       testMatch: /.*\.setup\.ts/,
     },
 
@@ -74,47 +75,7 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         // Use authenticated state if available
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    },
-
-    // Firefox
-    {
-      name: 'firefox',
-      use: {
-        ...devices['Desktop Firefox'],
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    },
-
-    // WebKit (Safari)
-    {
-      name: 'webkit',
-      use: {
-        ...devices['Desktop Safari'],
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    },
-
-    // Mobile Chrome
-    {
-      name: 'Mobile Chrome',
-      use: {
-        ...devices['Pixel 5'],
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    },
-
-    // Mobile Safari
-    {
-      name: 'Mobile Safari',
-      use: {
-        ...devices['iPhone 12'],
-        storageState: 'playwright/.auth/user.json',
+        storageState: 'tests/.auth/user.json',
       },
       dependencies: ['setup'],
     },

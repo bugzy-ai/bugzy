@@ -62,7 +62,7 @@ async function createDirectoryStructure(targetDir: string): Promise<void> {
     'tests/types',
     'tests/setup',
     'tests/data',
-    'playwright/.auth',
+    'tests/.auth',
   ];
 
   for (const dir of directories) {
@@ -190,7 +190,7 @@ async function updateGitignore(targetDir: string): Promise<void> {
 # Playwright
 test-results/
 playwright-report/
-playwright/.auth/
+tests/.auth/
 .env
 `;
 
