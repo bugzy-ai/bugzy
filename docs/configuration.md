@@ -43,8 +43,7 @@ Subagents are specialized AI agents that provide specific capabilities to your t
 Executes automated tests in your application.
 
 **Integrations**:
-- `playwright` - Browser automation with Playwright (recommended)
-- `puppeteer` - Browser automation with Puppeteer
+- `playwright` - Browser automation with Playwright
 
 **Configuration**:
 ```json

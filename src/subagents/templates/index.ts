@@ -7,7 +7,6 @@ import type { SubagentTemplate } from '../types';
 
 // Test Runner templates
 import * as TestRunnerPlaywright from './test-runner/playwright';
-import * as TestRunnerPuppeteer from './test-runner/puppeteer';
 
 // Test Code Generator templates
 import * as TestCodeGeneratorPlaywright from './test-code-generator/playwright';
@@ -36,10 +35,6 @@ export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
     playwright: {
       frontmatter: TestRunnerPlaywright.FRONTMATTER,
       content: TestRunnerPlaywright.CONTENT,
-    },
-    puppeteer: {
-      frontmatter: TestRunnerPuppeteer.FRONTMATTER,
-      content: TestRunnerPuppeteer.CONTENT,
     },
   },
   'test-code-generator': {

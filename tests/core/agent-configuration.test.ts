@@ -167,7 +167,7 @@ describe('getAgentConfiguration', () => {
       });
     });
 
-    test('different integrations produce different prompts', async () => {
+    test('integration produces expected prompt content', async () => {
       // Test with playwright
       const taskDefPlaywright = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, [
         { role: 'test-runner', integration: 'playwright' },
@@ -178,29 +178,13 @@ describe('getAgentConfiguration', () => {
         { role: 'test-debugger-fixer', integration: 'playwright' }
       ]);
 
-      // Test with puppeteer
-      const taskDefPuppeteer = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, [
-        { role: 'test-runner', integration: 'puppeteer' },
-        { role: 'test-debugger-fixer', integration: 'puppeteer' }
-      ]);
-      const configPuppeteer = await getAgentConfiguration(taskDefPuppeteer, [
-        { role: 'test-runner', integration: 'puppeteer' },
-        { role: 'test-debugger-fixer', integration: 'puppeteer' }
-      ]);
-
       const playwrightSubagent = configPlaywright.subagents['test-runner'];
-      const puppeteerSubagent = configPuppeteer.subagents['test-runner'];
 
-      // Both should be defined
+      // Should be defined
       expect(playwrightSubagent).toBeDefined();
-      expect(puppeteerSubagent).toBeDefined();
 
-      // Prompts should be different
-      expect(playwrightSubagent.content).not.toBe(puppeteerSubagent.content);
-
-      // Each should mention its respective tool
+      // Should mention the integration tool
       expect(playwrightSubagent.content.toLowerCase()).toContain('playwright');
-      expect(puppeteerSubagent.content.toLowerCase()).toContain('puppeteer');
     });
   });
 
