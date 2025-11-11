@@ -77,12 +77,12 @@ setup('authenticate', async ({ page }) => {
  *   { name: 'setup-user', testMatch: /.*\.setup\.user\.ts/ },
  *   {
  *     name: 'admin-tests',
- *     use: { storageState: 'playwright/.auth/admin.json' },
+ *     use: { storageState: 'tests/.auth/admin.json' },
  *     dependencies: ['setup-admin'],
  *   },
  *   {
  *     name: 'user-tests',
- *     use: { storageState: 'playwright/.auth/user.json' },
+ *     use: { storageState: 'tests/.auth/user.json' },
  *     dependencies: ['setup-user'],
  *   },
  * ]

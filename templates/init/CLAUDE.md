@@ -11,12 +11,12 @@
 All agents, subagents, and slash commands must follow this security policy:
 
 - **NEVER read the `.env` file** - It contains secrets, credentials, and sensitive data
-- **ALWAYS use `.env.example`** instead - It contains only variable names, never actual values
+- **ALWAYS use `.env.testdata`** instead - It contains only variable names, never actual values
 - **Reference variables by name only** - e.g., TEST_BASE_URL, TEST_USER_EMAIL (never read the actual values)
 - **This is enforced** - `.claude/settings.json` has `Read(.env)` in the deny list
 
 When you need to know what environment variables are available:
-1. Read `.env.example` to see variable names and structure
+1. Read `.env.testdata` to see variable names and structure
 2. Reference variables by name in documentation and instructions
 3. Trust that users will configure their own `.env` file from the example
 4. Never attempt to access actual credential values
@@ -74,7 +74,7 @@ Agents and commands should NOT perform git operations (commit, push). Instead:
 
 **Files Automatically Committed**:
 - `test-plan.md` - Test planning documents
-- `.env.example` - Environment variable templates
+- `.env.testdata` - Environment variable templates
 - `./test-cases/*.md` - Individual test case files
 - `./exploration-reports/*.md` - Application exploration findings
 - `.bugzy/runtime/learnings.md` - Accumulated testing insights

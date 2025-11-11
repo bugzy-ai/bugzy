@@ -119,7 +119,7 @@ test.describe('Purchase flow', () => {
 // tests/setup/auth.setup.ts
 import { test as setup } from '@playwright/test';
 
-const authFile = 'playwright/.auth/user.json';
+const authFile = 'tests/.auth/user.json';
 
 setup('authenticate', async ({ page }) => {
   await page.goto('/login');
@@ -139,7 +139,7 @@ projects: [
   { name: 'setup', testMatch: /.*\.setup\.ts/ },
   {
     name: 'chromium',
-    use: { storageState: 'playwright/.auth/user.json' },
+    use: { storageState: 'tests/.auth/user.json' },
     dependencies: ['setup'],
   },
 ]

@@ -8,22 +8,21 @@ import { TASK_SLUGS } from '../constants';
 import { EXPLORATION_INSTRUCTIONS } from '../templates/exploration-instructions';
 
 export const exploreApplicationTask: TaskTemplate = {
-  slug: TASK_SLUGS.EXPLORE_APPLICATION,
-  name: 'Explore Application',
-  description: 'Systematically explore application to discover UI elements, workflows, and behaviors',
+   slug: TASK_SLUGS.EXPLORE_APPLICATION,
+   name: 'Explore Application',
+   description: 'Systematically explore application to discover UI elements, workflows, and behaviors',
 
-  frontmatter: {
-    description: 'Systematically explore application to discover UI elements, workflows, and behaviors',
-    'allowed-tools': 'Read, Write, MultiEdit, Task',
-    'argument-hint': '--focus [area] --depth [shallow|deep] --system [system-name]',
-  },
+   frontmatter: {
+      description: 'Systematically explore application to discover UI elements, workflows, and behaviors',
+      'argument-hint': '--focus [area] --depth [shallow|deep] --system [system-name]',
+   },
 
-  baseContent: `# Explore Application Command
+   baseContent: `# Explore Application Command
 
 ## SECURITY NOTICE
 **CRITICAL**: Never read the \`.env\` file. It contains ONLY secrets (passwords, API keys).
-- **Read \`.env.example\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
-- \`.env.example\` contains actual values for test data, URLs, and non-sensitive configuration
+- **Read \`.env.testdata\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
+- \`.env.testdata\` contains actual values for test data, URLs, and non-sensitive configuration
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The \`.env\` file access is blocked by settings.json
 
@@ -61,14 +60,14 @@ ${EXPLORATION_INSTRUCTIONS}
 ### Step 1: Load Environment and Context
 
 #### 1.1 Check Environment Variables
-Read \`.env.example\` file to understand what variables are required:
+Read \`.env.testdata\` file to understand what variables are required:
 - TEST_BASE_URL or TEST_MOBILE_BASE_URL (base URL variable names)
 - [SYSTEM_NAME]_URL (if multi-system setup)
 - Authentication credential variable names for the selected system
 - Any test data variable names
 
 Note: The actual values will be read from the user's \`.env\` file at test execution time.
-Verify \`.env.example\` exists to understand variable structure. If it doesn't exist, notify user to create it based on test plan.
+Verify \`.env.testdata\` exists to understand variable structure. If it doesn't exist, notify user to create it based on test plan.
 
 #### 1.2 Read Current Test Plan
 Read \`test-plan.md\` to:
@@ -207,7 +206,7 @@ priority: high
 ## Preconditions
 - Browser with cleared cookies and cache
 - Access to [system] environment
-- Credentials configured per .env.example template
+- Credentials configured per .env.testdata template
 
 ## Test Steps
 [Generated exploration steps based on strategy]
@@ -289,7 +288,7 @@ Create a concise summary for the user
 ## Error Handling
 
 ### Environment Issues
-- If \`.env.example\` missing: Warn user and suggest creating it from test plan
+- If \`.env.testdata\` missing: Warn user and suggest creating it from test plan
 - If credentials invalid (at runtime): Document in report and continue with public areas
 - If system unreachable: Retry with exponential backoff, report if persistent
 
@@ -320,6 +319,6 @@ Create a concise summary for the user
 - Validation based on actual behavior
 - More reliable test execution`,
 
-  optionalSubagents: [],
-  requiredSubagents: ['test-runner']
+   optionalSubagents: [],
+   requiredSubagents: ['test-runner']
 };

@@ -9,22 +9,21 @@ import { EXPLORATION_INSTRUCTIONS } from '../templates/exploration-instructions'
 import { CLARIFICATION_INSTRUCTIONS } from '../templates/clarification-instructions';
 
 export const generateTestCasesTask: TaskTemplate = {
-  slug: TASK_SLUGS.GENERATE_TEST_CASES,
-  name: 'Generate Test Cases',
-  description: 'Generate manual test case documentation AND automated Playwright test scripts from test plan',
+   slug: TASK_SLUGS.GENERATE_TEST_CASES,
+   name: 'Generate Test Cases',
+   description: 'Generate manual test case documentation AND automated Playwright test scripts from test plan',
 
-  frontmatter: {
-    description: 'Generate manual test case documentation AND automated Playwright test scripts from test plan',
-    'allowed-tools': 'Read, Write, MultiEdit, Task',
-    'argument-hint': '--type [exploratory|functional|regression|smoke] --focus [optional-feature]',
-  },
+   frontmatter: {
+      description: 'Generate manual test case documentation AND automated Playwright test scripts from test plan',
+      'argument-hint': '--type [exploratory|functional|regression|smoke] --focus [optional-feature]',
+   },
 
-  baseContent: `# Generate Test Cases Command
+   baseContent: `# Generate Test Cases Command
 
 ## SECURITY NOTICE
 **CRITICAL**: Never read the \`.env\` file. It contains ONLY secrets (passwords, API keys).
-- **Read \`.env.example\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
-- \`.env.example\` contains actual values for test data, URLs, and non-sensitive configuration
+- **Read \`.env.testdata\`** for non-secret test data (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
+- \`.env.testdata\` contains actual values for test data, URLs, and non-sensitive configuration
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The \`.env\` file access is blocked by settings.json
 
@@ -119,7 +118,7 @@ Use the test-code-generator agent to:
    - API for test data setup (faster than UI)
    - Proper async/await patterns
    - Test independence (can run in parallel)
-5. Update .env.example with any new environment variables
+5. Update .env.testdata with any new environment variables
 
 Arguments to pass:
 - Test type: {type}
@@ -182,10 +181,10 @@ mkdir -p ./tests/fixtures
 mkdir -p ./tests/helpers
 \`\`\`
 
-### Step 4: Update .env.example (if needed)
+### Step 4: Update .env.testdata (if needed)
 
 If new environment variables were introduced:
-- Read current \`.env.example\`
+- Read current \`.env.testdata\`
 - Add new TEST_* variables with empty values
 - Group variables logically with comments
 - Document what each variable is for
@@ -215,7 +214,7 @@ Provide a comprehensive summary showing:
 **Next Steps:**
 - Command to run automated tests: \`npx playwright test\`
 - Instructions to run specific test file
-- Note about copying .env.example to .env
+- Note about copying .env.testdata to .env
 - Mention any exploration needed for edge cases
 
 ### Important Notes
@@ -227,13 +226,13 @@ Provide a comprehensive summary showing:
 - **Linking**: Manual test cases reference automated tests; automated tests reference manual test case IDs
 - **Best Practices**: Always follow \`.bugzy/runtime/testing-best-practices.md\` for automation patterns
 - **Ambiguity Handling**: Use exploration (Step 1.5) and clarification (Step 1.6) protocols before generating
-- **Environment Variables**: Use \`process.env.VAR_NAME\` in tests, update .env.example as needed
+- **Environment Variables**: Use \`process.env.VAR_NAME\` in tests, update .env.testdata as needed
 - **Test Independence**: Each test must be runnable in isolation and in parallel`,
 
-  optionalSubagents: [
-    {
-      role: 'documentation-researcher',
-      contentBlock: `#### 1.4 Gather Product Documentation
+   optionalSubagents: [
+      {
+         role: 'documentation-researcher',
+         contentBlock: `#### 1.4 Gather Product Documentation
 
 Use the documentation-researcher agent to gather comprehensive product documentation:
 
@@ -247,10 +246,10 @@ Use the documentation-researcher agent to explore all available product document
 - Business rules and constraints
 - API endpoints for test data setup
 \`\`\``
-    },
-    {
-      role: 'team-communicator',
-      contentBlock: `### Step 4.5: Team Communication
+      },
+      {
+         role: 'team-communicator',
+         contentBlock: `### Step 4.5: Team Communication
 
 Use the team-communicator agent to notify the product team about the new test cases and automated tests:
 
@@ -283,7 +282,7 @@ The team communication should include:
 - Note test case and automation creation
 - Track team feedback on automation approach
 - Document any clarifications requested`
-    }
-  ],
-  requiredSubagents: ['test-runner', 'test-code-generator']
+      }
+   ],
+   requiredSubagents: ['test-runner', 'test-code-generator']
 };

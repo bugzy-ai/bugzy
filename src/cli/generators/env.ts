@@ -25,26 +25,7 @@ export async function generateEnvExample(mcpServers: string[]): Promise<void> {
 # --------------------------------------------
 `;
 
-  const footer = `
-# --------------------------------------------
-# Test Data & Configuration
-# --------------------------------------------
-
-# Application under test
-TEST_BASE_URL=http://localhost:3000
-
-# Test user credentials
-TEST_USER_EMAIL=test@example.com
-TEST_USER_PASSWORD=
-
-# Admin credentials
-TEST_ADMIN_EMAIL=admin@example.com
-TEST_ADMIN_PASSWORD=
-
-# Other test data
-TEST_TIMEOUT=30000
-TEST_HEADLESS=false
-`;
+  const footer = ``;
 
   // Build MCP secrets section
   let mcpSection = '';

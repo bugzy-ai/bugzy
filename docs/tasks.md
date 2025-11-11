@@ -346,7 +346,7 @@ TEST_TIMEOUT=30000
 TEST_HEADLESS=false
 ```
 
-**Security Note**: Tasks read from `.env.example` for non-secret values and reference variable names from `.env` for secrets. Never hardcode passwords in test files.
+**Security Note**: Tasks read from `.env.testdata` for non-secret values and reference variable names from `.env` for secrets. Never hardcode passwords in test files.
 
 ## Best Practices
 

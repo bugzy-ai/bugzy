@@ -134,7 +134,7 @@ Configuration (.bugzy/config.json)
          ├──► Commands Generator ──► .claude/commands/*.md
          ├──► Agents Generator   ──► .claude/agents/*.md
          ├──► MCP Generator      ──► .mcp.json
-         ├──► Env Generator      ──► .env.example
+         ├──► Env Generator      ──► .env.testdata
          └──► Structure Generator ──► .bugzy/runtime/
 ```
 
@@ -162,7 +162,7 @@ Configuration (.bugzy/config.json)
    ├─ Generate task commands (.claude/commands/)
    ├─ Generate subagent configs (.claude/agents/)
    ├─ Generate MCP config (.mcp.json)
-   └─ Generate .env.example template
+   └─ Generate .env.testdata template
 
 6. Update .gitignore if needed
 
@@ -185,7 +185,7 @@ Configuration (.bugzy/config.json)
 4. Load environment variables
    ├─ Read .env.local (if exists)
    ├─ Read .env (if exists)
-   └─ Read .env.example (fallback)
+   └─ Read .env.testdata (fallback)
 
 5. Validate required MCP secrets
    └─ Check each configured integration has required env vars
@@ -371,7 +371,7 @@ my-project/
 │   │   ├── team-communicator.md
 │   │   └── ...
 │   └── .mcp.json                    # MCP configuration (generated)
-├── .env.example                     # Environment template (generated)
+├── .env.testdata                     # Environment template (generated)
 ├── .env                             # Secrets (user-created, gitignored)
 └── .gitignore                       # Updated by Bugzy
 ```
@@ -407,7 +407,7 @@ bugzy/ (npm package)
 
 **Principles**:
 1. **Never commit secrets** - `.env` is gitignored
-2. **Template for sharing** - `.env.example` is committed
+2. **Template for sharing** - `.env.testdata` is committed
 3. **Variable substitution** - MCP config uses `${VAR}` references
 4. **Runtime injection** - Secrets loaded at execution time
 
@@ -427,7 +427,7 @@ bugzy/ (npm package)
 ### File Access
 
 Tasks are instructed to:
-- ✅ Read `.env.example` for non-secret values
+- ✅ Read `.env.testdata` for non-secret values
 - ❌ Never read `.env` file (secrets only)
 - ✅ Reference variable names for secrets (e.g., `$TEST_USER_PASSWORD`)
 

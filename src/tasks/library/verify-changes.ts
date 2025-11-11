@@ -16,7 +16,6 @@ export const verifyChangesTask: TaskTemplate = {
 
   frontmatter: {
     description: 'Verify code changes with automated tests and manual verification checklists',
-    'allowed-tools': 'All tools',
     'argument-hint': '[trigger-auto-detected]',
   },
 
@@ -24,8 +23,8 @@ export const verifyChangesTask: TaskTemplate = {
 
 ## SECURITY NOTICE
 **CRITICAL**: Never read the \`.env\` file. It contains ONLY secrets (passwords, API keys).
-- **Read \`.env.example\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
-- \`.env.example\` contains actual values for test data, URLs, and non-sensitive configuration
+- **Read \`.env.testdata\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
+- \`.env.testdata\` contains actual values for test data, URLs, and non-sensitive configuration
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The \`.env\` file access is blocked by settings.json
 
@@ -850,7 +849,7 @@ If team-communicator used:
 - Results include both automated and manual verification items
 - For best results, ensure:
   - Playwright is installed (\`npx playwright install\`)
-  - Environment variables configured (copy \`.env.example\` to \`.env\`)
+  - Environment variables configured (copy \`.env.testdata\` to \`.env\`)
   - GitHub token available for PR comments (if GitHub trigger)
   - Slack integration configured (if Slack trigger)
   - Issue tracker configured (Linear, Jira, etc.)
@@ -939,7 +938,7 @@ Use issue-tracker agent to:
      - Screenshots: [paths if available]
    - **Environment Details**:
      - Browser and version (from Playwright config)
-     - Test environment URL (from .env.example BASE_URL)
+     - Test environment URL (from .env.testdata BASE_URL)
      - Timestamp of failure
    - **Severity/Priority**: Based on:
      - Test type (smoke tests = high priority)

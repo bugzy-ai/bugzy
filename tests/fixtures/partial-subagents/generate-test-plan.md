@@ -8,8 +8,8 @@ argument-hint: <product-description>
 
 ## SECURITY NOTICE
 **CRITICAL**: Never read the `.env` file. It contains ONLY secrets (passwords, API keys).
-- **Read `.env.example`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
-- `.env.example` contains actual values for test data, URLs, and non-sensitive configuration
+- **Read `.env.testdata`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
+- `.env.testdata` contains actual values for test data, URLs, and non-sensitive configuration
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The `.env` file access is blocked by settings.json
 
@@ -439,11 +439,11 @@ Writing Instructions:
 - **Scope – UI Only:** Include only test scenarios that involve interacting with the application through the browser (clicking buttons, filling forms, navigating pages, etc.). Do not include any tests or details about backend processes, databases, or APIs.
 - **Test Data - IMPORTANT:**
   - DO NOT include test data values in the test plan body
-  - Test data goes ONLY to the `.env.example` file
-  - In the test plan, reference `.env.example` for test data requirements
+  - Test data goes ONLY to the `.env.testdata` file
+  - In the test plan, reference `.env.testdata` for test data requirements
   - Define test data as environment variables prefixed with TEST_ (e.g., TEST_BASE_URL, TEST_USER_EMAIL, TEST_USER_PASSWORD)
   - DO NOT GENERATE VALUES FOR THE ENV VARS, ONLY THE KEYS
-  - Track all TEST_ variables for extraction to .env.example in Step 7
+  - Track all TEST_ variables for extraction to .env.testdata in Step 7
 - **DO NOT INCLUDE TEST SCENARIOS**
 - **Incorporate All Relevant Info:** If the product description mentions specific requirements, constraints, or acceptance criteria (such as field validations, role-based access rules, important parameters), make sure these are reflected in the test plan. Do not add anything not supported by the given information.
 
@@ -485,7 +485,7 @@ tags: [functional, security, performance]
 
 ### Step 7: Extract and save environment variables
 
-**CRITICAL**: Test data values must ONLY go to .env.example, NOT in the test plan document.
+**CRITICAL**: Test data values must ONLY go to .env.testdata, NOT in the test plan document.
 
 After saving the test plan:
 
@@ -495,7 +495,7 @@ After saving the test plan:
    - Extract variables from configuration or setup sections
    - Common patterns include: TEST_BASE_URL, TEST_USER_*, TEST_API_*, TEST_ADMIN_*, etc.
 
-2. **Create .env.example file** with all discovered variables:
+2. **Create .env.testdata file** with all discovered variables:
    ```bash
    # Application Configuration
    TEST_BASE_URL=
@@ -517,12 +517,12 @@ After saving the test plan:
 
 3. **Add helpful comments** for each variable group to guide users in filling values
 
-4. **Save the file** as `.env.example` in the project root
+4. **Save the file** as `.env.testdata` in the project root
 
-5. **Verify test plan references .env.example**:
+5. **Verify test plan references .env.testdata**:
    - Ensure test plan DOES NOT contain test data values
-   - Ensure test plan references `.env.example` for test data requirements
-   - Add instruction: "Copy .env.example to .env and fill in actual values before running tests"
+   - Ensure test plan references `.env.testdata` for test data requirements
+   - Add instruction: "Copy .env.testdata to .env and fill in actual values before running tests"
 
 ### Step 7.5: Team Communication
 
@@ -554,6 +554,6 @@ The team communication should include:
 
 Provide a summary of:
 - Test plan created successfully at `test-plan.md`
-- Environment variables extracted to `.env.example`
+- Environment variables extracted to `.env.testdata`
 - Number of TEST_ variables discovered
 - Instructions for the user to create their .env file from the template

@@ -74,7 +74,8 @@ Generate files:
   - .claude/commands/*.md (8 task commands)
   - .claude/agents/*.md (configured subagents)
   - .mcp.json (MCP server config)
-  - .env.example (environment template)
+  - .env.example (MCP secrets template - empty values)
+  - .env.testdata (created by /generate-test-plan - test data with actual values)
 ```
 
 ### Task Building Process
@@ -143,7 +144,11 @@ DO NOT use placeholders for required subagents. If a subagent is required, embed
 
 ### Environment Variable Handling
 
-- CLI reads .env files in priority order: `.env.local` > `.env` > `.env.example`
+- CLI reads .env files in priority order: `.env.local` > `.env` > `.env.testdata` > `.env.example`
+- `.env.example`: MCP secrets template (empty values, for reference)
+- `.env.testdata`: Test data with actual non-secret values (created by /generate-test-plan task)
+- `.env`: User's actual secrets and overrides
+- `.env.local`: Local overrides (highest priority)
 - Variables exported to shell before launching Claude Code
 - MCP config uses `${VAR}` syntax, expanded by Claude Code at runtime
 

@@ -150,7 +150,7 @@ describe('scaffoldPlaywrightProject', () => {
     expect(fs.existsSync(dataGenPath), 'dataGenerators.ts should exist').toBe(true);
   });
 
-  it('should create .env.example file', async () => {
+  it('should NOT create .env.example file (managed by setup command)', async () => {
     const config: BugzyConfig = {
       version: '1.0.0',
       project: { name: 'test-project' },
@@ -165,11 +165,10 @@ describe('scaffoldPlaywrightProject', () => {
     });
 
     const envExamplePath = path.join(TEST_DIR, '.env.example');
-    expect(fs.existsSync(envExamplePath), '.env.example should exist').toBe(true);
-
-    const content = fs.readFileSync(envExamplePath, 'utf-8');
-    expect(content).toContain('TEST_BASE_URL');
-    expect(content).toContain('TEST_USER_EMAIL');
+    // .env.example should NOT be created by scaffolding
+    // It's created by the setup command for MCP secrets
+    // Test data goes to .env.testdata (created by /generate-test-plan task)
+    expect(fs.existsSync(envExamplePath), '.env.example should NOT be created by scaffolding').toBe(false);
   });
 
   it('should update .gitignore with Playwright entries', async () => {

@@ -46,7 +46,7 @@ This launches an interactive setup wizard that will:
 - Prompt you to configure subagents
 - Generate task commands
 - Generate MCP configuration
-- Create an `.env.example` file with required secrets
+- Create an `.env.testdata` file with required secrets
 
 ### Step 3: Configure Subagents
 
@@ -74,11 +74,11 @@ The setup wizard will ask you to configure subagents. Here's what each one does:
 
 ### Step 4: Configure Environment Variables
 
-After setup completes, you'll have a `.env.example` file with placeholders for required secrets:
+After setup completes, you'll have a `.env.testdata` file with placeholders for required secrets:
 
 ```bash
 # Copy the example file
-cp .env.example .env
+cp .env.testdata .env
 
 # Edit .env and add your secrets
 vim .env
@@ -147,7 +147,7 @@ your-project/
 │   │   ├── team-communicator.md
 │   │   └── ...
 │   └── .mcp.json               # MCP server configuration
-├── .env.example                # Template for environment variables
+├── .env.testdata                # Template for environment variables
 └── .env                        # Your secrets (gitignored)
 ```
 

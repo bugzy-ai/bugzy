@@ -9,7 +9,7 @@ import * as dotenv from 'dotenv';
 
 /**
  * Load environment variables from multiple .env files
- * Priority: .env.local > .env > .env.example
+ * Priority: .env.local > .env > .env.testdata > .env.example
  *
  * @returns Merged environment variables
  */
@@ -18,7 +18,8 @@ export function loadEnvFiles(): Record<string, string> {
 
   // Load in order of priority (later ones override earlier ones)
   const envFiles = [
-    '.env.example',  // Template (structure only, usually no values)
+    '.env.example',  // MCP secrets template (empty values)
+    '.env.testdata', // Test data with actual non-secret values
     '.env',          // Team defaults or personal secrets
     '.env.local'     // Personal overrides (highest priority)
   ];

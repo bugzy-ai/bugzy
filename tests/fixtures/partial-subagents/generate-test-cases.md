@@ -8,8 +8,8 @@ argument-hint: '--type [exploratory|functional|regression|smoke] --focus [option
 
 ## SECURITY NOTICE
 **CRITICAL**: Never read the `.env` file. It contains ONLY secrets (passwords, API keys).
-- **Read `.env.example`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
-- `.env.example` contains actual values for test data, URLs, and non-sensitive configuration
+- **Read `.env.testdata`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
+- `.env.testdata` contains actual values for test data, URLs, and non-sensitive configuration
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The `.env` file access is blocked by settings.json
 
@@ -475,7 +475,7 @@ Generate test cases following these STRICT RULES:
 5. **Include login steps** at the beginning if authentication is required
 6. **Keep steps atomic** – One user action or system response per step
 7. **No ambiguous steps** – Be specific (e.g., "Click on 'Submit'" not "Click on 'Submit' or 'Save'")
-8. **Use KEY format** for credentials and test data defined in the .env.example file (e.g., TEST_USERNAME, TEST_PASSWORD)
+8. **Use KEY format** for credentials and test data defined in the .env.testdata file (e.g., TEST_USERNAME, TEST_PASSWORD)
 9. **Tests must be independent** – Can run in parallel without dependencies
 10. **NO OVERLAPPING TEST CASES** – Each test must cover unique scenarios
 

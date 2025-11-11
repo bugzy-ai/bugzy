@@ -13,7 +13,6 @@ export const runTestsTask: TaskTemplate = {
 
   frontmatter: {
     description: 'Execute automated Playwright tests, analyze failures, and fix test issues automatically',
-    'allowed-tools': 'Read, Bash, Glob, Grep, Task',
     'argument-hint': '[file-pattern|tag|all] (e.g., "auth", "@smoke", "tests/specs/login.spec.ts")',
   },
 
@@ -21,8 +20,8 @@ export const runTestsTask: TaskTemplate = {
 
 ## SECURITY NOTICE
 **CRITICAL**: Never read the \`.env\` file. It contains ONLY secrets (passwords, API keys).
-- **Read \`.env.example\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
-- \`.env.example\` contains actual values for test data, URLs, and non-sensitive configuration
+- **Read \`.env.testdata\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
+- \`.env.testdata\` contains actual values for test data, URLs, and non-sensitive configuration
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The \`.env\` file access is blocked by settings.json
 
@@ -362,7 +361,7 @@ Use issue-tracker agent to:
      - Screenshots: [paths if available]
    - **Environment Details**:
      - Browser and version (from Playwright config)
-     - Test environment URL (from .env.example BASE_URL)
+     - Test environment URL (from .env.testdata BASE_URL)
      - Timestamp of failure
    - **Severity/Priority**: Based on:
      - Test type (smoke tests = high priority)

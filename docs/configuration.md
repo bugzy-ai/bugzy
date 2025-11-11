@@ -174,17 +174,17 @@ Bugzy uses environment variables for API tokens and configuration. Variables are
 
 1. `.env.local` (highest priority, gitignored)
 2. `.env` (team defaults or personal secrets, gitignored)
-3. `.env.example` (template only, committed to git)
+3. `.env.testdata` (template only, committed to git)
 
 ### Managing Secrets
 
 #### Initial Setup
 
-After running `bugzy setup`, an `.env.example` file is created:
+After running `bugzy setup`, an `.env.testdata` file is created:
 
 ```bash
 # Copy the example
-cp .env.example .env
+cp .env.testdata .env
 
 # Edit with your secrets
 vim .env
@@ -230,7 +230,7 @@ TEST_HEADLESS=false
 ### Security Best Practices
 
 1. **Never commit `.env` or `.env.local`** - They contain secrets
-2. **Use `.env.example`** - Commit this as a template for your team
+2. **Use `.env.testdata`** - Commit this as a template for your team
 3. **Rotate tokens regularly** - Update API tokens periodically
 4. **Use separate tokens per environment** - Dev, staging, prod should have different tokens
 5. **Limit token permissions** - Grant only necessary scopes
@@ -297,7 +297,7 @@ When you run `bugzy setup`, these files are regenerated:
 - All task commands in `.claude/commands/`
 - All subagent configs in `.claude/agents/`
 - `.mcp.json` with MCP server configurations
-- `.env.example` with updated required secrets
+- `.env.testdata` with updated required secrets
 
 **Note**: Your actual `.env` file is never modified - you must manually add new secrets.
 
@@ -476,8 +476,8 @@ Error: Integration 'confluence' not found for role 'documentation-researcher'
 
 ## Best Practices
 
-1. **Commit `.env.example`** - Helps team members know what variables they need
-2. **Document custom variables** - Add comments in `.env.example` for project-specific variables
+1. **Commit `.env.testdata`** - Helps team members know what variables they need
+2. **Document custom variables** - Add comments in `.env.testdata` for project-specific variables
 3. **Test configuration** - Run `bugzy` without arguments to validate setup before starting work
 4. **Keep configuration simple** - Only configure subagents you'll actually use
 5. **Update project context** - Keep `.bugzy/runtime/project-context.md` current

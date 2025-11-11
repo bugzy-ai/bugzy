@@ -17,7 +17,6 @@ export const handleMessageTask: TaskTemplate = {
 
   frontmatter: {
     description: 'Handle team responses and Slack communications, maintaining context for ongoing conversations',
-    'allowed-tools': 'Read, Write, MultiEdit, Task, Grep',
     'argument-hint': '[slack thread context or team message]',
   },
 
@@ -25,8 +24,8 @@ export const handleMessageTask: TaskTemplate = {
 
 ## SECURITY NOTICE
 **CRITICAL**: Never read the \`.env\` file. It contains ONLY secrets (passwords, API keys).
-- **Read \`.env.example\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
-- \`.env.example\` contains actual values for test data, URLs, and non-sensitive configuration
+- **Read \`.env.testdata\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
+- \`.env.testdata\` contains actual values for test data, URLs, and non-sensitive configuration
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The \`.env\` file access is blocked by settings.json
 

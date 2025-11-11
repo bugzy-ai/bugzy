@@ -43,10 +43,10 @@ export async function scaffoldPlaywrightProject(options: ScaffoldOptions): Promi
 
   console.log('\n✅ Playwright scaffolding complete!\n');
   console.log('Next steps:');
-  console.log('  1. Copy .env.example to .env and fill in secret values');
-  console.log('  2. Run: npx playwright install (install browser binaries)');
-  console.log('  3. Run: npx playwright test (run your tests)');
-  console.log('  4. Generate test plan: bugzy "/generate-test-plan for [feature]"\n');
+  console.log('  1. Copy .env.example to .env and fill in MCP secret values');
+  console.log('  2. Generate test plan: bugzy "/generate-test-plan for [feature]" (creates .env.testdata)');
+  console.log('  3. Run: npx playwright install (install browser binaries)');
+  console.log('  4. Run: npx playwright test (run your tests)\n');
 }
 
 /**
@@ -127,11 +127,6 @@ async function copyTemplateFiles(targetDir: string, projectName: string): Promis
     {
       src: 'dataGenerators.helper.template.ts',
       dest: 'tests/helpers/dataGenerators.ts',
-      process: true,
-    },
-    {
-      src: 'env.example.template',
-      dest: '.env.example',
       process: true,
     },
   ];

@@ -31,9 +31,12 @@ cd my-project
 # Run interactive setup
 bugzy setup
 
-# Configure your environment
+# Configure your MCP secrets
 cp .env.example .env
-vim .env  # Add your API tokens
+vim .env  # Add your MCP API tokens (Slack, Notion, etc.)
+
+# Generate test plan (creates .env.testdata with test data)
+bugzy "/generate-test-plan for [your feature]"
 
 # Start a Claude Code session
 bugzy
@@ -66,8 +69,9 @@ your-project/
 │   ├── commands/                # 8 task slash commands
 │   ├── agents/                  # Configured subagent prompts
 │   └── .mcp.json                # MCP server configuration
-├── .env.example                 # Environment template
-└── .env                         # Your secrets (gitignored)
+├── .env.example                 # MCP secrets template (empty values)
+├── .env.testdata                # Test data with actual values (from /generate-test-plan)
+└── .env                         # Your actual secrets (gitignored)
 ```
 
 ## Available Subagents
@@ -192,7 +196,7 @@ A: No! Bugzy works with any project type.
 A: Yes! Bugzy is language-agnostic.
 
 **Q: Where are my secrets stored?**
-A: In `.env` which is gitignored. Only `.env.example` is committed.
+A: In `.env` which is gitignored. `.env.example` (MCP secrets template) and `.env.testdata` (test data) are committed.
 
 **Q: Can I customize the tasks?**
 A: You can customize templates in `.bugzy/runtime/templates/`.

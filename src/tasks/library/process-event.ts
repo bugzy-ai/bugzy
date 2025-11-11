@@ -13,7 +13,6 @@ export const processEventTask: TaskTemplate = {
 
   frontmatter: {
     description: 'Process events flexibly to extract learnings, update tests, and track issues using the issue-tracker agent',
-    'allowed-tools': 'Read, Write, MultiEdit, Task, Grep',
     'argument-hint': '[event description or structured data]',
   },
 
@@ -21,8 +20,8 @@ export const processEventTask: TaskTemplate = {
 
 ## SECURITY NOTICE
 **CRITICAL**: Never read the \`.env\` file. It contains ONLY secrets (passwords, API keys).
-- **Read \`.env.example\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
-- \`.env.example\` contains actual values for test data, URLs, and non-sensitive configuration
+- **Read \`.env.testdata\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
+- \`.env.testdata\` contains actual values for test data, URLs, and non-sensitive configuration
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The \`.env\` file access is blocked by settings.json
 
