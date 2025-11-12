@@ -1,5 +1,69 @@
 # Testing Best Practices Reference
 
+## Two-Phase Test Automation Workflow
+
+**Critical Distinction**: Separate test scenario discovery from automation implementation.
+
+### Phase 1: Test Scenario Discovery (WHAT to test)
+
+**Goal**: Understand application behavior and identify what needs testing coverage.
+
+**Activities**:
+- Explore features and user workflows through manual interaction
+- Identify critical user paths and edge cases
+- Document test scenarios in human-readable format
+- Evaluate automation ROI for each scenario
+- Create manual test case documentation
+
+**Output**: Test plan with prioritized scenarios and automation decisions
+
+### Phase 2: Automation Implementation (HOW to automate)
+
+**Goal**: Build robust test automation framework validated with working tests.
+
+**Activities**:
+- Technical exploration to identify correct selectors
+- Create Page Object infrastructure
+- Generate ONE smoke test to validate framework
+- Run and debug until test passes consistently
+- Scale to additional tests only after validation
+
+**Output**: Working test automation with validated Page Objects
+
+### The "Test One First" Validation Loop
+
+**CRITICAL**: Always validate your framework with ONE working test before scaling.
+
+```
+1. Explore app for selectors (use Playwright MCP or codegen)
+2. Create Page Objects with verified selectors
+3. Write ONE critical path test (e.g., login)
+4. Run the test: npx playwright test <test-file>
+5. If fails → Debug and fix → Go to step 4
+6. If passes → Run 3-5 more times to ensure stability
+7. Once stable → Scale to additional tests
+```
+
+**Why this matters**:
+- Catches framework issues early (config, setup, auth)
+- Validates selectors work in real application
+- Prevents generating 50 broken tests
+- Builds confidence in Page Object reliability
+
+**Example validation workflow**:
+```bash
+# Generate ONE test first
+npx playwright test tests/specs/auth/login.spec.ts
+
+# Run multiple times to verify stability
+npx playwright test tests/specs/auth/login.spec.ts --repeat-each=5
+
+# Check for flakiness
+npx playwright test tests/specs/auth/login.spec.ts --workers=1
+
+# Once stable, generate more tests
+```
+
 ## Page Object Model (POM) Architecture
 
 **Core Principle**: Separate locators, actions, and assertions into distinct layers to isolate UI changes from test logic.
@@ -67,6 +131,105 @@ Add `data-testid` attributes for:
 
 ```typescript
 await page.getByTestId('checkout-submit').click();
+```
+
+## Playwright Codegen for Selector Discovery
+
+**Playwright's built-in codegen is faster and more reliable than manual selector creation.**
+
+### Using Codegen
+
+```bash
+# Start codegen from specific URL
+npx playwright codegen https://your-app.com
+
+# With authentication (loads saved state)
+npx playwright codegen --load-storage=tests/.auth/user.json https://your-app.com
+
+# Target specific browser
+npx playwright codegen --browser=chromium https://your-app.com
+```
+
+**Workflow**:
+1. Run codegen and interact with your application
+2. Playwright generates test code with verified selectors
+3. Copy generated selectors to your Page Objects
+4. Refactor code to follow Page Object Model pattern
+5. Extract reusable logic to fixtures and helpers
+
+### Hybrid Approach: Codegen + AI Refactoring
+
+```
+1. Use Playwright codegen → Generates working test with selectors
+2. Use AI (Claude) → Refactor to Page Objects, extract fixtures, add types
+3. Best of both worlds: Reliability (codegen) + Intelligence (AI)
+```
+
+**Example**:
+```typescript
+// Raw codegen output
+await page.goto('https://example.com/');
+await page.getByLabel('Email').click();
+await page.getByLabel('Email').fill('test@example.com');
+
+// After AI refactoring into Page Object
+class LoginPage {
+  readonly emailInput = this.page.getByLabel('Email');
+
+  async fillEmail(email: string) {
+    await this.emailInput.fill(email);
+  }
+}
+```
+
+## Smoke Test Strategy
+
+**Smoke tests are a minimal suite of critical path tests that validate core functionality.**
+
+### Characteristics
+
+- **Fast**: Target < 5 minutes total execution time
+- **Critical**: Cover must-work features (login, core user flows)
+- **Stable**: High reliability, minimal flakiness
+- **CI/CD**: Run on every commit/pull request
+
+### Tagging Smoke Tests
+
+```typescript
+// tests/specs/auth/login.spec.ts
+test('should login with valid credentials @smoke', async ({ page }) => {
+  // Critical path test
+});
+
+test('should show error with invalid password', async ({ page }) => {
+  // Not tagged - functional test only
+});
+```
+
+### Running Smoke Tests
+
+```bash
+# Run only smoke tests
+npx playwright test --grep @smoke
+
+# In CI/CD pipeline
+npx playwright test --grep @smoke --workers=2
+
+# Smoke tests as gate for full suite
+npx playwright test --grep @smoke && npx playwright test
+```
+
+### Smoke Test Suite Example
+
+```
+@smoke test coverage:
+✓ Login with valid credentials
+✓ Navigate to dashboard
+✓ Create new item (core feature)
+✓ View item details
+✓ Logout
+
+Target: < 5 minutes, 100% pass rate
 ```
 
 ## Test Organization
@@ -264,15 +427,28 @@ export default defineConfig({
 - [ ] Assertions in test files, not Page Objects
 - [ ] Role-based selectors prioritized
 - [ ] No hardcoded credentials
+- [ ] Framework validated with ONE working test before scaling
+- [ ] Smoke tests tagged with @smoke for CI/CD
+
+**Test Independence Validation:**
+- [ ] Each test can run in isolation: `npx playwright test <single-test>`
+- [ ] Tests pass in parallel: `npx playwright test --workers=4`
+- [ ] Tests pass in random order: `npx playwright test --shard=1/3` (run multiple shards)
+- [ ] No shared state between tests (each uses fixtures)
+- [ ] Tests cleanup after themselves (via fixtures or API)
 
 **CI/CD:**
-- [ ] Tests run on every pull request
+- [ ] Smoke tests run on every commit (`npx playwright test --grep @smoke`)
+- [ ] Full suite runs on pull requests
 - [ ] Artifacts uploaded (reports, traces)
 - [ ] Failure notifications configured
+- [ ] Test results published to PR comments
 
 ---
 
-**Remember**: The three critical pillars are:
-1. **Page Object Model** - Isolate UI changes from test logic
-2. **Role-based selectors** - Resist breakage
-3. **Authentication state reuse** - Maximize speed
+**Remember**: The five critical pillars are:
+1. **Two-Phase Approach** - Separate WHAT to test from HOW to automate
+2. **Test One First** - Validate framework with ONE working test before scaling
+3. **Page Object Model** - Isolate UI changes from test logic
+4. **Role-based selectors** - Resist breakage with semantic HTML
+5. **Authentication state reuse** - Maximize speed and reliability

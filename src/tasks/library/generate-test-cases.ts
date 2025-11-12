@@ -93,50 +93,110 @@ ${CLARIFICATION_INSTRUCTIONS.replace(/{{STEP_NUMBER}}/g, '1.6')}
 - **MEDIUM ambiguities:** Document assumptions explicitly in test case with [ASSUMED: reason]
 - **LOW ambiguities:** Mark with [TO BE CLARIFIED: detail] in test case notes section
 
-### Step 2: Generate Manual Test Cases AND Automated Tests
+### Step 1.7: Organize Test Scenarios by Area
 
-Use the test-code-generator agent to generate both manual test case documentation and automated Playwright test scripts:
+Based on exploration and documentation, organize test scenarios by feature area/component:
 
-\`\`\`
-Use the test-code-generator agent to:
-1. Analyze the test plan and identify test scenarios
-2. For each test scenario:
-   a. Generate manual test case documentation (markdown file in ./test-cases/)
-   b. Decide if automation is warranted based on automation decision criteria
-   c. If automating: Generate Playwright test script (.spec.ts file in ./tests/specs/)
-   d. Create or update Page Objects as needed (in ./tests/pages/)
-   e. Link manual test case to automated test (and vice versa)
-3. Generate supporting files:
-   - Fixtures for common setup (authenticated users, test data)
-   - Helper functions for data generation
-   - Component objects for reusable UI elements
-   - TypeScript types as needed
-4. Follow best practices from .bugzy/runtime/testing-best-practices.md:
-   - Page Object Model pattern
-   - Role-based selectors (getByRole, getByLabel, getByText)
-   - Use environment variables for test data
-   - API for test data setup (faster than UI)
-   - Proper async/await patterns
-   - Test independence (can run in parallel)
-5. Update .env.testdata with any new environment variables
+**Group scenarios into areas** (e.g., Authentication, Dashboard, Checkout, Profile Management):
+- Each area should be a logical feature grouping
+- Areas should be relatively independent for parallel test execution
+- Consider the application's navigation structure and user flows
 
-Arguments to pass:
+**For each area, identify scenarios**:
+
+1. **Critical User Paths** (must automate as smoke tests):
+   - Login/authentication flows
+   - Core feature workflows
+   - Data creation/modification flows
+   - Critical business transactions
+
+2. **Happy Path Scenarios** (automate for regression):
+   - Standard user workflows
+   - Common use cases
+   - Typical data entry patterns
+
+3. **Error Handling Scenarios** (evaluate automation ROI):
+   - Validation error messages
+   - Network error handling
+   - Permission/authorization errors
+
+4. **Edge Cases** (consider manual testing):
+   - Rare scenarios (<1% occurrence)
+   - Complex exploratory scenarios
+   - Visual/UX validation requiring judgment
+   - Features in heavy flux
+
+**Output**: Test scenarios organized by area with automation decisions for each
+
+Example structure:
+- **Authentication**: TC-001 Valid login (smoke, automate), TC-002 Invalid password (automate), TC-003 Password reset (automate)
+- **Dashboard**: TC-004 View dashboard widgets (smoke, automate), TC-005 Filter data by date (automate), TC-006 Export data (manual - rare use)
+
+### Step 2: Generate Test Cases Area by Area
+
+**IMPORTANT**: Process each feature area separately to enable incremental, focused test creation.
+
+**For each area from Step 1.7**, invoke the test-code-generator agent:
+
+#### Step 2.1: Prepare Area Context
+
+Before invoking the agent, prepare the context for the current area:
+- Current area name and scenarios
 - Test type: {type}
-- Focus area: {focus or "all features"}
+- Test plan reference: test-plan.md
+- Existing test cases in ./test-cases/
+- Existing automated tests in ./tests/specs/
+- Existing Page Objects in ./tests/pages/
+- Best practices guide: .bugzy/runtime/testing-best-practices.md
+
+#### Step 2.2: Invoke test-code-generator Agent
+
+Use the test-code-generator agent for the current area with the following context:
+
+**Agent Invocation:**
+"Use the test-code-generator agent to create test artifacts for the [AREA_NAME] area.
+
+**Context:**
+- Area: [AREA_NAME]
+- Test scenarios for this area: [list scenarios with automation decisions]
+- Test type: {type}
 - Test plan: test-plan.md
 - Existing test cases: ./test-cases/
 - Existing automated tests: ./tests/specs/
-- Best practices guide: .bugzy/runtime/testing-best-practices.md
-\`\`\`
+- Existing Page Objects: ./tests/pages/
+- Best practices: .bugzy/runtime/testing-best-practices.md
 
-The test-code-generator agent will:
-- Generate manual test case files with proper frontmatter (id, title, automated, automated_test)
-- Generate automated Playwright test scripts following best practices
-- Create Page Object Models with semantic selectors
-- Add fixtures and helpers as needed
-- Link manual and automated tests bidirectionally
-- Decide which scenarios to automate based on test plan criteria
-- Follow the testing best practices guide meticulously
+**The agent should:**
+1. Check existing Page Object infrastructure for this area
+2. Explore the feature area if POMs are missing (gather selectors, URLs, flows)
+3. Build missing Page Objects and supporting code
+4. Create manual test case documentation for each scenario
+5. Create automated tests for scenarios warranting automation
+6. Run and iterate on each test until it passes or fails with a product bug
+7. Update memory with learnings and patterns
+8. Update .env.testdata with any new variables
+
+**Focus only on the [AREA_NAME] area** - do not generate tests for other areas yet."
+
+#### Step 2.3: Verify Area Completion
+
+After the agent completes the area, verify:
+- All manual test cases created for the area
+- Automated tests created for warranted scenarios
+- Tests are passing (or failing with documented product bugs)
+- Page Objects created/updated for the area
+- Memory updated with area-specific learnings
+
+#### Step 2.4: Repeat for Next Area
+
+Move to the next area and repeat Steps 2.1-2.3 until all areas are complete.
+
+**Benefits of area-by-area approach**:
+- Agent focuses on one feature at a time
+- POMs built incrementally as needed
+- Tests verified before moving to next area
+- Easier to manage and track progress
+- Can pause/resume between areas if needed
 
 ### Step 2.5: Validate Generated Artifacts
 

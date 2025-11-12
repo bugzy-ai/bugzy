@@ -1,4 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Load non-secret environment variables from .env.testdata
+dotenv.config({ path: path.resolve(__dirname, '.env.testdata') });
+
+// Load secret environment variables from .env (for local development)
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 /**
  * Playwright Configuration
@@ -29,9 +37,7 @@ export default defineConfig({
 
   // Reporters
   reporter: [
-    ['html', { open: 'never' }],
-    ['list'],
-    ['junit', { outputFile: 'test-results/results.xml' }]
+    ['json', { outputFile: 'test-results/.last-run.json' }]
   ],
 
   // Global timeout
