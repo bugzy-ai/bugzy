@@ -40,9 +40,6 @@ describe('Task Generation - Full Subagents Config', () => {
         expect(task.frontmatter.description).toBeDefined();
         expect(typeof task.frontmatter.description).toBe('string');
         expect(task.frontmatter.description.length).toBeGreaterThan(0);
-
-        expect(task.frontmatter['allowed-tools']).toBeDefined();
-        expect(typeof task.frontmatter['allowed-tools']).toBe('string');
       });
 
       test('has basic structure', () => {

@@ -37,8 +37,21 @@ Extract the following from arguments:
   - Tag: "@smoke" → runs tests with @smoke annotation
   - Specific file: "tests/specs/login.spec.ts"
   - All tests: "all" or "" → runs entire test suite
+## Test Execution Strategy
+
+**IMPORTANT**: Before selecting tests, read \`.bugzy/runtime/test-execution-strategy.md\` to understand:
+- Available test tiers (Smoke, Component, Full Regression)
+- When to use each tier (commit, PR, release, debug)
+- Default behavior (default to @smoke unless user specifies otherwise)
+- How to interpret user intent from context keywords
+- Time/coverage trade-offs
+- Tag taxonomy
+
+Apply the strategy guidance when determining which tests to run.
 
 ## Process
+
+**First**, consult \`.bugzy/runtime/test-execution-strategy.md\` decision tree to determine appropriate test tier based on user's selector and context.
 
 ### Step 1: Identify Automated Tests to Run
 
@@ -309,18 +322,31 @@ If selected test cases have formatting issues:
 
 ### Important Notes
 
+**Test Selection Strategy**:
+- **Always read** \`.bugzy/runtime/test-execution-strategy.md\` before selecting tests
+- Default to \`@smoke\` tests for fast validation unless user explicitly requests otherwise
+- Smoke tests provide 100% manual test case coverage with zero redundancy (~2-5 min)
+- Full regression includes intentional redundancy for diagnostic value (~10-15 min)
+- Use context keywords from user request to choose appropriate tier
+
+**Test Execution**:
 - Automated Playwright tests are executed via bash command, not through agents
-- Test execution may take several minutes depending on the number and complexity of tests
+- Test execution time varies by tier (see strategy document for details)
 - JSON reports provide structured test results for analysis
+- Playwright automatically captures traces, screenshots, and videos on failures
+- Test artifacts are stored in test-results/ directory
+
+**Failure Handling**:
 - Test failures are automatically triaged (product bugs vs test issues)
 - Test issues are automatically fixed by the test-debugger-fixer subagent
 - Product bugs are logged via issue tracker after triage
 - All results are analyzed for learning opportunities and team communication
 - Critical failures trigger immediate team notification
-- Consider running smoke tests first (@smoke tag) for quick validation before full test suites
-- Playwright automatically captures traces, screenshots, and videos on failures
-- Test artifacts are stored in test-results/ directory
-- Reference .bugzy/runtime/testing-best-practices.md for test patterns and anti-patterns
+
+**Related Documentation**:
+- \`.bugzy/runtime/test-execution-strategy.md\` - When and why to run specific tests
+- \`.bugzy/runtime/testing-best-practices.md\` - How to write tests (patterns and anti-patterns)
+
 `,
 
   optionalSubagents: [

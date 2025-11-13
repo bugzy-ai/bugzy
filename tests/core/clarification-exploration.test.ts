@@ -10,18 +10,18 @@ import { FULL_SUBAGENTS_CONFIG } from '../fixtures/repo-configs';
 
 describe('Exploration Protocol Integration', () => {
   describe('generate-test-cases', () => {
-    test('includes exploration instructions (Step 1.5)', () => {
+    test('includes exploration instructions (Step 1.4)', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('### Step 1.5: Explore Features (If Needed)');
+      expect(task.content).toContain('### Step 1.4: Explore Features (If Needed)');
       expect(task.content).toContain('adaptive exploration');
       expect(task.content).toContain('understand actual feature behavior');
     });
 
-    test('includes clarification instructions (Step 1.6)', () => {
+    test('includes clarification instructions (Step 1.5)', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('### Step 1.6: Clarify Ambiguities');
+      expect(task.content).toContain('### Step 1.5: Clarify Ambiguities');
       expect(task.content).toContain('CRITICAL/HIGH ambiguities');
       expect(task.content).toContain('STOP test case generation');
     });
@@ -29,8 +29,8 @@ describe('Exploration Protocol Integration', () => {
     test('exploration comes before clarification', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
-      const explorationIndex = task.content.indexOf('Step 1.5: Explore Features');
-      const clarificationIndex = task.content.indexOf('Step 1.6: Clarify Ambiguities');
+      const explorationIndex = task.content.indexOf('Step 1.4: Explore Features');
+      const clarificationIndex = task.content.indexOf('Step 1.5: Clarify Ambiguities');
 
       expect(explorationIndex).toBeLessThan(clarificationIndex);
       expect(explorationIndex).toBeGreaterThan(-1);
@@ -248,9 +248,9 @@ describe('Protocol Flow Validation', () => {
   test('generate-test-cases: exploration → clarification → generation', () => {
     const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
-    const exploration = task.content.indexOf('Step 1.5: Explore Features');
-    const clarification = task.content.indexOf('Step 1.6: Clarify Ambiguities');
-    const generation = task.content.indexOf('### Step 2: Generate Manual Test Cases AND Automated Tests');
+    const exploration = task.content.indexOf('Step 1.4: Explore Features');
+    const clarification = task.content.indexOf('Step 1.5: Clarify Ambiguities');
+    const generation = task.content.indexOf('### Step 1.7: Generate All Manual Test Case Files');
 
     expect(exploration).toBeGreaterThan(-1);
     expect(clarification).toBeGreaterThan(exploration);

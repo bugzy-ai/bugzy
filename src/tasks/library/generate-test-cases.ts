@@ -58,16 +58,7 @@ Read the test plan from \`test-plan.md\` to understand:
 - Test environment and data requirements
 - Automation decision criteria
 
-#### 1.2 Read Testing Best Practices Guide
-Read \`.bugzy/runtime/testing-best-practices.md\` to understand:
-- Page Object Model patterns and structure
-- Selector strategy (role-based → test IDs → CSS)
-- Test organization conventions
-- Authentication patterns
-- Async operations and waiting strategies
-- Common anti-patterns to avoid
-
-#### 1.3 Check Existing Test Cases and Tests
+#### 1.2 Check Existing Test Cases and Tests
 - List all files in \`./test-cases/\` to understand existing manual test coverage
 - List all files in \`./tests/specs/\` to understand existing automated tests
 - Determine next test case ID (TC-XXX format)
@@ -76,24 +67,24 @@ Read \`.bugzy/runtime/testing-best-practices.md\` to understand:
 
 {{DOCUMENTATION_RESEARCHER_INSTRUCTIONS}}
 
-### Step 1.5: Explore Features (If Needed)
+### Step 1.4: Explore Features (If Needed)
 
 If documentation is insufficient or ambiguous, perform adaptive exploration to understand actual feature behavior before creating test cases.
 
-${EXPLORATION_INSTRUCTIONS.replace(/{{STEP_NUMBER}}/g, '1.5')}
+${EXPLORATION_INSTRUCTIONS.replace(/{{STEP_NUMBER}}/g, '1.4')}
 
-### Step 1.6: Clarify Ambiguities
+### Step 1.5: Clarify Ambiguities
 
 If exploration or documentation review reveals ambiguous requirements, use the clarification protocol to resolve them before generating test cases.
 
-${CLARIFICATION_INSTRUCTIONS.replace(/{{STEP_NUMBER}}/g, '1.6')}
+${CLARIFICATION_INSTRUCTIONS.replace(/{{STEP_NUMBER}}/g, '1.5')}
 
 **Important Notes:**
 - **CRITICAL/HIGH ambiguities:** STOP test case generation and seek clarification
 - **MEDIUM ambiguities:** Document assumptions explicitly in test case with [ASSUMED: reason]
 - **LOW ambiguities:** Mark with [TO BE CLARIFIED: detail] in test case notes section
 
-### Step 1.7: Organize Test Scenarios by Area
+### Step 1.6: Organize Test Scenarios by Area
 
 Based on exploration and documentation, organize test scenarios by feature area/component:
 
@@ -132,57 +123,82 @@ Example structure:
 - **Authentication**: TC-001 Valid login (smoke, automate), TC-002 Invalid password (automate), TC-003 Password reset (automate)
 - **Dashboard**: TC-004 View dashboard widgets (smoke, automate), TC-005 Filter data by date (automate), TC-006 Export data (manual - rare use)
 
-### Step 2: Generate Test Cases Area by Area
+### Step 1.7: Generate All Manual Test Case Files
+
+Generate ALL manual test case markdown files in the \`./test-cases/\` directory BEFORE invoking the test-code-generator agent.
+
+**For each test scenario from Step 1.6:**
+
+1. **Create test case file** in \`./test-cases/\` with format \`TC-XXX-feature-description.md\`
+2. **Include frontmatter** with:
+   - \`id:\` TC-XXX (sequential ID)
+   - \`title:\` Clear, descriptive title
+   - \`automated:\` true/false (based on automation decision from Step 1.6)
+   - \`automated_test:\` (leave empty - will be filled by subagent when automated)
+   - \`type:\` exploratory/functional/regression/smoke
+   - \`area:\` Feature area/component
+3. **Write test case content**:
+   - **Objective**: Clear description of what is being tested
+   - **Preconditions**: Setup requirements, test data needed
+   - **Test Steps**: Numbered, human-readable steps
+   - **Expected Results**: What should happen at each step
+   - **Test Data**: Environment variables to use (e.g., \${TEST_BASE_URL}, \${TEST_OWNER_EMAIL})
+   - **Notes**: Any assumptions, clarifications needed, or special considerations
+
+**Output**: All manual test case markdown files created in \`./test-cases/\` with automation flags set
+
+### Step 2: Automate Test Cases Area by Area
 
 **IMPORTANT**: Process each feature area separately to enable incremental, focused test creation.
 
-**For each area from Step 1.7**, invoke the test-code-generator agent:
+**For each area from Step 1.6**, invoke the test-code-generator agent:
 
 #### Step 2.1: Prepare Area Context
 
-Before invoking the agent, prepare the context for the current area:
-- Current area name and scenarios
+Before invoking the agent, identify the test cases for the current area:
+- Current area name
+- Test case files for this area (e.g., TC-001-valid-login.md, TC-002-invalid-password.md)
+- Which test cases are marked for automation (automated: true)
 - Test type: {type}
 - Test plan reference: test-plan.md
-- Existing test cases in ./test-cases/
 - Existing automated tests in ./tests/specs/
 - Existing Page Objects in ./tests/pages/
-- Best practices guide: .bugzy/runtime/testing-best-practices.md
 
 #### Step 2.2: Invoke test-code-generator Agent
 
 Use the test-code-generator agent for the current area with the following context:
 
 **Agent Invocation:**
-"Use the test-code-generator agent to create test artifacts for the [AREA_NAME] area.
+"Use the test-code-generator agent to automate test cases for the [AREA_NAME] area.
 
 **Context:**
 - Area: [AREA_NAME]
-- Test scenarios for this area: [list scenarios with automation decisions]
+- Manual test case files to automate: [list TC-XXX files marked with automated: true]
 - Test type: {type}
 - Test plan: test-plan.md
-- Existing test cases: ./test-cases/
+- Manual test cases directory: ./test-cases/
 - Existing automated tests: ./tests/specs/
 - Existing Page Objects: ./tests/pages/
-- Best practices: .bugzy/runtime/testing-best-practices.md
 
 **The agent should:**
-1. Check existing Page Object infrastructure for this area
-2. Explore the feature area if POMs are missing (gather selectors, URLs, flows)
-3. Build missing Page Objects and supporting code
-4. Create manual test case documentation for each scenario
-5. Create automated tests for scenarios warranting automation
+1. Read the manual test case files for this area
+2. Check existing Page Object infrastructure for this area
+3. Explore the feature area to understand implementation (gather selectors, URLs, flows)
+4. Build missing Page Objects and supporting code
+5. For each test case marked \`automated: true\`:
+   - Create automated Playwright test in ./tests/specs/
+   - Update the manual test case file to reference the automated test path
 6. Run and iterate on each test until it passes or fails with a product bug
 7. Update memory with learnings and patterns
 8. Update .env.testdata with any new variables
 
-**Focus only on the [AREA_NAME] area** - do not generate tests for other areas yet."
+**Focus only on the [AREA_NAME] area** - do not automate tests for other areas yet."
 
 #### Step 2.3: Verify Area Completion
 
 After the agent completes the area, verify:
-- All manual test cases created for the area
-- Automated tests created for warranted scenarios
+- Manual test case files updated with automated_test references
+- Automated tests created for all test cases marked automated: true
 - Tests are passing (or failing with documented product bugs)
 - Page Objects created/updated for the area
 - Memory updated with area-specific learnings
@@ -284,8 +300,8 @@ Provide a comprehensive summary showing:
 - **Automated Tests**: Fast, repeatable, for CI/CD and regression testing
 - **Automation Decision**: Not all test cases need automation - rare edge cases can stay manual
 - **Linking**: Manual test cases reference automated tests; automated tests reference manual test case IDs
-- **Best Practices**: Always follow \`.bugzy/runtime/testing-best-practices.md\` for automation patterns
-- **Ambiguity Handling**: Use exploration (Step 1.5) and clarification (Step 1.6) protocols before generating
+- **Two-Phase Workflow**: First generate all manual test cases (Step 1.7), then automate area-by-area (Step 2)
+- **Ambiguity Handling**: Use exploration (Step 1.4) and clarification (Step 1.5) protocols before generating
 - **Environment Variables**: Use \`process.env.VAR_NAME\` in tests, update .env.testdata as needed
 - **Test Independence**: Each test must be runnable in isolation and in parallel`,
 
