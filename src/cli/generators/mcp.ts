@@ -15,8 +15,9 @@ export async function generateMCPConfig(mcpServers: string[]): Promise<void> {
   const cwd = process.cwd();
   const mcpConfigPath = path.join(cwd, '.mcp.json');
 
-  // Build MCP configuration using core library
-  const mcpConfig = buildMCPConfig(mcpServers);
+  // Build MCP configuration for local deployment (CLI usage)
+  // Container deployments use buildMCPConfig(servers, 'container') directly
+  const mcpConfig = buildMCPConfig(mcpServers, 'local');
 
   // Write to file
   const content = JSON.stringify(mcpConfig, null, 2);

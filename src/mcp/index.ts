@@ -16,6 +16,8 @@ export interface MCPServerConfig {
 /**
  * MCP Server Template
  * Defines MCP server configuration (secrets are expanded by Claude Code automatically)
+ * - config: Base configuration suitable for local development
+ * - containerExtensions: Additional settings merged when target='container'
  */
 export interface MCPServerTemplate {
   provider: string;
@@ -23,6 +25,7 @@ export interface MCPServerTemplate {
   description: string;
   requiresCredentials: boolean;
   config: MCPServerConfig;
+  containerExtensions?: Partial<MCPServerConfig>;
 }
 
 /**
@@ -56,15 +59,19 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
         'chromium',
         '--secrets',
         '.env',
-        '--headless',
         '--no-sandbox',
         '--viewport-size',
         '1280x720',
         '--save-video',
         '1280x720'
-      ],
-      env: {},
+      ]
     },
+    containerExtensions: {
+      args: ['--headless'],
+      env: {
+        PLAYWRIGHT_BROWSERS_PATH: '/opt/ms-playwright'
+      }
+    }
   },
   notion: {
     provider: 'notion',
@@ -138,14 +145,18 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
 };
 
 /**
- * Build MCP configuration for Cloud Run
+ * Build MCP configuration
  * Generates .mcp.json content (secrets are expanded by Claude Code automatically)
  *
  * @param requiredServers - List of MCP server provider names needed
- * @returns MCP config object ready for Cloud Run API
+ * @param target - Deployment target: 'container' (default) or 'local'
+ *   - 'local': Uses base config only
+ *   - 'container': Merges base config + containerExtensions
+ * @returns MCP config object ready for deployment
  */
 export function buildMCPConfig(
-  requiredServers: string[]
+  requiredServers: string[],
+  target: 'container' | 'local' = 'container'
 ): { mcpServers: Record<string, MCPServerConfig> } {
   const mcpServers: Record<string, MCPServerConfig> = {};
 
@@ -156,7 +167,25 @@ export function buildMCPConfig(
       continue;
     }
 
-    mcpServers[serverName] = template.config;
+    // Deep clone the base config to avoid mutating the original
+    let config: MCPServerConfig = JSON.parse(JSON.stringify(template.config));
+
+    // Merge container extensions if target is 'container'
+    if (target === 'container' && template.containerExtensions) {
+      const extensions = template.containerExtensions;
+
+      // Merge args: concatenate extension args to base args
+      if (extensions.args && extensions.args.length > 0) {
+        config.args = [...config.args, ...extensions.args];
+      }
+
+      // Merge env: spread extension env vars into base env
+      if (extensions.env) {
+        config.env = { ...(config.env || {}), ...extensions.env };
+      }
+    }
+
+    mcpServers[serverName] = config;
     console.log(`✓ Configured MCP server: ${template.name}`);
   }
 
