@@ -5,6 +5,7 @@
 
 import { TaskTemplate } from '../types';
 import { TASK_SLUGS } from '../constants';
+import { KNOWLEDGE_BASE_READ_INSTRUCTIONS, KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS } from '../templates/knowledge-base.js';
 
 export const runTestsTask: TaskTemplate = {
   slug: TASK_SLUGS.RUN_TESTS,
@@ -37,6 +38,9 @@ Extract the following from arguments:
   - Tag: "@smoke" → runs tests with @smoke annotation
   - Specific file: "tests/specs/login.spec.ts"
   - All tests: "all" or "" → runs entire test suite
+
+${KNOWLEDGE_BASE_READ_INSTRUCTIONS}
+
 ## Test Execution Strategy
 
 **IMPORTANT**: Before selecting tests, read \`.bugzy/runtime/test-execution-strategy.md\` to understand:
@@ -205,48 +209,11 @@ For each failed test, collect:
 - Total Duration: [time]
 \`\`\`
 
-### Step 5: Learning Integration
-
-**Extract and document learnings from test results:**
-
-Based on test execution outcomes, identify and document key learnings:
-
-#### 5.1 Analyze Test Results for Learnings
-For each test result, identify:
-- **New behaviors discovered**: Undocumented functionality or behaviors
-- **Failure patterns**: Common failure points or error patterns
-- **Performance insights**: Response times, loading issues
-- **Browser compatibility**: Issues specific to certain browsers
-- **User experience insights**: Usability issues or friction points
-- **Test improvements**: Steps that need refinement
-
-#### 5.2 Document Learnings
-Update \`learnings.md\` with new insights:
-\`\`\`markdown
-## [Date] - Test Run Learnings
-
-**Test Execution**: [Test selection criteria and count]
-**Overall Results**: [Pass/fail summary]
-
-**Key Learnings**:
-1. [Learning about product behavior]
-2. [Learning about test process]
-3. [Learning about system reliability]
-
-**Test Case Updates Needed**:
-- [Test cases that need refinement]
-- [New test scenarios discovered]
-
-**Potential Issues for Investigation**:
-- [Failures that might indicate bugs]
-- [Unexpected behaviors to explore]
-\`\`\`
-
-### Step 6: Triage Failed Tests
+### Step 5: Triage Failed Tests
 
 After analyzing test results, triage each failure to determine if it's a product bug or test issue:
 
-#### 6.0 Triage Failed Tests FIRST
+#### 5.1 Triage Failed Tests FIRST
 
 **⚠️ IMPORTANT: Do NOT report bugs without triaging first.**
 
@@ -262,7 +229,7 @@ For each failed test:
 - **Product Bug**: Correct test code, unexpected application behavior
 - **Test Issue**: Selector not found, timeout, race condition, wrong assertion
 
-#### 6.1 Fix Test Issues Automatically
+#### 5.2 Fix Test Issues Automatically
 
 For each test classified as **[TEST ISSUE]**, use the test-debugger-fixer agent to automatically fix the test:
 
@@ -288,7 +255,7 @@ The agent will:
 
 After test-debugger-fixer completes:
 - If fix succeeded: Mark test as fixed, add to "Tests Fixed" list
-- If still failing after 3 attempts: Reclassify as potential product bug for Step 6.1
+- If still failing after 3 attempts: Reclassify as potential product bug for Step 5.3
 \`\`\`
 
 **Track Fixed Tests:**
@@ -298,9 +265,11 @@ After test-debugger-fixer completes:
 
 {{ISSUE_TRACKER_INSTRUCTIONS}}
 
+${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}
+
 {{TEAM_COMMUNICATOR_INSTRUCTIONS}}
 
-### Step 8: Handle Special Cases
+### Step 6: Handle Special Cases
 
 #### If No Test Cases Found
 If no test cases match the selection criteria:
@@ -354,9 +323,9 @@ If selected test cases have formatting issues:
       role: 'issue-tracker',
       contentBlock: `
 
-#### 6.2 Log Product Bugs via Issue Tracker
+#### 5.3 Log Product Bugs via Issue Tracker
 
-After triage in Step 6.0, for tests classified as **[PRODUCT BUG]**, use the issue-tracker agent to log bugs:
+After triage in Step 5.1, for tests classified as **[PRODUCT BUG]**, use the issue-tracker agent to log bugs:
 
 For each bug to report, use the issue-tracker agent:
 
@@ -396,7 +365,7 @@ Use issue-tracker agent to:
    - **Additional Context**:
      - Error messages or stack traces from JSON report
      - Related test files (if part of test suite)
-     - Relevant learnings from learnings.md
+     - Relevant knowledge from knowledge-base.md
 
 3. Track created issues:
    - Note the issue ID/number returned
@@ -423,14 +392,14 @@ After issue tracker agent completes, create a summary:
 
 **Not Reported** (skipped or known):
 - TC-XXX: Skipped due to blocker failure
-- TC-YYY: Known issue documented in learnings
+- TC-YYY: Known issue documented in knowledge base
 \`\`\`
 
 **Note**: The issue tracker agent handles all duplicate detection and system integration automatically. Simply provide the bug details and let it manage the rest.`
     },
     {
       role: 'team-communicator',
-      contentBlock: `### Step 7: Team Communication
+      contentBlock: `### Step 6: Team Communication
 
 Use the team-communicator agent to notify the product team about test execution:
 

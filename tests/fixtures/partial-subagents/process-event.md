@@ -155,7 +155,7 @@ Read `.bugzy/runtime/memory/event-history.md` to:
 #### 2.3 Read Current State
 - Read `test-plan.md` for current coverage
 - List `./test-cases/` for existing tests
-- Check `.bugzy/runtime/learnings.md` for past insights
+- Check `.bugzy/runtime/knowledge-base.md` for past insights
 
 ### Step 3: Intelligent Event Analysis
 
@@ -314,7 +314,7 @@ mkdir -p ./test-cases .claude/memory
 ```
 
 Create files if they don't exist:
-- `.bugzy/runtime/learnings.md`
+- `.bugzy/runtime/knowledge-base.md`
 - `.bugzy/runtime/memory/event-processor.md`
 - `.bugzy/runtime/memory/event-history.md`
 

@@ -397,7 +397,7 @@ For each test result, identify:
 - **Test improvements**: Steps that need refinement
 
 #### 5.2 Document Learnings
-Update `learnings.md` with new insights:
+Update `knowledge-base.md` with new insights:
 ```markdown
 ## [Date] - Test Run Learnings
 
@@ -508,7 +508,7 @@ Based on exploration and clarification, categorize each failure:
    - Document in learnings and update test
 
 3. **Known Issue** → Skip reporting
-   - Already documented in learnings.md
+   - Already documented in knowledge-base.md
    - Already tracked in issue system (check issue-tracker memory)
    - Accepted limitation or won't-fix
 
@@ -600,7 +600,7 @@ Use issue-tracker agent to:
    - **Additional Context**:
      - Error messages or stack traces
      - Related test cases (dependencies)
-     - Relevant learnings from learnings.md
+     - Relevant learnings from knowledge-base.md
 
 3. Track created issues:
    - Note the issue ID/number returned

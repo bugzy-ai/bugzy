@@ -7,6 +7,7 @@ import { TaskTemplate } from '../types';
 import { TASK_SLUGS } from '../constants';
 import { EXPLORATION_INSTRUCTIONS } from '../templates/exploration-instructions';
 import { CLARIFICATION_INSTRUCTIONS } from '../templates/clarification-instructions';
+import { KNOWLEDGE_BASE_READ_INSTRUCTIONS, KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS } from '../templates/knowledge-base.js';
 
 export const generateTestCasesTask: TaskTemplate = {
    slug: TASK_SLUGS.GENERATE_TEST_CASES,
@@ -44,6 +45,8 @@ Arguments: \$ARGUMENTS
 Extract the following from arguments:
 - **type**: Test type (exploratory, functional, regression, smoke) - defaults to functional
 - **focus**: Optional specific feature or section to focus on
+
+${KNOWLEDGE_BASE_READ_INSTRUCTIONS}
 
 ## Process
 
@@ -189,7 +192,6 @@ Use the test-code-generator agent for the current area with the following contex
    - Create automated Playwright test in ./tests/specs/
    - Update the manual test case file to reference the automated test path
 6. Run and iterate on each test until it passes or fails with a product bug
-7. Update memory with learnings and patterns
 8. Update .env.testdata with any new variables
 
 **Focus only on the [AREA_NAME] area** - do not automate tests for other areas yet."
@@ -201,7 +203,6 @@ After the agent completes the area, verify:
 - Automated tests created for all test cases marked automated: true
 - Tests are passing (or failing with documented product bugs)
 - Page Objects created/updated for the area
-- Memory updated with area-specific learnings
 
 #### Step 2.4: Repeat for Next Area
 
@@ -264,6 +265,8 @@ If new environment variables were introduced:
 - Add new TEST_* variables with empty values
 - Group variables logically with comments
 - Document what each variable is for
+
+${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}
 
 {{TEAM_COMMUNICATOR_INSTRUCTIONS}}
 

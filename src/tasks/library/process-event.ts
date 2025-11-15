@@ -1,18 +1,19 @@
 /**
  * Process Event Task
- * Process events flexibly to extract learnings, update tests, and track issues using the issue-tracker agent
+ * Process events flexibly to extract insights, update tests, and track issues using the issue-tracker agent
  */
 
 import { TaskTemplate } from '../types';
 import { TASK_SLUGS } from '../constants';
+import { KNOWLEDGE_BASE_READ_INSTRUCTIONS, KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS } from '../templates/knowledge-base.js';
 
 export const processEventTask: TaskTemplate = {
   slug: TASK_SLUGS.PROCESS_EVENT,
   name: 'Process Event',
-  description: 'Process events flexibly to extract learnings, update tests, and track issues using the issue-tracker agent',
+  description: 'Process events flexibly to extract insights, update tests, and track issues using the issue-tracker agent',
 
   frontmatter: {
-    description: 'Process events flexibly to extract learnings, update tests, and track issues using the issue-tracker agent',
+    description: 'Process events flexibly to extract insights, update tests, and track issues using the issue-tracker agent',
     'argument-hint': '[event description or structured data]',
   },
 
@@ -29,6 +30,8 @@ Process various types of events using intelligent pattern matching and historica
 
 ## Arguments
 Arguments: \$ARGUMENTS
+
+${KNOWLEDGE_BASE_READ_INSTRUCTIONS}
 
 ## Process
 
@@ -165,7 +168,7 @@ Read \`.bugzy/runtime/memory/event-history.md\` to:
 #### 2.3 Read Current State
 - Read \`test-plan.md\` for current coverage
 - List \`./test-cases/\` for existing tests
-- Check \`.bugzy/runtime/learnings.md\` for past insights
+- Check \`.bugzy/runtime/knowledge-base.md\` for past insights
 
 ### Step 3: Intelligent Event Analysis
 
@@ -174,7 +177,7 @@ Don't just match patterns - analyze the event within the full context:
 
 **Combine Multiple Signals**:
 - Event details + Historical patterns from memory
-- Current test plan state + Recent learnings
+- Current test plan state + Knowledge base
 - External system status + Team activity
 - Business priorities + Risk assessment
 
@@ -212,7 +215,7 @@ Analyze the event in context of ALL available information to decide what actions
 
 **Consider the Full Context**:
 - What does this event mean given our current test plan?
-- How does this relate to previous learnings?
+- How does this relate to current knowledge?
 - What's the state of related issues in external systems?
 - Is this part of a larger pattern we've been seeing?
 - What's the business impact of this event?
@@ -306,7 +309,7 @@ mkdir -p ./test-cases .claude/memory
 \`\`\`
 
 Create files if they don't exist:
-- \`.bugzy/runtime/learnings.md\`
+- \`.bugzy/runtime/knowledge-base.md\`
 - \`.bugzy/runtime/memory/event-processor.md\`
 - \`.bugzy/runtime/memory/event-history.md\`
 
@@ -314,7 +317,7 @@ Create files if they don't exist:
 
 ### Contextual Intelligence
 - Never process events in isolation - always consider full context
-- Use learnings, history, and external system state to inform decisions
+- Use knowledge base, history, and external system state to inform decisions
 - What seems like a bug might be expected behavior given the context
 - A minor event might be critical when seen as part of a pattern
 
@@ -334,7 +337,9 @@ Create files if they don't exist:
 - Each event adds to our understanding of the system
 - Update patterns when new correlations are discovered
 - Refine decision rules based on outcomes
-- Build institutional memory through event history`,
+- Build institutional memory through event history
+
+${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}`,
 
   optionalSubagents: [
     {

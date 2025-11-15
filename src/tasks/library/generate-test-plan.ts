@@ -7,6 +7,7 @@ import { TaskTemplate } from '../types';
 import { TASK_SLUGS } from '../constants';
 import { EXPLORATION_INSTRUCTIONS } from '../templates/exploration-instructions';
 import { CLARIFICATION_INSTRUCTIONS } from '../templates/clarification-instructions';
+import { KNOWLEDGE_BASE_READ_INSTRUCTIONS, KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS } from '../templates/knowledge-base.js';
 
 export const generateTestPlanTask: TaskTemplate = {
   slug: TASK_SLUGS.GENERATE_TEST_PLAN,
@@ -31,6 +32,8 @@ Generate a comprehensive test plan from product description following the Brain 
 
 ## Arguments
 Product description: \$ARGUMENTS
+
+${KNOWLEDGE_BASE_READ_INSTRUCTIONS}
 
 ## Process
 
@@ -215,6 +218,8 @@ After saving the test plan:
    - Ensure test plan DOES NOT contain test data values
    - Ensure test plan references \`.env.testdata\` for test data requirements
    - Add instruction: "Fill in actual values in .env.testdata before running tests"
+
+${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}
 
 {{TEAM_COMMUNICATOR_INSTRUCTIONS}}
 

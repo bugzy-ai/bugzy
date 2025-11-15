@@ -9,6 +9,7 @@
 
 import { TaskTemplate } from '../types';
 import { TASK_SLUGS } from '../constants';
+import { KNOWLEDGE_BASE_READ_INSTRUCTIONS, KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS } from '../templates/knowledge-base.js';
 
 export const handleMessageTask: TaskTemplate = {
   slug: TASK_SLUGS.HANDLE_MESSAGE,
@@ -33,6 +34,8 @@ Process team responses from Slack threads and handle multi-turn conversations wi
 
 ## Arguments
 Team message/thread context: \$ARGUMENTS
+
+${KNOWLEDGE_BASE_READ_INSTRUCTIONS}
 
 ## Process
 
@@ -89,7 +92,7 @@ If this is a response to a question we asked:
 Based on message content, load relevant context:
 - Current test plan state (\`test-plan.md\`)
 - Related test cases (search \`./test-cases/\` directory)
-- Relevant learnings from \`.bugzy/runtime/learnings.md\`
+- Relevant knowledge from \`.bugzy/runtime/knowledge-base.md\`
 - Documentation context (if feature/component mentioned)
 
 ### Step 4: Analyze Team Response
@@ -265,6 +268,8 @@ Use the team-communicator agent to:
 - Create patterns from successful resolutions
 - Document reusable approaches for similar uncertainties
 - Update team communication guidelines
+
+${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}
 
 ## Key Principles
 

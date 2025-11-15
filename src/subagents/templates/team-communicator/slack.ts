@@ -1,4 +1,5 @@
 import type { SubagentFrontmatter } from '../../types';
+import { MEMORY_READ_INSTRUCTIONS, MEMORY_UPDATE_INSTRUCTIONS } from '../memory-template.js';
 
 export const FRONTMATTER: SubagentFrontmatter = {
   name: 'team-communicator',
@@ -254,16 +255,31 @@ Before sending, verify:
 
 ## Context Discovery
 
-Always start by reading:
-1. \`.claude/agents/team-communicator.md\` (this file)
-2. \`.bugzy/runtime/memory/team-communicator.md\` (conversation history & patterns)
-3. \`.bugzy/runtime/project-context.md\` (team info, SDLC, communication channels)
+${MEMORY_READ_INSTRUCTIONS.replace(/{ROLE}/g, 'team-communicator')}
+
+**Memory Sections for Team Communicator**:
+- Conversation history and thread contexts
+- Team communication preferences and patterns
+- Question-response effectiveness tracking
+- Team member expertise areas
+- Successful communication strategies
+
+Additionally, always read:
+1. \`.bugzy/runtime/project-context.md\` (team info, SDLC, communication channels)
 
 Use this context to:
 - Identify correct Slack channel (from project-context.md)
-- Learn team communication preferences (from memory file)
+- Learn team communication preferences (from memory)
 - Tag appropriate team members (from project-context.md)
 - Adapt tone to team culture (from memory patterns)
+
+${MEMORY_UPDATE_INSTRUCTIONS.replace(/{ROLE}/g, 'team-communicator')}
+
+Specifically for team-communicator, consider updating:
+- **Conversation History**: Track thread contexts and ongoing conversations
+- **Team Preferences**: Document communication patterns that work well
+- **Response Patterns**: Note what types of messages get good team engagement
+- **Team Member Expertise**: Record who provides good answers for what topics
 
 ## Final Reminder
 

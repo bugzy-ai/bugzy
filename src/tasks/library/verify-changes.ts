@@ -8,6 +8,7 @@
 
 import { TaskTemplate } from '../types';
 import { TASK_SLUGS } from '../constants';
+import { KNOWLEDGE_BASE_READ_INSTRUCTIONS, KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS } from '../templates/knowledge-base.js';
 
 export const verifyChangesTask: TaskTemplate = {
   slug: TASK_SLUGS.VERIFY_CHANGES,
@@ -41,6 +42,8 @@ This task performs comprehensive change verification with:
 **Input**: \$ARGUMENTS
 
 The input format determines the trigger source and context extraction strategy.
+
+${KNOWLEDGE_BASE_READ_INSTRUCTIONS}
 
 ## Step 1: Detect Trigger Source
 
@@ -829,13 +832,7 @@ The following scenarios require human verification before release:
 - Suggest troubleshooting steps
 - Don't proceed with triage if tests didn't run
 
-### Update Memory
-
-If team-communicator used:
-- Record verification interaction
-- Track team response patterns
-- Document clarifications received
-- Note output preferences by trigger type
+${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}
 
 ## Important Notes
 
@@ -866,8 +863,7 @@ A successful verification includes:
 7. ✅ Manual verification checklist generated
 8. ✅ Results formatted for output channel
 9. ✅ Results delivered to appropriate destination
-10. ✅ Clear recommendation provided (merge / review / block)
-`,
+10. ✅ Clear recommendation provided (merge / review / block)`,
 
   optionalSubagents: [
     {
@@ -947,7 +943,7 @@ Use issue-tracker agent to:
    - **Additional Context**:
      - Error messages or stack traces from JSON report
      - Related test files (if part of test suite)
-     - Relevant learnings from learnings.md
+     - Relevant knowledge from knowledge-base.md
 
 3. Track created issues:
    - Note the issue ID/number returned

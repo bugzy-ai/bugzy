@@ -75,7 +75,7 @@ If this is a response to a question we asked:
 Based on message content, load relevant context:
 - Current test plan state (`test-plan.md`)
 - Related test cases (search `./test-cases/` directory)
-- Relevant learnings from `.bugzy/runtime/learnings.md`
+- Relevant learnings from `.bugzy/runtime/knowledge-base.md`
 - Documentation context (if feature/component mentioned)
 
 ### Step 4: Analyze Team Response

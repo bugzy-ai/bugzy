@@ -42,14 +42,12 @@ Specialized memory files for domain experts will be created in `.bugzy/runtime/m
 - **Test Plan**: `test-plan.md` - Generated via `/generate-test-plan` command using template
 - **Test Cases**: `./test-cases/` - Individual test case files generated via `/generate-test-cases`
 - **Exploration Reports**: `./exploration-reports/` - Structured reports from application exploration sessions
-- **Learnings**: `.bugzy/runtime/learnings.md` - Accumulated insights from testing and events
-- **Action Items**: `.bugzy/runtime/action-items.md` - Tracked action items from event processing and analysis
+- **Knowledge Base**: `.bugzy/runtime/knowledge-base.md` - Curated knowledge about the project (maintained using `.bugzy/runtime/knowledge-maintenance-guide.md`)
 - **Issue Tracking**: Managed by issue-tracker agent in your configured project management system
 - **Runtime**: `.bugzy/runtime/` - Project-specific runtime files:
   - `memory/` - Agent memory and knowledge base files
   - `templates/` - Document templates for test plan generation
-  - `learnings.md` - Accumulated insights
-  - `action-items.md` - Action items tracking
+  - `knowledge-base.md` - Accumulated insights
   - `project-context.md` - **CRITICAL**: Project SDLC, team information, QA workflow, and testing guidelines
 - **MCP Configuration**: `.bugzy/.mcp.json` - Template with all available MCP server configurations
 
@@ -77,8 +75,7 @@ Agents and commands should NOT perform git operations (commit, push). Instead:
 - `.env.testdata` - Environment variable templates
 - `./test-cases/*.md` - Individual test case files
 - `./exploration-reports/*.md` - Application exploration findings
-- `.bugzy/runtime/learnings.md` - Accumulated testing insights
-- `.bugzy/runtime/action-items.md` - Tracked action items
+- `.bugzy/runtime/knowledge-base.md` - Accumulated testing insights
 - `.bugzy/runtime/memory/*.md` - Agent memory and knowledge base
 - `CLAUDE.md` - Updated project context (when modified)
 - `.bugzy/runtime/project-context.md` - Project-specific runtime context

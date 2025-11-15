@@ -6,6 +6,7 @@
 import { TaskTemplate } from '../types';
 import { TASK_SLUGS } from '../constants';
 import { EXPLORATION_INSTRUCTIONS } from '../templates/exploration-instructions';
+import { KNOWLEDGE_BASE_READ_INSTRUCTIONS, KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS } from '../templates/knowledge-base.js';
 
 export const exploreApplicationTask: TaskTemplate = {
    slug: TASK_SLUGS.EXPLORE_APPLICATION,
@@ -36,6 +37,8 @@ Extract the following from arguments:
 - **focus**: Specific area to explore (authentication, navigation, search, content, admin)
 - **depth**: Exploration depth - shallow (quick discovery) or deep (comprehensive) - defaults to deep
 - **system**: Which system to explore (optional for multi-system setups)
+
+${KNOWLEDGE_BASE_READ_INSTRUCTIONS}
 
 ## Process
 
@@ -317,7 +320,9 @@ Create a concise summary for the user
 ### Enhances /run-tests
 - Tests use discovered selectors
 - Validation based on actual behavior
-- More reliable test execution`,
+- More reliable test execution
+
+${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}`,
 
    optionalSubagents: [],
    requiredSubagents: ['test-runner']
