@@ -101,103 +101,125 @@ Construct the Playwright test command based on the selector:
 
 **For file pattern or specific file**:
 \`\`\`bash
-npx playwright test [selector] --reporter=json
+BUGZY_EXECUTION_NUM=1 npx playwright test [selector]
 \`\`\`
 
 **For tag**:
 \`\`\`bash
-npx playwright test --grep "[tag]" --reporter=json
+BUGZY_EXECUTION_NUM=1 npx playwright test --grep "[tag]"
 \`\`\`
 
 **For all tests**:
 \`\`\`bash
-npx playwright test --reporter=json
+BUGZY_EXECUTION_NUM=1 npx playwright test
 \`\`\`
 
-**Output**: JSON report will be written to \`test-results/.last-run.json\` or configure custom path with \`--reporter=json,outputFile=results.json\`
+**Output**: Custom Bugzy reporter will create hierarchical test-runs/YYYYMMDD-HHMMSS/ structure with manifest.json
 
 #### 2.2 Execute Tests via Bash
-Run the Playwright command:
+Run the Playwright command with BUGZY_EXECUTION_NUM set:
 \`\`\`bash
-npx playwright test [selector] --reporter=json --output=test-results/
+BUGZY_EXECUTION_NUM=1 npx playwright test [selector]
 \`\`\`
 
 Wait for execution to complete. This may take several minutes depending on test count.
 
-#### 2.3 Locate and Read JSON Report
-After execution completes, find and read the JSON report:
+**Note**: The custom Bugzy reporter will automatically:
+- Generate timestamp in YYYYMMDD-HHMMSS format
+- Create test-runs/{timestamp}/ directory structure
+- Record execution-id.txt with BUGZY_EXECUTION_ID
+- Save results per test case in TC-{id}/exec-1/ folders
+- Generate manifest.json with complete execution summary
 
-1. Check for report file:
+#### 2.3 Locate and Read Test Results
+After execution completes, find and read the manifest:
+
+1. Find the test run directory (most recent):
    \`\`\`bash
-   ls test-results/.last-run.json
-   # OR
-   ls results.json
+   ls -t test-runs/ | head -1
    \`\`\`
 
-2. Read the JSON report file to analyze results
+2. Read the manifest.json file:
+   \`\`\`bash
+   cat test-runs/[timestamp]/manifest.json
+   \`\`\`
 
-### Step 3: Analyze Test Results from JSON Report
+3. Store the timestamp for use in test-debugger-fixer if needed
 
-#### 3.1 Parse JSON Report
-The Playwright JSON reporter produces structured output with:
+### Step 3: Analyze Test Results from Manifest
+
+#### 3.1 Parse Manifest
+The Bugzy custom reporter produces structured output in manifest.json:
 \`\`\`json
 {
-  "suites": [
+  "bugzyExecutionId": "70a59676-cfd0-4ffd-b8ad-69ceff25c31d",
+  "timestamp": "20251115-123456",
+  "startTime": "2025-11-15T12:34:56.789Z",
+  "endTime": "2025-11-15T12:45:23.456Z",
+  "status": "completed",
+  "stats": {
+    "totalTests": 10,
+    "passed": 8,
+    "failed": 2,
+    "totalExecutions": 10
+  },
+  "testCases": [
     {
-      "title": "Test suite name",
-      "file": "tests/specs/auth/login.spec.ts",
-      "specs": [
+      "id": "TC-001-login",
+      "name": "Login functionality",
+      "totalExecutions": 1,
+      "finalStatus": "passed",
+      "executions": [
         {
-          "title": "should login successfully",
-          "ok": true,
-          "tests": [
-            {
-              "status": "passed",
-              "duration": 1234
-            }
-          ]
-        },
+          "number": 1,
+          "status": "passed",
+          "duration": 1234,
+          "videoFile": "video.webm",
+          "hasTrace": false,
+          "hasScreenshots": false,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "TC-002-invalid-credentials",
+      "name": "Invalid credentials error",
+      "totalExecutions": 1,
+      "finalStatus": "failed",
+      "executions": [
         {
-          "title": "should show error for invalid credentials",
-          "ok": false,
-          "tests": [
-            {
-              "status": "failed",
-              "duration": 2345,
-              "error": {
-                "message": "expect(locator).toBeVisible()\\n\\nCall log:\\n- expect.toBeVisible with timeout 5000ms\\n- waiting for locator('.error-message')\\n\\nTimeout 5000ms exceeded.",
-                "stack": "Error: expect(locator).toBeVisible()..."
-              }
-            }
-          ]
+          "number": 1,
+          "status": "failed",
+          "duration": 2345,
+          "videoFile": "video.webm",
+          "hasTrace": true,
+          "hasScreenshots": true,
+          "error": "expect(locator).toBeVisible()..."
         }
       ]
     }
-  ],
-  "stats": {
-    "total": 10,
-    "expected": 8,
-    "unexpected": 2,
-    "skipped": 0
-  }
+  ]
 }
 \`\`\`
 
 #### 3.2 Extract Test Results
-From the JSON report, extract:
-- **Total tests**: Number of tests executed
-- **Passed tests**: Tests with status "passed"
-- **Failed tests**: Tests with status "failed" or "timedOut"
-- **Skipped tests**: Tests with status "skipped"
-- **Duration**: Total execution time
+From the manifest, extract:
+- **Total tests**: stats.totalTests
+- **Passed tests**: stats.passed
+- **Failed tests**: stats.failed
+- **Total executions**: stats.totalExecutions (includes re-runs)
+- **Duration**: Calculate from startTime and endTime
 
-For each failed test, collect:
-- Test file path
-- Test title/name
-- Error message
-- Stack trace
-- Duration
-- Any attached screenshots or traces
+For each failed test, collect from testCases array:
+- Test ID (id field)
+- Test name (name field)
+- Final status (finalStatus field)
+- Latest execution details:
+  - Error message (executions[last].error)
+  - Duration (executions[last].duration)
+  - Video file location (test-runs/{timestamp}/{id}/exec-{num}/{videoFile})
+  - Trace availability (executions[last].hasTrace)
+  - Screenshots availability (executions[last].hasScreenshots)
 
 #### 3.3 Generate Summary Statistics
 \`\`\`markdown
@@ -237,20 +259,20 @@ For each test classified as **[TEST ISSUE]**, use the test-debugger-fixer agent 
 Use the test-debugger-fixer agent to fix test issues:
 
 For each failed test classified as a test issue (not a product bug), provide:
-- Test file path: [from JSON report]
-- Test name/title: [from JSON report]
-- Error message: [from JSON report]
-- Stack trace: [from JSON report]
-- Trace file path: [if available]
+- Test run timestamp: [from manifest.timestamp]
+- Test case ID: [from testCases[].id in manifest]
+- Test name/title: [from testCases[].name in manifest]
+- Error message: [from testCases[].executions[last].error]
+- Execution details path: test-runs/{timestamp}/{testCaseId}/exec-1/
 
 The agent will:
-1. Read the failing test file
-2. Analyze the failure details
-3. Open browser via Playwright MCP to debug if needed
-4. Identify the root cause (brittle selector, missing wait, race condition, etc.)
-5. Apply appropriate fix to the test code
-6. Rerun the test to verify the fix
-7. Repeat up to 3 times if needed
+1. Read the execution details from result.json
+2. Analyze the failure (error message, trace if available)
+3. Identify the root cause (brittle selector, missing wait, race condition, etc.)
+4. Apply appropriate fix to the test code
+5. Rerun the test with BUGZY_EXECUTION_NUM incremented
+6. The custom reporter will automatically create exec-2/ folder
+7. Repeat up to 3 times if needed (exec-1, exec-2, exec-3)
 8. Report success or escalate as likely product bug
 
 After test-debugger-fixer completes:

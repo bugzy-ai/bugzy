@@ -37,7 +37,7 @@ export default defineConfig({
 
   // Reporters
   reporter: [
-    ['json', { outputFile: 'test-results/.last-run.json' }]
+    ['./reporters/bugzy-reporter.ts']
   ],
 
   // Global timeout
@@ -53,14 +53,14 @@ export default defineConfig({
     // Base URL from environment variable
     baseURL: process.env.TEST_BASE_URL || 'http://localhost:3000',
 
-    // Collect trace only on first retry
-    trace: 'on-first-retry',
+    // Collect trace on failure
+    trace: 'retain-on-failure',
 
     // Screenshot only on failure
     screenshot: 'only-on-failure',
 
-    // Video only on failure
-    video: 'retain-on-failure',
+    // Video for all tests (always record)
+    video: 'on',
 
     // Maximum time for actions (click, fill, etc.)
     actionTimeout: 10000,

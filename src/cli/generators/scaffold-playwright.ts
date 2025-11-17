@@ -63,6 +63,8 @@ async function createDirectoryStructure(targetDir: string): Promise<void> {
     'tests/setup',
     'tests/data',
     'tests/.auth',
+    'reporters',
+    'test-runs',
   ];
 
   for (const dir of directories) {
@@ -97,12 +99,27 @@ async function copyTemplateFiles(targetDir: string, projectName: string): Promis
     throw new Error('Templates directory not found. Searched paths: ' + possiblePaths.join(', '));
   }
 
+  // Copy test-runs/README.md from init templates (if available)
+  const initTemplatesDir = path.join(__dirname, '../../templates/init');
+  const testRunsReadmeSrc = path.join(initTemplatesDir, 'test-runs/README.md');
+  const testRunsReadmeDest = path.join(targetDir, 'test-runs/README.md');
+  if (fs.existsSync(testRunsReadmeSrc)) {
+    const content = fs.readFileSync(testRunsReadmeSrc, 'utf-8');
+    fs.writeFileSync(testRunsReadmeDest, content, 'utf-8');
+    console.log(`  ✓ Created test-runs/README.md`);
+  }
+
   // Template files and their destinations
   const templates = [
     {
       src: 'playwright.config.template.ts',
       dest: 'playwright.config.ts',
       process: true,
+    },
+    {
+      src: 'reporters/bugzy-reporter.ts',
+      dest: 'reporters/bugzy-reporter.ts',
+      process: false,
     },
     {
       src: 'BasePage.template.ts',

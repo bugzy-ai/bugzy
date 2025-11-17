@@ -155,6 +155,35 @@ Check out example configurations:
 - **Claude Code** installed and configured
 - **npm** or **yarn** package manager
 
+## Breaking Changes (v0.2.0)
+
+### New Test Execution Output Format
+
+**This is a breaking change.** Bugzy now uses a hierarchical test execution format with custom Playwright reporter:
+
+**What's New:**
+- **Custom Bugzy Reporter**: Automatically creates `test-runs/YYYYMMDD-HHMMSS/` structure with `manifest.json`
+- **Execution Retries**: Tracks multiple attempts per test (`exec-1/`, `exec-2/`, `exec-3/`)
+- **Comprehensive Artifacts**: Videos for all tests, traces/screenshots for failures only
+- **Manifest Format**: New `manifest.json` provides complete test run summary and per-test execution details
+
+**Migration Path:**
+1. Update to v0.2.0: `npm update -g bugzy`
+2. Run `bugzy setup` in your project to regenerate configuration files
+3. New files will be created:
+   - `playwright.config.ts` - Uses custom Bugzy reporter
+   - `reporters/bugzy-reporter.ts` - Custom reporter implementation
+   - `.bugzy/runtime/templates/test-result-schema.md` - Complete schema documentation
+
+**Key Changes:**
+- `/run-tests` now reads `manifest.json` instead of `.last-run.json`
+- Test artifacts organized in `test-runs/{timestamp}/{testId}/exec-{num}/` structure
+- Environment variable `BUGZY_EXECUTION_NUM` controls retry attempts
+- Videos recorded for ALL tests (not just failures)
+- Trace/screenshots only for failures (more efficient)
+
+See `.bugzy/runtime/templates/test-result-schema.md` for complete format documentation.
+
 ## Reconfiguration
 
 Need to change your setup? Just run:

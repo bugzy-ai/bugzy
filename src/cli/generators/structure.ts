@@ -92,6 +92,16 @@ async function createRuntimeFiles(): Promise<void> {
     const content = fs.readFileSync(templatePath, 'utf-8');
     fs.writeFileSync(bestPracticesPath, content, 'utf-8');
   }
+
+  // Create test-result-schema.md from template
+  const testResultSchemaPath = path.join(cwd, '.bugzy/runtime/templates/test-result-schema.md');
+  if (!fs.existsSync(testResultSchemaPath)) {
+    const templatePath = path.join(templatesDir, '.bugzy/runtime/templates/test-result-schema.md');
+    if (fs.existsSync(templatePath)) {
+      const content = fs.readFileSync(templatePath, 'utf-8');
+      fs.writeFileSync(testResultSchemaPath, content, 'utf-8');
+    }
+  }
 }
 
 /**

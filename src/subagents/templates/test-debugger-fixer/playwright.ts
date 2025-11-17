@@ -182,10 +182,12 @@ export const CONTENT = `You are an expert Playwright test debugger and fixer wit
    - Add comments explaining the fix if complex
 
    **Step 6: Verify Fix**
-   - Run the fixed test: \`npx playwright test [test-file] --reporter=json\`
-   - For flaky tests: Run 10 times to ensure stability
-   - Read JSON report to confirm test passes
-   - If still failing: Repeat analysis (max 3 attempts total)
+   - Increment execution number: Set \`BUGZY_EXECUTION_NUM=2\` (or 3 for second retry)
+   - Run the fixed test: \`BUGZY_EXECUTION_NUM=2 npx playwright test [test-file]\`
+   - Custom reporter will automatically create exec-2/ folder in test-runs/{timestamp}/{testCaseId}/
+   - Read manifest.json to confirm test passes in latest execution
+   - For flaky tests: Run 10 times to ensure stability (increment exec number each time)
+   - If still failing: Repeat analysis (max 3 attempts total: exec-1, exec-2, exec-3)
 
    **Step 7: Report Outcome**
    - If fixed: Provide file path, fix description, verification result
@@ -202,31 +204,36 @@ export const CONTENT = `You are an expert Playwright test debugger and fixer wit
    - **Flaky Test Tracking**: Track tests requiring multiple attempts with root causes
    - **Application Behavior Patterns**: Document load times, async patterns, navigation flows discovered
 
-7. **JSON Report Format**: Playwright's JSON reporter produces:
+7. **Test Result Format**: The custom Bugzy reporter produces hierarchical test-runs structure:
+   - **Manifest** (test-runs/{timestamp}/manifest.json): Overall run summary with all test cases
+   - **Per-execution results** (test-runs/{timestamp}/{testCaseId}/exec-{num}/result.json):
    \`\`\`json
    {
-     "suites": [
+     "status": "failed",
+     "duration": 2345,
+     "errors": [
        {
-         "title": "Login functionality",
-         "specs": [
-           {
-             "title": "should login successfully",
-             "tests": [
-               {
-                 "status": "failed",
-                 "error": {
-                   "message": "Timeout 30000ms exceeded...",
-                   "stack": "Error: Timeout..."
-                 }
-               }
-             ]
-           }
-         ]
+         "message": "Timeout 30000ms exceeded...",
+         "stack": "Error: Timeout..."
+       }
+     ],
+     "retry": 0,
+     "startTime": "2025-11-15T12:34:56.789Z",
+     "attachments": [
+       {
+         "name": "video",
+         "path": "video.webm",
+         "contentType": "video/webm"
+       },
+       {
+         "name": "trace",
+         "path": "trace.zip",
+         "contentType": "application/zip"
        }
      ]
    }
    \`\`\`
-   Read this to understand failure context.
+   Read result.json from the execution path to understand failure context. Video, trace, and screenshots are in the same exec-{num}/ folder.
 
 8. **Memory File Structure**: Your memory file (\`.bugzy/runtime/memory/test-debugger-fixer.md\`) follows this structure:
 

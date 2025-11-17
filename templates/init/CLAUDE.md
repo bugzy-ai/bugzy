@@ -118,15 +118,32 @@ The `.bugzy/runtime/project-context.md` file contains critical project informati
 Key information includes: QA workflow, story status management, bug reporting guidelines, testing environment details, and SDLC methodology.
 
 ### Test Execution Standards
-- ALL test artifacts MUST be stored in `./test-runs/YYYYMMDD-HHMMSS/TC-XXX/` folders
-- NO test-related files should be created in project root
+
+**Automated Test Execution** (via `/run-tests` command):
+- Test runs are stored in hierarchical structure: `./test-runs/YYYYMMDD-HHMMSS/TC-XXX/exec-N/`
+- Each test run session creates:
+  - `execution-id.txt`: Contains BUGZY_EXECUTION_ID for session tracking
+  - `manifest.json`: Overall run metadata with all test cases and executions
+  - Per test case folders (`TC-001-login/`, etc.) containing execution attempts
+- Each execution attempt (`exec-1/`, `exec-2/`, `exec-3/`) contains:
+  - `result.json`: Playwright test result format with status, duration, errors, attachments
+  - `video.webm`: Video recording (copied from Playwright's temp location)
+  - `trace.zip`: Trace file (only for failures)
+  - `screenshots/`: Screenshots directory (only for failures)
+- Videos are recorded for ALL tests, traces/screenshots only for failures
+- Custom Bugzy reporter handles all artifact organization automatically
+- External service uploads videos from execution folders to GCS
+
+**Manual Test Execution** (via test-runner agent):
+- Manual test cases use separate format: `./test-runs/YYYYMMDD-HHMMSS/TC-XXX/`
 - Each test run generates:
-  - summary.json (structured test result with video filename reference and failure reasons)
-  - steps.json (detailed steps with timestamps, video times, and observations)
-- Test results MUST follow the schema in `.bugzy/runtime/templates/test-result-schema.md`
-- Video recording is automatic via Playwright MCP --save-video flag
+  - `summary.json`: Structured test result with video filename reference
+  - `steps.json`: Step-by-step execution with timestamps and video synchronization
+- Video recording via Playwright MCP --save-video flag
 - Videos remain in `.playwright-mcp/` folder - external service uploads to GCS
-- Store ONLY video filename in summary.json: `{ "video": { "filename": "test-abc123.webm" } }`
-- Do NOT copy, move, or delete video files
-- DO NOT CREATE ANY SUMMARY, REPORT, OR WHATEVER FILES APART FROM THOSE ACTUAL BEING ASKED FOR. NO ADDITIONAL FILES IN THE ROOT FOLDER!!!!!
+
+**General Rules**:
+- NO test-related files should be created in project root
+- DO NOT copy, move, or delete video files manually
+- DO NOT CREATE ANY SUMMARY, REPORT, OR ADDITIONAL FILES unless explicitly requested
 <!-- Additional cross-domain information below -->
