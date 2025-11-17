@@ -113,6 +113,53 @@ Playwright test result format:
 }
 ```
 
+### steps.json (Per Execution - Optional)
+
+Generated when test uses `test.step()` API for step-level tracking:
+
+```json
+{
+  "steps": [
+    {
+      "index": 1,
+      "timestamp": "2025-11-15T12:34:56.789Z",
+      "videoTimeSeconds": 0,
+      "action": "Navigate to login page",
+      "status": "success",
+      "description": "Navigate to login page - completed successfully",
+      "technicalDetails": "test.step",
+      "duration": 1234
+    },
+    {
+      "index": 2,
+      "timestamp": "2025-11-15T12:34:58.023Z",
+      "videoTimeSeconds": 1,
+      "action": "Login with valid credentials",
+      "status": "success",
+      "description": "Login with valid credentials - completed successfully",
+      "technicalDetails": "test.step",
+      "duration": 2145
+    }
+  ],
+  "summary": {
+    "totalSteps": 9,
+    "successfulSteps": 9,
+    "failedSteps": 0,
+    "skippedSteps": 0
+  }
+}
+```
+
+**Field Descriptions**:
+- `index`: Step number (1, 2, 3...)
+- `timestamp`: ISO timestamp when step started
+- `videoTimeSeconds`: Elapsed seconds from test start for video navigation
+- `action`: Step title from `test.step('title', ...)`
+- `status`: 'success', 'failed', or 'skipped'
+- `description`: Step title + outcome
+- `technicalDetails`: Always 'test.step' for automated tests
+- `duration`: Step duration in milliseconds
+
 For failed tests, includes trace and screenshots:
 
 ```json

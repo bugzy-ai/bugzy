@@ -252,7 +252,13 @@ tests/
 └── setup/              # Global setup/teardown
 ```
 
-### Test Structure
+### Test Structure with test.step()
+
+**REQUIRED**: All tests must use `test.step()` to organize actions into high-level logical phases. This enables:
+- Video navigation by step (users can jump to specific phases in test execution videos)
+- Clear test structure and intent
+- Granular error tracking (know exactly which phase failed)
+- Better debugging with step-level timing
 
 ```typescript
 test.describe('Purchase flow', () => {
@@ -261,15 +267,186 @@ test.describe('Purchase flow', () => {
   });
 
   test('should complete purchase with credit card', async ({ page }) => {
-    // Arrange: Set up page objects
     const checkoutPage = new CheckoutPage(page);
 
-    // Act: Perform actions
-    await checkoutPage.fillPaymentInfo({/*...*/});
-    await checkoutPage.submitOrder();
+    await test.step('Add item to cart', async () => {
+      await checkoutPage.addItemToCart('Product A');
+      await expect(checkoutPage.cartCount).toHaveText('1');
+    });
 
-    // Assert: Verify outcomes
-    await expect(page).toHaveURL('/confirmation');
+    await test.step('Navigate to checkout', async () => {
+      await checkoutPage.goToCheckout();
+      await expect(page).toHaveURL('/checkout');
+    });
+
+    await test.step('Fill payment information', async () => {
+      await checkoutPage.fillPaymentInfo({
+        cardNumber: '4111111111111111',
+        expiry: '12/25',
+        cvv: '123'
+      });
+    });
+
+    await test.step('Submit order', async () => {
+      await checkoutPage.submitOrder();
+      await expect(page).toHaveURL('/confirmation');
+    });
+
+    await test.step('Verify order confirmation', async () => {
+      await expect(checkoutPage.confirmationMessage).toBeVisible();
+      await expect(checkoutPage.orderNumber).toContain('ORD-');
+    });
+  });
+});
+```
+
+**Step Granularity Guidelines**:
+- Target **3-7 steps per test** for optimal video navigation
+- Each step should represent a logical phase (e.g., "Login", "Navigate to settings", "Update profile")
+- Avoid micro-steps (e.g., "Click button", "Fill field") - group related actions
+- Step titles should be user-friendly and descriptive
+
+## Video-Synchronized Test Steps
+
+**REQUIRED for all tests**: Use `test.step()` API to create video-navigable test execution.
+
+### Why test.step() is Required
+
+Every test generates a video recording with `steps.json` file containing:
+- Step-by-step breakdown of test actions
+- Video timestamps for each step (in seconds from test start)
+- Step status (success/failed)
+- Step duration
+
+This enables users to:
+- Click on a step to jump to that point in the video
+- See exactly when and where a test failed
+- Navigate through test execution like a timeline
+- Debug issues by reviewing specific test phases
+
+### test.step() Best Practices
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('user can update profile settings', async ({ page }) => {
+  const settingsPage = new SettingsPage(page);
+  const profilePage = new ProfilePage(page);
+
+  await test.step('Navigate to settings page', async () => {
+    await settingsPage.navigate();
+    await expect(settingsPage.pageHeading).toBeVisible();
+  });
+
+  await test.step('Open profile section', async () => {
+    await settingsPage.clickProfileTab();
+    await expect(profilePage.nameInput).toBeVisible();
+  });
+
+  await test.step('Update profile information', async () => {
+    await profilePage.updateName('John Doe');
+    await profilePage.updateEmail('john@example.com');
+  });
+
+  await test.step('Save changes', async () => {
+    await profilePage.clickSaveButton();
+    await expect(profilePage.successMessage).toBeVisible();
+  });
+
+  await test.step('Verify changes persisted', async () => {
+    await page.reload();
+    await expect(profilePage.nameInput).toHaveValue('John Doe');
+    await expect(profilePage.emailInput).toHaveValue('john@example.com');
+  });
+});
+```
+
+### What Gets Recorded in steps.json
+
+```json
+{
+  "steps": [
+    {
+      "index": 1,
+      "timestamp": "2025-11-17T09:26:22.335Z",
+      "videoTimeSeconds": 0,
+      "action": "Navigate to settings page",
+      "status": "success",
+      "description": "Navigate to settings page - completed successfully",
+      "technicalDetails": "test.step",
+      "duration": 1234
+    },
+    {
+      "index": 2,
+      "timestamp": "2025-11-17T09:26:23.569Z",
+      "videoTimeSeconds": 1,
+      "action": "Open profile section",
+      "status": "success",
+      "description": "Open profile section - completed successfully",
+      "technicalDetails": "test.step",
+      "duration": 856
+    }
+  ],
+  "summary": {
+    "totalSteps": 5,
+    "successfulSteps": 5,
+    "failedSteps": 0,
+    "skippedSteps": 0
+  }
+}
+```
+
+### Step Naming Conventions
+
+✅ **Good step names** (user-friendly, high-level):
+- "Navigate to login page"
+- "Login with valid credentials"
+- "Add item to cart"
+- "Complete checkout process"
+- "Verify order confirmation"
+
+❌ **Bad step names** (too technical, too granular):
+- "Click the login button"
+- "Fill email field"
+- "Wait for page load"
+- "Assert element visible"
+- "page.goto('/login')"
+
+### Smoke Test Example with test.step()
+
+```typescript
+// tests/specs/auth/login.spec.ts
+test('should login and navigate through all main pages @smoke', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  const dashboardPage = new DashboardPage(page);
+
+  await test.step('Navigate to login page', async () => {
+    await loginPage.navigate();
+    await expect(loginPage.pageHeading).toBeVisible();
+  });
+
+  await test.step('Login with valid credentials', async () => {
+    await loginPage.login(
+      process.env.TEST_OWNER_EMAIL!,
+      process.env.TEST_OWNER_PASSWORD!
+    );
+    await page.waitForURL(/.*\/dashboard/);
+  });
+
+  await test.step('Navigate to Overview page', async () => {
+    await dashboardPage.navigateToOverview();
+    await expect(dashboardPage.overviewNavLink).toBeVisible();
+  });
+
+  await test.step('Navigate to Settings page', async () => {
+    await dashboardPage.navigateToSettings();
+    await expect(dashboardPage.settingsNavLink).toBeVisible();
+  });
+
+  await test.step('Logout and verify redirect', async () => {
+    await dashboardPage.logout();
+    await page.waitForURL(/.*\/login/);
+    await expect(loginPage.pageHeading).toBeVisible();
   });
 });
 ```
@@ -429,6 +606,7 @@ export default defineConfig({
 - [ ] No hardcoded credentials
 - [ ] Framework validated with ONE working test before scaling
 - [ ] Smoke tests tagged with @smoke for CI/CD
+- [ ] All tests use `test.step()` for video-navigable execution (3-7 steps per test)
 
 **Test Independence Validation:**
 - [ ] Each test can run in isolation: `npx playwright test <single-test>`

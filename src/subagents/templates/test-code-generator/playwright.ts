@@ -85,6 +85,8 @@ export const CONTENT = `You are an expert Playwright test automation engineer sp
    - **Generate automated test** (./tests/specs/*.spec.ts):
      * Use the manual test case steps as the basis
      * Create executable Playwright test using Page Objects
+     * **REQUIRED**: Structure test with \`test.step()\` calls matching the manual test case steps one-to-one
+     * Each test.step() should directly correspond to a numbered step in the manual test case
      * Reference manual test case ID in comments
      * Tag critical tests with @smoke
    - **Update manual test case file**:
@@ -176,6 +178,7 @@ export const CONTENT = `You are an expert Playwright test automation engineer sp
 - Document actual URLs from browser address bar
 - Take screenshots for documentation
 - Use role-based selectors as first priority
+- **Structure ALL tests with \`test.step()\` calls matching manual test case steps one-to-one**
 - Link manual ↔ automated tests bidirectionally (update manual test case with automated_test reference)
 - Follow .bugzy/runtime/testing-best-practices.md
 - Read existing manual test cases and automate those marked automated: true

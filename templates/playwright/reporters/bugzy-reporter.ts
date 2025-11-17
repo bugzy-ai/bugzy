@@ -5,9 +5,24 @@ import type {
   TestCase,
   TestResult,
   FullResult,
+  TestStep,
 } from '@playwright/test/reporter';
 import * as fs from 'fs';
 import * as path from 'path';
+
+/**
+ * Step data for steps.json
+ */
+interface StepData {
+  index: number;
+  timestamp: string;
+  videoTimeSeconds: number;
+  action: string;
+  status: 'success' | 'failed' | 'skipped';
+  description: string;
+  technicalDetails: string;
+  duration?: number;
+}
 
 /**
  * Bugzy Custom Playwright Reporter
@@ -21,6 +36,7 @@ import * as path from 'path';
  * - Captures traces/screenshots for failures only
  * - Links to BUGZY_EXECUTION_ID for session tracking
  * - Generates manifest.json with execution summary
+ * - Generates steps.json with video timestamps for test.step() calls
  */
 class BugzyReporter implements Reporter {
   private testRunDir!: string;
@@ -29,6 +45,8 @@ class BugzyReporter implements Reporter {
   private executionNum: number;
   private startTime!: Date;
   private testResults: Map<string, Array<any>> = new Map();
+  private testSteps: Map<string, Array<StepData>> = new Map();
+  private testStartTimes: Map<string, number> = new Map();
 
   constructor() {
     // Read execution number from environment (defaults to 1)
@@ -169,9 +187,92 @@ class BugzyReporter implements Reporter {
       error: result.errors.length > 0 ? result.errors[0].message : null,
     });
 
+    // Generate steps.json if test has steps
+    const testKey = this.getTestKey(test);
+    const steps = this.testSteps.get(testKey);
+    if (steps && steps.length > 0) {
+      const stepsData = {
+        steps,
+        summary: {
+          totalSteps: steps.length,
+          successfulSteps: steps.filter(s => s.status === 'success').length,
+          failedSteps: steps.filter(s => s.status === 'failed').length,
+          skippedSteps: steps.filter(s => s.status === 'skipped').length,
+        },
+      };
+
+      const stepsPath = path.join(execDir, 'steps.json');
+      fs.writeFileSync(stepsPath, JSON.stringify(stepsData, null, 2));
+    }
+
     // Log execution result
     const statusIcon = result.status === 'passed' ? '✅' : result.status === 'failed' ? '❌' : '⚠️';
     console.log(`${statusIcon} ${testId} [exec-${this.executionNum}] - ${result.status} (${result.duration}ms)`);
+  }
+
+  /**
+   * Called when a test step begins
+   */
+  onStepBegin(test: TestCase, _result: TestResult, step: TestStep): void {
+    // Only track test.step() calls (not hooks, fixtures, or expects)
+    if (step.category !== 'test.step') {
+      return;
+    }
+
+    const testKey = this.getTestKey(test);
+
+    // Record test start time on first step
+    if (!this.testStartTimes.has(testKey)) {
+      this.testStartTimes.set(testKey, step.startTime.getTime());
+    }
+
+    // Initialize steps array for this test
+    if (!this.testSteps.has(testKey)) {
+      this.testSteps.set(testKey, []);
+    }
+
+    const steps = this.testSteps.get(testKey)!;
+    const testStartTime = this.testStartTimes.get(testKey)!;
+    const videoTimeSeconds = Math.floor((step.startTime.getTime() - testStartTime) / 1000);
+
+    steps.push({
+      index: steps.length + 1,
+      timestamp: step.startTime.toISOString(),
+      videoTimeSeconds,
+      action: step.title,
+      status: 'success', // Will be updated in onStepEnd if it fails
+      description: `${step.title} - in progress`,
+      technicalDetails: 'test.step',
+    });
+  }
+
+  /**
+   * Called when a test step ends
+   */
+  onStepEnd(test: TestCase, _result: TestResult, step: TestStep): void {
+    // Only track test.step() calls
+    if (step.category !== 'test.step') {
+      return;
+    }
+
+    const testKey = this.getTestKey(test);
+    const steps = this.testSteps.get(testKey);
+
+    if (!steps || steps.length === 0) {
+      return;
+    }
+
+    // Update the last step with final status and duration
+    const lastStep = steps[steps.length - 1];
+    lastStep.duration = step.duration;
+
+    if (step.error) {
+      lastStep.status = 'failed';
+      lastStep.description = `${step.title} - failed: ${step.error.message}`;
+    } else {
+      lastStep.status = 'success';
+      lastStep.description = `${step.title} - completed successfully`;
+    }
   }
 
   /**
@@ -256,6 +357,13 @@ class BugzyReporter implements Reporter {
     // This is a simple fallback - you may want to improve this
     const testIndex = String(test.parent.tests.indexOf(test) + 1).padStart(3, '0');
     return `TC-${testIndex}-${title}`;
+  }
+
+  /**
+   * Generate unique key for test to track steps across retries
+   */
+  private getTestKey(test: TestCase): string {
+    return `${test.location.file}::${test.title}`;
   }
 }
 

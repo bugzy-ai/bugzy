@@ -127,12 +127,20 @@ Key information includes: QA workflow, story status management, bug reporting gu
   - Per test case folders (`TC-001-login/`, etc.) containing execution attempts
 - Each execution attempt (`exec-1/`, `exec-2/`, `exec-3/`) contains:
   - `result.json`: Playwright test result format with status, duration, errors, attachments
+  - `steps.json`: Step-by-step execution with video timestamps (if test uses `test.step()`)
   - `video.webm`: Video recording (copied from Playwright's temp location)
   - `trace.zip`: Trace file (only for failures)
   - `screenshots/`: Screenshots directory (only for failures)
 - Videos are recorded for ALL tests, traces/screenshots only for failures
 - Custom Bugzy reporter handles all artifact organization automatically
 - External service uploads videos from execution folders to GCS
+
+**Step-Level Tracking** (Automated Tests):
+- Tests using `test.step()` API generate steps.json files with video timestamps
+- Each step includes timestamp and videoTimeSeconds for easy video navigation
+- High-level steps recommended (3-7 per test) for manageable navigation
+- Steps appear in both result.json (Playwright format) and steps.json (user-friendly format)
+- Tests without `test.step()` still work but won't have steps.json
 
 **Manual Test Execution** (via test-runner agent):
 - Manual test cases use separate format: `./test-runs/YYYYMMDD-HHMMSS/TC-XXX/`
