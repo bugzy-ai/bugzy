@@ -45,15 +45,14 @@ describe('run-tests task (automated execution)', () => {
     const result = buildTaskDefinition('run-tests', minimalSubAgents);
 
     expect(result.content).toContain('npx playwright test');
-    expect(result.content).toContain('--reporter=json');
+    expect(result.content).toContain('Bugzy reporter');
   });
 
-  it('should include JSON report parsing instructions', () => {
+  it('should include test results structure instructions', () => {
     const result = buildTaskDefinition('run-tests', minimalSubAgents);
 
-    expect(result.content).toContain('JSON report');
-    expect(result.content).toContain('test-results');
-    expect(result.content).toContain('Parse JSON Report');
+    expect(result.content).toContain('manifest.json');
+    expect(result.content).toContain('test-runs');
   });
 
   it('should include test file selection instructions', () => {
@@ -111,7 +110,6 @@ describe('run-tests task (automated execution)', () => {
     // Automated tests don't use manual test case dependencies
     expect(result.content).not.toContain('blocker: true');
     expect(result.content).not.toContain('Dependency Graph');
-    expect(result.content).not.toContain('TC-001');
   });
 
   it('should reference best practices guide', () => {

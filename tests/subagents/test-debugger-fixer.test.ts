@@ -103,8 +103,8 @@ describe('test-debugger-fixer subagent', () => {
   it('should include JSON report handling', async () => {
     const template = await import('../../src/subagents/templates/test-debugger-fixer/playwright');
 
-    expect(template.CONTENT).toContain('JSON Report Format');
-    expect(template.CONTENT).toContain('JSON reporter');
+    expect(template.CONTENT).toContain('JSON test report');
+    expect(template.CONTENT).toContain('manifest.json');
   });
 
   it('should include Playwright MCP usage instructions', async () => {
