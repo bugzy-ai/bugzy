@@ -31,6 +31,8 @@ interface StepData {
  * test-runs/YYYYMMDD-HHMMSS/TC-{id}/exec-{num}/
  *
  * Features:
+ * - Groups multiple test runs under same directory when BUGZY_EXECUTION_ID matches
+ * - Checks latest directory's manifest to reuse existing session directory
  * - Tracks multiple execution attempts per test
  * - Records videos for all tests
  * - Captures traces/screenshots for failures only
@@ -69,14 +71,47 @@ class BugzyReporter implements Reporter {
     // Read BUGZY_EXECUTION_ID from environment
     this.bugzyExecutionId = process.env.BUGZY_EXECUTION_ID || 'local-' + this.timestamp;
 
-    // Create test run directory
-    this.testRunDir = path.join(process.cwd(), 'test-runs', this.timestamp);
-    fs.mkdirSync(this.testRunDir, { recursive: true });
+    const testRunsRoot = path.join(process.cwd(), 'test-runs');
 
-    console.log(`\n🧪 Bugzy Test Run: ${this.timestamp}`);
-    console.log(`📋 Execution ID: ${this.bugzyExecutionId}`);
-    console.log(`📁 Output directory: ${this.testRunDir}`);
-    console.log(`🔢 Execution number: ${this.executionNum}\n`);
+    // Check if latest directory has the same execution ID
+    let reuseDir: string | null = null;
+    if (fs.existsSync(testRunsRoot)) {
+      const dirs = fs.readdirSync(testRunsRoot)
+        .filter(d => fs.statSync(path.join(testRunsRoot, d)).isDirectory())
+        .sort()
+        .reverse(); // Sort descending (latest first)
+
+      if (dirs.length > 0) {
+        const latestDir = dirs[0];
+        const manifestPath = path.join(testRunsRoot, latestDir, 'manifest.json');
+
+        if (fs.existsSync(manifestPath)) {
+          try {
+            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+            if (manifest.bugzyExecutionId === this.bugzyExecutionId) {
+              reuseDir = latestDir;
+            }
+          } catch (err) {
+            // Ignore parsing errors, create new directory
+          }
+        }
+      }
+    }
+
+    if (reuseDir) {
+      this.testRunDir = path.join(testRunsRoot, reuseDir);
+      console.log(`\n🔄 Continuing test run: ${reuseDir}`);
+      console.log(`📋 Execution ID: ${this.bugzyExecutionId}`);
+      console.log(`📁 Output directory: ${this.testRunDir}`);
+      console.log(`🔢 Execution number: ${this.executionNum}\n`);
+    } else {
+      this.testRunDir = path.join(testRunsRoot, this.timestamp);
+      fs.mkdirSync(this.testRunDir, { recursive: true });
+      console.log(`\n🆕 New test run: ${this.timestamp}`);
+      console.log(`📋 Execution ID: ${this.bugzyExecutionId}`);
+      console.log(`📁 Output directory: ${this.testRunDir}`);
+      console.log(`🔢 Execution number: ${this.executionNum}\n`);
+    }
   }
 
   /**
