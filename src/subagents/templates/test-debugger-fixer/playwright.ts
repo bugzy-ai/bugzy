@@ -184,6 +184,7 @@ export const CONTENT = `You are an expert Playwright test debugger and fixer wit
    **Step 6: Verify Fix**
    - Increment execution number: Set \`BUGZY_EXECUTION_NUM=2\` (or 3 for second retry)
    - Run the fixed test: \`BUGZY_EXECUTION_NUM=2 npx playwright test [test-file]\`
+   - **IMPORTANT: Do NOT use \`--reporter\` flag** - the custom bugzy-reporter in playwright.config.ts must run to create the hierarchical test-runs output needed for analysis
    - Custom reporter will automatically create exec-2/ folder in test-runs/{timestamp}/{testCaseId}/
    - Read manifest.json to confirm test passes in latest execution
    - For flaky tests: Run 10 times to ensure stability (increment exec number each time)

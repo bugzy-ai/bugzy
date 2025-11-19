@@ -102,6 +102,46 @@ async function createRuntimeFiles(): Promise<void> {
       fs.writeFileSync(testResultSchemaPath, content, 'utf-8');
     }
   }
+
+  // Create knowledge-base.md from template
+  const knowledgeBasePath = path.join(cwd, '.bugzy/runtime/knowledge-base.md');
+  if (!fs.existsSync(knowledgeBasePath)) {
+    const templatePath = path.join(templatesDir, '.bugzy/runtime/knowledge-base.md');
+    if (fs.existsSync(templatePath)) {
+      const content = fs.readFileSync(templatePath, 'utf-8');
+      fs.writeFileSync(knowledgeBasePath, content, 'utf-8');
+    }
+  }
+
+  // Create knowledge-maintenance-guide.md from template
+  const knowledgeMaintenancePath = path.join(cwd, '.bugzy/runtime/knowledge-maintenance-guide.md');
+  if (!fs.existsSync(knowledgeMaintenancePath)) {
+    const templatePath = path.join(templatesDir, '.bugzy/runtime/knowledge-maintenance-guide.md');
+    if (fs.existsSync(templatePath)) {
+      const content = fs.readFileSync(templatePath, 'utf-8');
+      fs.writeFileSync(knowledgeMaintenancePath, content, 'utf-8');
+    }
+  }
+
+  // Create subagent-memory-guide.md from template
+  const subagentMemoryPath = path.join(cwd, '.bugzy/runtime/subagent-memory-guide.md');
+  if (!fs.existsSync(subagentMemoryPath)) {
+    const templatePath = path.join(templatesDir, '.bugzy/runtime/subagent-memory-guide.md');
+    if (fs.existsSync(templatePath)) {
+      const content = fs.readFileSync(templatePath, 'utf-8');
+      fs.writeFileSync(subagentMemoryPath, content, 'utf-8');
+    }
+  }
+
+  // Create test-execution-strategy.md from template
+  const testExecutionStrategyPath = path.join(cwd, '.bugzy/runtime/test-execution-strategy.md');
+  if (!fs.existsSync(testExecutionStrategyPath)) {
+    const templatePath = path.join(templatesDir, '.bugzy/runtime/test-execution-strategy.md');
+    if (fs.existsSync(templatePath)) {
+      const content = fs.readFileSync(templatePath, 'utf-8');
+      fs.writeFileSync(testExecutionStrategyPath, content, 'utf-8');
+    }
+  }
 }
 
 /**

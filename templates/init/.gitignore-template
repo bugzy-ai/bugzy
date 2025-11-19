@@ -1,4 +1,25 @@
-
-# Bugzy
+# Environment files (keep .env.testdata tracked, .env.example managed externally)
 .env
 .env.local
+
+# Logs and temporary files
+logs/
+tmp/
+
+# Playwright MCP cache
+.playwright-mcp/
+
+# Playwright test results
+test-results/
+playwright-report/
+playwright/.cache/
+tests/.auth/
+
+# Node modules if using any Node.js tooling
+node_modules/
+.DS_Store
+
+# Test result media files
+**/*.webm
+**/*.zip
+**/*.png
