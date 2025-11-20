@@ -26,7 +26,34 @@ pnpm type-check
 
 # Lint the code
 pnpm lint
+
+# Publish to GitHub Packages (requires GITHUB_TOKEN in .env)
+node scripts/publish.js
 ```
+
+## Publishing
+
+The package is published to GitHub Packages (not npm). Use the custom publish script:
+
+```bash
+node scripts/publish.js
+```
+
+**Prerequisites:**
+- Set `GITHUB_TOKEN` in `.env` or `.env.local` file
+- The script will:
+  1. Load environment from `.env.local` or `.env`
+  2. Verify `GITHUB_TOKEN` is present
+  3. Run `pnpm publish --no-git-checks`
+
+**Full Release Process:**
+1. Bump version: `npm version patch|minor|major --no-git-tag-version`
+2. Build: `pnpm build`
+3. Publish: `node scripts/publish.js`
+4. Commit changes: `git add . && git commit -m "chore: Release vX.X.X"`
+5. Push: `git push`
+
+**IMPORTANT:** Do NOT use `npm publish --access public`. Always use the custom script.
 
 ## Testing
 

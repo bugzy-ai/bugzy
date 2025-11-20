@@ -61,8 +61,6 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
         '.env',
         '--no-sandbox',
         '--viewport-size',
-        '1280x720',
-        '--save-video',
         '1280x720'
       ]
     },
