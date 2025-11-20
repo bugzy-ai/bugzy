@@ -101,25 +101,25 @@ Construct the Playwright test command based on the selector:
 
 **For file pattern or specific file**:
 \`\`\`bash
-BUGZY_EXECUTION_NUM=1 npx playwright test [selector]
+npx playwright test [selector]
 \`\`\`
 
 **For tag**:
 \`\`\`bash
-BUGZY_EXECUTION_NUM=1 npx playwright test --grep "[tag]"
+npx playwright test --grep "[tag]"
 \`\`\`
 
 **For all tests**:
 \`\`\`bash
-BUGZY_EXECUTION_NUM=1 npx playwright test
+npx playwright test
 \`\`\`
 
 **Output**: Custom Bugzy reporter will create hierarchical test-runs/YYYYMMDD-HHMMSS/ structure with manifest.json
 
 #### 2.2 Execute Tests via Bash
-Run the Playwright command with BUGZY_EXECUTION_NUM set:
+Run the Playwright command:
 \`\`\`bash
-BUGZY_EXECUTION_NUM=1 npx playwright test [selector]
+npx playwright test [selector]
 \`\`\`
 
 Wait for execution to complete. This may take several minutes depending on test count.
@@ -270,8 +270,8 @@ The agent will:
 2. Analyze the failure (error message, trace if available)
 3. Identify the root cause (brittle selector, missing wait, race condition, etc.)
 4. Apply appropriate fix to the test code
-5. Rerun the test with BUGZY_EXECUTION_NUM incremented
-6. The custom reporter will automatically create exec-2/ folder
+5. Rerun the test
+6. The custom reporter will automatically create the next exec-N/ folder
 7. Repeat up to 3 times if needed (exec-1, exec-2, exec-3)
 8. Report success or escalate as likely product bug
 

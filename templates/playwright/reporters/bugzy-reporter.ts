@@ -44,15 +44,14 @@ class BugzyReporter implements Reporter {
   private testRunDir!: string;
   private timestamp!: string;
   private bugzyExecutionId!: string;
-  private executionNum: number;
   private startTime!: Date;
   private testResults: Map<string, Array<any>> = new Map();
   private testSteps: Map<string, Array<StepData>> = new Map();
   private testStartTimes: Map<string, number> = new Map();
 
   constructor() {
-    // Read execution number from environment (defaults to 1)
-    this.executionNum = parseInt(process.env.BUGZY_EXECUTION_NUM || '1', 10);
+    // No longer need to read execution number from environment
+    // It will be auto-detected per test case
   }
 
   /**
@@ -68,31 +67,70 @@ class BugzyReporter implements Reporter {
       .replace(/T/, '-')
       .slice(0, 15);
 
-    // Read BUGZY_EXECUTION_ID from environment
-    this.bugzyExecutionId = process.env.BUGZY_EXECUTION_ID || 'local-' + this.timestamp;
-
     const testRunsRoot = path.join(process.cwd(), 'test-runs');
 
-    // Check if latest directory has the same execution ID
+    // Check if we should reuse an existing session
     let reuseDir: string | null = null;
-    if (fs.existsSync(testRunsRoot)) {
+
+    // If BUGZY_EXECUTION_ID is provided, use it directly
+    if (process.env.BUGZY_EXECUTION_ID) {
+      this.bugzyExecutionId = process.env.BUGZY_EXECUTION_ID;
+    } else {
+      // For local runs, check if we can reuse the latest session
+      // Reuse if the latest manifest is within 60 minutes
+      if (fs.existsSync(testRunsRoot)) {
+        const dirs = fs.readdirSync(testRunsRoot)
+          .filter(d => fs.statSync(path.join(testRunsRoot, d)).isDirectory())
+          .sort()
+          .reverse(); // Sort descending (latest first)
+
+        if (dirs.length > 0) {
+          const latestDir = dirs[0];
+          const manifestPath = path.join(testRunsRoot, latestDir, 'manifest.json');
+
+          if (fs.existsSync(manifestPath)) {
+            try {
+              const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+              const manifestTime = new Date(manifest.startTime).getTime();
+              const currentTime = this.startTime.getTime();
+              const minutesDiff = (currentTime - manifestTime) / (1000 * 60);
+
+              // Reuse if within 60 minutes and has a local execution ID
+              if (minutesDiff <= 60 && manifest.bugzyExecutionId?.startsWith('local-')) {
+                this.bugzyExecutionId = manifest.bugzyExecutionId;
+                reuseDir = latestDir;
+              }
+            } catch (err) {
+              // Ignore parsing errors
+            }
+          }
+        }
+      }
+
+      // If no session to reuse, generate new local ID
+      if (!this.bugzyExecutionId) {
+        this.bugzyExecutionId = 'local-' + this.timestamp;
+      }
+    }
+
+    // If we have a specific execution ID but haven't found a reuse dir yet, check for matching session
+    if (!reuseDir && fs.existsSync(testRunsRoot)) {
       const dirs = fs.readdirSync(testRunsRoot)
         .filter(d => fs.statSync(path.join(testRunsRoot, d)).isDirectory())
         .sort()
-        .reverse(); // Sort descending (latest first)
+        .reverse();
 
-      if (dirs.length > 0) {
-        const latestDir = dirs[0];
-        const manifestPath = path.join(testRunsRoot, latestDir, 'manifest.json');
-
+      for (const dir of dirs) {
+        const manifestPath = path.join(testRunsRoot, dir, 'manifest.json');
         if (fs.existsSync(manifestPath)) {
           try {
             const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
             if (manifest.bugzyExecutionId === this.bugzyExecutionId) {
-              reuseDir = latestDir;
+              reuseDir = dir;
+              break;
             }
           } catch (err) {
-            // Ignore parsing errors, create new directory
+            // Ignore parsing errors
           }
         }
       }
@@ -102,15 +140,13 @@ class BugzyReporter implements Reporter {
       this.testRunDir = path.join(testRunsRoot, reuseDir);
       console.log(`\n🔄 Continuing test run: ${reuseDir}`);
       console.log(`📋 Execution ID: ${this.bugzyExecutionId}`);
-      console.log(`📁 Output directory: ${this.testRunDir}`);
-      console.log(`🔢 Execution number: ${this.executionNum}\n`);
+      console.log(`📁 Output directory: ${this.testRunDir}\n`);
     } else {
       this.testRunDir = path.join(testRunsRoot, this.timestamp);
       fs.mkdirSync(this.testRunDir, { recursive: true });
       console.log(`\n🆕 New test run: ${this.timestamp}`);
       console.log(`📋 Execution ID: ${this.bugzyExecutionId}`);
-      console.log(`📁 Output directory: ${this.testRunDir}`);
-      console.log(`🔢 Execution number: ${this.executionNum}\n`);
+      console.log(`📁 Output directory: ${this.testRunDir}\n`);
     }
   }
 
@@ -125,8 +161,21 @@ class BugzyReporter implements Reporter {
     const testCaseDir = path.join(this.testRunDir, testId);
     fs.mkdirSync(testCaseDir, { recursive: true });
 
+    // Auto-detect execution number from existing folders
+    let executionNum = 1;
+    if (fs.existsSync(testCaseDir)) {
+      const existingExecs = fs.readdirSync(testCaseDir)
+        .filter(d => d.startsWith('exec-') && fs.statSync(path.join(testCaseDir, d)).isDirectory())
+        .map(d => parseInt(d.replace('exec-', ''), 10))
+        .filter(n => !isNaN(n));
+
+      if (existingExecs.length > 0) {
+        executionNum = Math.max(...existingExecs) + 1;
+      }
+    }
+
     // Create execution directory
-    const execDir = path.join(testCaseDir, `exec-${this.executionNum}`);
+    const execDir = path.join(testCaseDir, `exec-${executionNum}`);
     fs.mkdirSync(execDir, { recursive: true });
 
     // Prepare result data in Playwright format
@@ -213,7 +262,7 @@ class BugzyReporter implements Reporter {
     }
 
     this.testResults.get(testId)!.push({
-      number: this.executionNum,
+      number: executionNum,
       status: result.status,
       duration: result.duration,
       videoFile: hasVideo ? 'video.webm' : null,
@@ -242,7 +291,7 @@ class BugzyReporter implements Reporter {
 
     // Log execution result
     const statusIcon = result.status === 'passed' ? '✅' : result.status === 'failed' ? '❌' : '⚠️';
-    console.log(`${statusIcon} ${testId} [exec-${this.executionNum}] - ${result.status} (${result.duration}ms)`);
+    console.log(`${statusIcon} ${testId} [exec-${executionNum}] - ${result.status} (${result.duration}ms)`);
   }
 
   /**
