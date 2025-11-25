@@ -4,6 +4,14 @@
  */
 
 /**
+ * Integration type determines how credentials are obtained
+ * - 'oauth': Uses Nango OAuth flow (Slack, Notion, Jira Cloud, etc.)
+ * - 'local': No configuration needed (Playwright)
+ * - 'custom': Custom configuration flow (Jira Server via MCP tunnel)
+ */
+export type IntegrationType = 'oauth' | 'local' | 'custom';
+
+/**
  * Integration configuration for sub-agents
  */
 export interface SubAgentIntegration {
@@ -11,7 +19,9 @@ export interface SubAgentIntegration {
   name: string;
   provider: string;
   requiredMCP?: string;
+  /** @deprecated Use integrationType instead */
   isLocal?: boolean; // True if integration doesn't require external connector (e.g., playwright)
+  integrationType: IntegrationType;
 }
 
 /**
@@ -37,38 +47,51 @@ export const INTEGRATIONS: Record<string, SubAgentIntegration> = {
     id: 'linear',
     name: 'Linear',
     provider: 'linear',
-    requiredMCP: 'mcp__linear__*'
+    requiredMCP: 'mcp__linear__*',
+    integrationType: 'oauth'
   },
   jira: {
     id: 'jira',
     name: 'Jira',
     provider: 'jira',
-    requiredMCP: 'mcp__jira__*'
+    requiredMCP: 'mcp__jira__*',
+    integrationType: 'oauth'
+  },
+  'jira-server': {
+    id: 'jira-server',
+    name: 'Jira Server',
+    provider: 'jira-server',
+    requiredMCP: 'mcp__jira-server__*',
+    integrationType: 'custom'
   },
   notion: {
     id: 'notion',
     name: 'Notion',
     provider: 'notion',
-    requiredMCP: 'mcp__notion__*'
+    requiredMCP: 'mcp__notion__*',
+    integrationType: 'oauth'
   },
   confluence: {
     id: 'confluence',
     name: 'Confluence',
     provider: 'confluence',
-    requiredMCP: 'mcp__confluence__*'
+    requiredMCP: 'mcp__confluence__*',
+    integrationType: 'oauth'
   },
   slack: {
     id: 'slack',
     name: 'Slack',
     provider: 'slack',
-    requiredMCP: 'mcp__slack__*'
+    requiredMCP: 'mcp__slack__*',
+    integrationType: 'oauth'
   },
   playwright: {
     id: 'playwright',
     name: 'Playwright',
     provider: 'playwright',
     requiredMCP: 'mcp__playwright__*',
-    isLocal: true // Playwright runs locally, no external connector needed
+    isLocal: true, // Playwright runs locally, no external connector needed
+    integrationType: 'local'
   }
 };
 
@@ -105,6 +128,7 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     integrations: [
       INTEGRATIONS.linear,
       INTEGRATIONS.jira,
+      INTEGRATIONS['jira-server'],
       INTEGRATIONS.notion,
       INTEGRATIONS.slack
     ],

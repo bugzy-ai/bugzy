@@ -84,6 +84,25 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
       },
     },
   },
+  'jira-server': {
+    provider: 'jira-server',
+    name: 'Jira Server (On-Prem)',
+    description: 'Jira Server MCP via tunnel for on-premise instances',
+    requiresCredentials: true,
+    config: {
+      command: 'mcp-tunnel',
+      args: ["--server", "jira-mcp-server"],
+      env: {
+        ABLY_API_KEY: '${ABLY_API_KEY}',
+        TENANT_ID: '${TENANT_ID}',
+        JIRA_BASE_URL: '${JIRA_BASE_URL}',
+        JIRA_AUTH_TYPE: '${JIRA_AUTH_TYPE}',
+        JIRA_PAT: '${JIRA_PAT}',
+        JIRA_USERNAME: '${JIRA_USERNAME}',
+        JIRA_PASSWORD: '${JIRA_PASSWORD}',
+      },
+    },
+  },
   // github: {
   //   provider: 'github',
   //   name: 'GitHub',

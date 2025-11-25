@@ -22,5 +22,5 @@ export { MCP_SERVERS, buildMCPConfig } from './mcp';
 export type { AgentConfiguration } from './core/registry';
 export type { TaskDefinition, ProjectSubAgent } from './core/task-builder';
 export type { TaskTemplate, TaskFrontmatter } from './tasks';
-export type { SubAgentMetadata, SubAgentIntegration } from './subagents';
+export type { SubAgentMetadata, SubAgentIntegration, IntegrationType } from './subagents';
 export type { MCPServerConfig, MCPServerTemplate } from './mcp';

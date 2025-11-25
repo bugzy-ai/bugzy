@@ -8,7 +8,7 @@ import type { SubagentConfig } from './types';
 
 // Re-export all metadata (client-safe)
 export * from './metadata';
-export type { SubAgentIntegration, SubAgentMetadata } from './metadata';
+export type { SubAgentIntegration, SubAgentMetadata, IntegrationType } from './metadata';
 
 // Re-export types
 export type { SubagentFrontmatter, SubagentTemplate, SubagentConfig } from './types';
