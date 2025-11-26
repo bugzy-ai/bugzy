@@ -1,6 +1,6 @@
 /**
  * Process Event Task
- * Process events flexibly to extract insights, update tests, and track issues using the issue-tracker agent
+ * Process external system events (Jira, GitHub, Linear) using handler-defined rules to extract insights and track issues
  */
 
 import { TaskTemplate } from '../types';
@@ -10,11 +10,11 @@ import { KNOWLEDGE_BASE_READ_INSTRUCTIONS, KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS } 
 export const processEventTask: TaskTemplate = {
   slug: TASK_SLUGS.PROCESS_EVENT,
   name: 'Process Event',
-  description: 'Process events flexibly to extract insights, update tests, and track issues using the issue-tracker agent',
+  description: 'Process external system events (Jira, GitHub, Linear) using handler-defined rules to extract insights and track issues',
 
   frontmatter: {
-    description: 'Process events flexibly to extract insights, update tests, and track issues using the issue-tracker agent',
-    'argument-hint': '[event description or structured data]',
+    description: 'Process external system events (Jira, GitHub, Linear) using handler-defined rules to extract insights and track issues',
+    'argument-hint': '[event payload or description]',
   },
 
   baseContent: `# Process Event Command
@@ -37,25 +37,12 @@ ${KNOWLEDGE_BASE_READ_INSTRUCTIONS}
 
 ### Step 1: Understand Event Context
 
-Events come from two main sources:
+Events come from integrated external systems via webhooks or manual input. Common sources include:
+- **Issue Trackers**: Jira, Linear, GitHub Issues
+- **Source Control**: GitHub, GitLab
+- **Communication Tools**: Slack
 
-#### Internal Events (from the testing system):
-- **Test Failures**: Test case TC-XXX failed with specific error
-- **Test Passes**: Test case TC-XXX passed after previous failures
-- **Manual Updates**: User manually updated test plan or test cases
-- **Environment Issues**: Test environment down, configuration problems
-- **Performance Degradation**: Tests taking longer than expected
-- **Flaky Test Detection**: Test showing intermittent failures
-
-#### External Events (from integrated systems):
-- **GitHub Events**: 
-  - PR merged with bug fix
-  - Issue closed as "won't fix" or "user error"
-  - New feature branch created
-  - Security vulnerability reported
-- **Support Tickets**: Customer reported issue
-- **Monitoring Alerts**: Production incident detected
-- **Feature Releases**: New feature deployed to production
+**Event structure and semantics vary by source.** Do not interpret events based on generic assumptions. Instead, load the appropriate handler file (Step 2.4) for system-specific processing rules.
 
 #### Event Context to Extract:
 - **What happened**: The core event (test failed, PR merged, etc.)
@@ -170,6 +157,42 @@ Read \`.bugzy/runtime/memory/event-history.md\` to:
 - List \`./test-cases/\` for existing tests
 - Check \`.bugzy/runtime/knowledge-base.md\` for past insights
 
+#### 2.4 Load System-Specific Handler (REQUIRED)
+
+Based on the event source, load the handler from \`.bugzy/runtime/handlers/\`:
+
+**Step 1: Detect Event Source from Payload:**
+- \`com.jira-server.*\` event type prefix → \`.bugzy/runtime/handlers/jira.md\`
+- \`github.*\` or GitHub webhook structure → \`.bugzy/runtime/handlers/github.md\`
+- \`linear.*\` or Linear webhook → \`.bugzy/runtime/handlers/linear.md\`
+- Other sources → Check for matching handler file by source name
+
+**Step 2: Load and Read the Handler File:**
+The handler file contains system-specific instructions for:
+- Event payload structure and field meanings
+- Which triggers (status changes, resolutions) require specific actions
+- How to interpret different event types
+- When to invoke \`/verify-changes\`
+- How to update the knowledge base
+
+**Step 3: Follow Handler Instructions:**
+The handler file is authoritative for this event source. Follow its instructions for:
+- Interpreting the event payload
+- Determining what actions to take
+- Formatting responses and updates
+
+**Step 4: If No Handler Exists:**
+Do NOT guess or apply generic logic. Instead:
+1. Inform the user that no handler exists for this event source
+2. Ask how this event type should be processed
+3. Suggest creating a handler file at \`.bugzy/runtime/handlers/{source}.md\`
+
+**Project-Specific Configuration:**
+Handlers reference \`.bugzy/runtime/project-context.md\` for project-specific rules like:
+- Which status transitions trigger verify-changes
+- Which resolutions should update the knowledge base
+- Which transitions to ignore
+
 ### Step 3: Intelligent Event Analysis
 
 #### 3.1 Contextual Pattern Analysis
@@ -183,19 +206,18 @@ Don't just match patterns - analyze the event within the full context:
 
 **Example Contextual Analysis**:
 \`\`\`
-Event: "Login test failed with timeout"
-+ Learning: "Login service was updated yesterday"
-+ GitHub: "PR #123 'Refactor auth service' merged 2 hours ago"
-+ History: "No previous timeout issues with login"
-= Decision: Don't report bug yet, likely related to recent refactor. 
-           Monitor next few runs, update test if behavior changed intentionally.
+Event: Jira issue PROJ-456 moved to "Ready for QA"
++ Handler: jira.md says "Ready for QA" triggers /verify-changes
++ History: This issue was previously in "In Progress" for 3 days
++ Knowledge: Related PR #123 merged yesterday
+= Decision: Invoke /verify-changes with issue context and PR reference
 \`\`\`
 
 **Pattern Recognition with Context**:
-- A test failure after a deployment is different from a random failure
-- A bug already reported shouldn't be reported again
-- A test that fails only in one environment needs different handling
-- An issue marked "won't fix" means we need to adjust our expectations
+- An issue resolution depends on what the handler prescribes for that status
+- A duplicate event (same issue, same transition) should be skipped
+- Events from different sources about the same change should be correlated
+- Handler instructions take precedence over generic assumptions
 
 #### 3.2 Generate Semantic Queries
 Based on event type and content, generate 3-5 specific search queries:
@@ -214,19 +236,19 @@ Generate tasks based on event analysis, using examples from memory as reference.
 Analyze the event in context of ALL available information to decide what actions to take:
 
 **Consider the Full Context**:
-- What does this event mean given our current test plan?
+- What does the handler prescribe for this event type?
 - How does this relate to current knowledge?
 - What's the state of related issues in external systems?
 - Is this part of a larger pattern we've been seeing?
 - What's the business impact of this event?
 
 **Contextual Decision Making**:
-For example, a "test failed" event might result in different actions:
-- If we have a learning that this test is flaky → Don't report bug, investigate flakiness
-- If GitHub shows a PR just merged touching this area → Wait for next run before reporting
-- If this matches a known production issue → Report bug with high priority
-- If test plan shows this is low priority feature → Document but don't escalate
-- If this is 5th failure today in same component → Escalate to team immediately
+The same event type can require different actions based on context:
+- If handler says this status triggers verification → Invoke /verify-changes
+- If this issue was already processed (check event history) → Skip to avoid duplicates
+- If related PR exists in knowledge base → Include PR context in actions
+- If this is a recurring pattern from the same source → Consider flagging for review
+- If handler has no rule for this event type → Ask user for guidance
 
 **Dynamic Task Selection**:
 Based on the contextual analysis, decide which tasks make sense:
@@ -328,9 +350,9 @@ Create files if they don't exist:
 - Adjust responses based on business priorities and risk
 
 ### Smart Task Generation
-- Only take actions that make sense given all available information
+- Only take actions prescribed by the handler or confirmed by the user
 - Document why each decision was made with full context
-- Skip redundant actions (e.g., reporting already-known bugs)
+- Skip redundant actions (e.g., duplicate events, already-processed issues)
 - Escalate appropriately based on pattern recognition
 
 ### Continuous Learning
