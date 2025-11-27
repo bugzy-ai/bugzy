@@ -9,6 +9,22 @@ export const CLARIFICATION_INSTRUCTIONS = `
 
 Before proceeding with test creation or execution, ensure requirements are clear and testable. Use this protocol to detect ambiguity, assess its severity, and determine the appropriate action.
 
+### Step {{STEP_NUMBER}}.0: Check for Pending Clarification
+
+Before starting, check if this task is resuming from a blocked clarification:
+
+1. **Check $ARGUMENTS for clarification data:**
+   - If \`$ARGUMENTS.clarification\` exists, this task is resuming with a clarification response
+   - Extract: \`clarification\` (the user's answer), \`originalArgs\` (original task parameters)
+
+2. **If clarification is present:**
+   - Read \`.bugzy/runtime/blocked-task-queue.md\`
+   - Find and remove your task's entry from the queue (update the file)
+   - Proceed using the clarification as if user just provided the answer
+   - Skip ambiguity detection for the clarified aspect
+
+3. **If no clarification in $ARGUMENTS:** Proceed normally with ambiguity detection below.
+
 ### Step {{STEP_NUMBER}}.1: Detect Ambiguity
 
 Scan for ambiguity signals:
@@ -108,6 +124,32 @@ Clarification needed to proceed. I'll wait for response before testing.
 **Action Required:** Provide clarification. Testing cannot proceed.
 **Current Observation:** [What exploration revealed - concrete examples]
 \`\`\`
+
+### Step {{STEP_NUMBER}}.5.1: Register Blocked Task (CRITICAL/HIGH only)
+
+When asking a CRITICAL or HIGH severity question that blocks progress, register the task in the blocked queue so it can be automatically re-triggered when clarification arrives.
+
+**Update \`.bugzy/runtime/blocked-task-queue.md\`:**
+
+1. Read the current file (create if doesn't exist)
+2. Add a new row to the Queue table
+
+\`\`\`markdown
+# Blocked Task Queue
+
+Tasks waiting for clarification responses.
+
+| Task Slug | Question | Original Args |
+|-----------|----------|---------------|
+| generate-test-plan | Should todos be sorted by date or priority? | \`{"ticketId": "TODO-456"}\` |
+\`\`\`
+
+**Entry Fields:**
+- **Task Slug**: The task slug (e.g., \`generate-test-plan\`) - used for re-triggering
+- **Question**: The clarification question asked (so LLM can match responses)
+- **Original Args**: JSON-serialized \`$ARGUMENTS\` wrapped in backticks
+
+**Purpose**: The LLM processor reads this file and matches user responses to pending questions. When a match is found, it re-queues the task with the clarification.
 
 ### Step {{STEP_NUMBER}}.6: Wait or Proceed Based on Severity
 

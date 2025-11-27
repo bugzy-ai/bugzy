@@ -151,33 +151,35 @@ describe('Exploration Protocol Integration', () => {
   });
 
   describe('handle-message', () => {
-    test('includes updated memory format with severity tracking', () => {
+    test('includes intent detection step', () => {
       const task = buildTaskDefinition(TASK_SLUGS.HANDLE_MESSAGE, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('**Severity**: [CRITICAL/HIGH/MEDIUM/LOW]');
-      expect(task.content).toContain('Original uncertainty/ambiguity');
+      expect(task.content).toContain('### Step 0: Detect Message Intent and Load Handler');
+      expect(task.content).toContain('intent');
     });
 
-    test('includes Step 6.4 for clarification history', () => {
+    test('includes valid intent values', () => {
       const task = buildTaskDefinition(TASK_SLUGS.HANDLE_MESSAGE, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('#### 6.4 Update Clarification History');
-      expect(task.content).toContain('support the clarification protocol');
+      expect(task.content).toContain('`question`');
+      expect(task.content).toContain('`feedback`');
+      expect(task.content).toContain('`status`');
     });
 
-    test('includes clarification effectiveness tracking', () => {
+    test('includes handler file loading', () => {
       const task = buildTaskDefinition(TASK_SLUGS.HANDLE_MESSAGE, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('Clarification effectiveness by severity');
-      expect(task.content).toContain('Most effective question formats per severity');
+      expect(task.content).toContain('.bugzy/runtime/handlers/messages/{intent}.md');
+      expect(task.content).toContain('question.md');
+      expect(task.content).toContain('feedback.md');
+      expect(task.content).toContain('status.md');
     });
 
-    test('includes example indexing by topic', () => {
+    test('includes fallback intent detection table', () => {
       const task = buildTaskDefinition(TASK_SLUGS.HANDLE_MESSAGE, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('Authentication & Login');
-      expect(task.content).toContain('Ordering & Sorting');
-      expect(task.content).toContain('TODO-456');
+      expect(task.content).toContain('Fallback Intent Detection');
+      expect(task.content).toContain('| Condition | Intent |');
     });
   });
 });
