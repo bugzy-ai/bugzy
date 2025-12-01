@@ -158,3 +158,39 @@ export function getMissingSubagents(
     !projectSubAgents.some(sa => sa.role === requiredRole)
   );
 }
+
+/**
+ * Build task definition with all dependent tasks
+ * Returns array: [primaryTask, ...dependentTasks]
+ *
+ * @param taskSlug - Primary task slug to build
+ * @param projectSubAgents - Project's configured subagents
+ * @returns Array of task definitions (primary first, then dependents)
+ */
+export function buildTaskWithDependencies(
+  taskSlug: string,
+  projectSubAgents: ProjectSubAgent[]
+): TaskDefinition[] {
+  const template = TASK_TEMPLATES[taskSlug];
+
+  if (!template) {
+    throw new Error(`Unknown task slug: ${taskSlug}`);
+  }
+
+  // Build primary task
+  const primaryTask = buildTaskDefinition(taskSlug, projectSubAgents);
+  const allTasks: TaskDefinition[] = [primaryTask];
+
+  // Build dependent tasks (skip if missing required subagents)
+  for (const depSlug of template.dependentTasks || []) {
+    try {
+      const depTask = buildTaskDefinition(depSlug, projectSubAgents);
+      allTasks.push(depTask);
+    } catch (e) {
+      // Dependent task can't be built (missing subagents) - skip it
+      console.warn(`Skipping dependent task ${depSlug}: ${(e as Error).message}`);
+    }
+  }
+
+  return allTasks;
+}

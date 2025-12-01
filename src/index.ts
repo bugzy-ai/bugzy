@@ -13,7 +13,7 @@ export * from './mcp';
 
 // Named exports for common use cases
 export { getAgentConfiguration } from './core/registry';
-export { buildTaskDefinition, getAvailableTasks } from './core/task-builder';
+export { buildTaskDefinition, buildTaskWithDependencies, getAvailableTasks } from './core/task-builder';
 export { TASK_TEMPLATES, TASK_SLUGS } from './tasks';
 export { SUBAGENTS, INTEGRATIONS, getAllSubAgents } from './subagents';
 export { MCP_SERVERS, buildMCPConfig } from './mcp';

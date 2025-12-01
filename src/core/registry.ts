@@ -26,46 +26,50 @@ export interface AgentConfiguration {
 
 /**
  * Main Configuration Resolver
- * Assembles complete agent configuration for a task execution
+ * Assembles complete agent configuration for task execution
  *
  * This is the primary function called by the task execution route to get
- * all MCP servers, slash commands, and subagents needed for a task.
+ * all MCP servers, slash commands, and subagents needed for tasks.
  *
- * @param taskDefinition - Complete task definition with full content
+ * @param taskDefinitions - Array of task definitions (primary + dependents)
  * @param projectSubAgents - Project's configured subagents
  * @returns Complete agent configuration ready for Cloud Run
  */
 export async function getAgentConfiguration(
-  taskDefinition: TaskDefinition,
+  taskDefinitions: TaskDefinition[],
   projectSubAgents: ProjectSubAgent[]
 ): Promise<AgentConfiguration> {
-  console.log(`🔧 Building agent configuration for task: ${taskDefinition.slug}`);
+  const taskSlugs = taskDefinitions.map(t => t.slug);
+  console.log(`🔧 Building agent configuration for tasks: ${taskSlugs.join(', ')}`);
 
-  // Build MCP configuration (secrets are expanded by Claude Code automatically)
-  const mcpConfig = buildMCPConfig(taskDefinition.requiredMCPs);
+  // Merge all required MCPs from all tasks
+  const allMCPs = new Set<string>();
+  taskDefinitions.forEach(t => t.requiredMCPs.forEach(mcp => allMCPs.add(mcp)));
+  const mcpConfig = buildMCPConfig(Array.from(allMCPs));
 
-  // Build slash commands configuration using complete task content
-  // Use the full content which includes optional subagent blocks
-  const slashCommands: Record<string, SlashCommandConfig> = {
-    [taskDefinition.slug]: {
-      frontmatter: taskDefinition.frontmatter,
-      content: taskDefinition.content, // Full content with optional subagent blocks
-    }
-  };
+  // Build slash commands for ALL tasks (each becomes a separate command file)
+  const slashCommands: Record<string, SlashCommandConfig> = {};
+  taskDefinitions.forEach(task => {
+    slashCommands[task.slug] = {
+      frontmatter: task.frontmatter,
+      content: task.content,
+    };
+  });
 
-  // Build subagents configuration from project's configured subagents
-  // Filter to only include subagents required by this task
-  const requiredSubAgents = projectSubAgents.filter(sa =>
-    taskDefinition.requiredSubAgentRoles.includes(sa.role)
-  );
+  // Merge all required subagent roles from all tasks
+  const allRoles = new Set<string>();
+  taskDefinitions.forEach(t => t.requiredSubAgentRoles.forEach(r => allRoles.add(r)));
 
+  // Filter to only include subagents required by any task
+  const requiredSubAgents = projectSubAgents.filter(sa => allRoles.has(sa.role));
   const subagents = buildSubagentsConfig(requiredSubAgents);
 
-  console.log(`✓ Agent configuration complete for ${taskDefinition.slug}:`, {
+  console.log(`✓ Agent configuration complete:`, {
+    tasks: taskSlugs,
     mcpServers: Object.keys(mcpConfig.mcpServers),
     slashCommands: Object.keys(slashCommands),
     subagents: Object.keys(subagents),
-    requiredSubAgentRoles: taskDefinition.requiredSubAgentRoles,
+    requiredSubAgentRoles: Array.from(allRoles),
   });
 
   return {

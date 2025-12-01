@@ -49,4 +49,7 @@ export interface TaskTemplate {
   baseContent: string; // Core instructions (always included)
   optionalSubagents: OptionalSubagentBlock[]; // Added if configured
   requiredSubagents: string[]; // Must be configured for task to work
+
+  // Task Dependencies
+  dependentTasks?: string[]; // Task slugs that can be invoked during execution
 }

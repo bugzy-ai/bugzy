@@ -395,5 +395,6 @@ Use issue-tracker agent to:
 The issue-tracker agent will handle all aspects of issue tracking including duplicate detection, story management, QA workflow transitions, and integration with your project management system (Jira, Linear, Notion, etc.).`
     }
   ],
-  requiredSubagents: []
+  requiredSubagents: [],
+  dependentTasks: ['verify-changes']
 };

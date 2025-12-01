@@ -6,7 +6,7 @@ import { sampleSubAgents, minimalSubAgents } from '../fixtures/sample-subagents'
 describe('getAgentConfiguration', () => {
   it('should return configuration for valid task slug', async () => {
     const taskDefinition = buildTaskDefinition('generate-test-plan', sampleSubAgents);
-    const config = await getAgentConfiguration(taskDefinition, sampleSubAgents);
+    const config = await getAgentConfiguration([taskDefinition], sampleSubAgents);
 
     expect(config).toBeDefined();
     expect(config.mcpConfig).toBeDefined();
@@ -16,7 +16,7 @@ describe('getAgentConfiguration', () => {
 
   it('should work with minimal subagents', async () => {
     const taskDefinition = buildTaskDefinition('run-tests', minimalSubAgents);
-    const config = await getAgentConfiguration(taskDefinition, minimalSubAgents);
+    const config = await getAgentConfiguration([taskDefinition], minimalSubAgents);
 
     expect(config.slashCommands['run-tests']).toBeDefined();
     expect(config.slashCommands['run-tests'].content).toBeTruthy();
@@ -35,7 +35,7 @@ describe('getAgentConfiguration', () => {
 
     for (const slug of validSlugs) {
       const taskDefinition = buildTaskDefinition(slug, sampleSubAgents);
-      const config = await getAgentConfiguration(taskDefinition, sampleSubAgents);
+      const config = await getAgentConfiguration([taskDefinition], sampleSubAgents);
 
       expect(config.slashCommands[slug]).toBeDefined();
     }

@@ -21,7 +21,7 @@ describe('getAgentConfiguration', () => {
   describe('Basic Configuration Generation', () => {
     test('generates configuration with minimal subagents', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, MINIMAL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], MINIMAL_SUBAGENTS_CONFIG);
 
       expect(config).toBeDefined();
       expect(config.slashCommands).toBeDefined();
@@ -31,7 +31,7 @@ describe('getAgentConfiguration', () => {
 
     test('generates configuration with full subagents', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], FULL_SUBAGENTS_CONFIG);
 
       expect(config).toBeDefined();
       expect(config.slashCommands).toBeDefined();
@@ -43,7 +43,7 @@ describe('getAgentConfiguration', () => {
   describe('Slash Commands Generation', () => {
     test('creates slash command for the task', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], FULL_SUBAGENTS_CONFIG);
 
       expect(config.slashCommands).toBeDefined();
       expect(config.slashCommands[TASK_SLUGS.RUN_TESTS]).toBeDefined();
@@ -51,7 +51,7 @@ describe('getAgentConfiguration', () => {
 
     test('slash command has frontmatter and content', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, MINIMAL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], MINIMAL_SUBAGENTS_CONFIG);
 
       const command = config.slashCommands[TASK_SLUGS.RUN_TESTS];
       expect(command.frontmatter).toBeDefined();
@@ -64,7 +64,7 @@ describe('getAgentConfiguration', () => {
   describe('Subagent Prompts Generation', () => {
     test('generates prompts for all configured subagents', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], FULL_SUBAGENTS_CONFIG);
 
       // Full config has 4 subagents
       expect(Object.keys(config.subagents).length).toBeGreaterThanOrEqual(1);
@@ -72,7 +72,7 @@ describe('getAgentConfiguration', () => {
 
     test('subagent prompts contain content', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], FULL_SUBAGENTS_CONFIG);
 
       // Check that each subagent prompt has actual content
       Object.values(config.subagents).forEach(subagent => {
@@ -86,7 +86,7 @@ describe('getAgentConfiguration', () => {
 
     test('generates playwright test-runner prompt for minimal config', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, MINIMAL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], MINIMAL_SUBAGENTS_CONFIG);
 
       // Minimal config only has test-runner with playwright
       expect(config.subagents['test-runner']).toBeDefined();
@@ -98,7 +98,7 @@ describe('getAgentConfiguration', () => {
 
     test('generates multiple subagent prompts for full config', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], FULL_SUBAGENTS_CONFIG);
 
       // Full config has: test-runner, documentation-researcher, issue-tracker, team-communicator
       const roles = Object.keys(config.subagents);
@@ -117,7 +117,7 @@ describe('getAgentConfiguration', () => {
   describe('MCP Configuration Generation', () => {
     test('generates MCP config for minimal subagents', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, MINIMAL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], MINIMAL_SUBAGENTS_CONFIG);
 
       expect(config.mcpConfig).toBeDefined();
       expect(config.mcpConfig.mcpServers).toBeDefined();
@@ -128,7 +128,7 @@ describe('getAgentConfiguration', () => {
 
     test('generates MCP config for full subagents', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], FULL_SUBAGENTS_CONFIG);
 
       expect(config.mcpConfig).toBeDefined();
       expect(config.mcpConfig.mcpServers).toBeDefined();
@@ -143,7 +143,7 @@ describe('getAgentConfiguration', () => {
 
     test('MCP servers have required configuration', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, MINIMAL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], MINIMAL_SUBAGENTS_CONFIG);
 
       const playwrightMcp = config.mcpConfig.mcpServers.playwright;
       expect(playwrightMcp).toBeDefined();
@@ -156,7 +156,7 @@ describe('getAgentConfiguration', () => {
     test('templates are accessible and contain valid content', async () => {
       // This test verifies that template files are bundled with the package
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration(taskDef, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], FULL_SUBAGENTS_CONFIG);
 
       // If subagent prompts are generated, templates must be bundled correctly
       Object.entries(config.subagents).forEach(([role, subagent]) => {
@@ -173,7 +173,7 @@ describe('getAgentConfiguration', () => {
         { role: 'test-runner', integration: 'playwright' },
         { role: 'test-debugger-fixer', integration: 'playwright' }
       ]);
-      const configPlaywright = await getAgentConfiguration(taskDefPlaywright, [
+      const configPlaywright = await getAgentConfiguration([taskDefPlaywright], [
         { role: 'test-runner', integration: 'playwright' },
         { role: 'test-debugger-fixer', integration: 'playwright' }
       ]);
@@ -259,7 +259,7 @@ describe('getAgentConfiguration', () => {
       ];
 
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, validSubagents);
-      const config = await getAgentConfiguration(taskDef, validSubagents);
+      const config = await getAgentConfiguration([taskDef], validSubagents);
 
       // Should successfully generate config with valid subagents
       expect(config).toBeDefined();
