@@ -92,6 +92,13 @@ export const INTEGRATIONS: Record<string, SubAgentIntegration> = {
     requiredMCP: 'mcp__playwright__*',
     isLocal: true, // Playwright runs locally, no external connector needed
     integrationType: 'local'
+  },
+  teams: {
+    id: 'teams',
+    name: 'Microsoft Teams',
+    provider: 'teams',
+    requiredMCP: 'mcp__teams__*',
+    integrationType: 'oauth'
   }
 };
 
@@ -115,7 +122,7 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     name: 'Team Communicator',
     description: 'Send notifications and updates to your team',
     icon: 'message-square',
-    integrations: [INTEGRATIONS.slack],
+    integrations: [INTEGRATIONS.slack, INTEGRATIONS.teams],
     model: 'sonnet',
     color: 'blue',
     version: '1.0.0'

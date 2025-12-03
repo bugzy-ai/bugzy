@@ -47,6 +47,19 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
       },
     },
   },
+  teams: {
+    provider: 'teams',
+    name: 'Microsoft Teams',
+    description: 'Microsoft Teams MCP server for messaging and channel operations',
+    requiresCredentials: true,
+    config: {
+      command: 'teams-mcp-server',
+      args: [],
+      env: {
+        TEAMS_ACCESS_TOKEN: '${TEAMS_ACCESS_TOKEN}',
+      },
+    },
+  },
   playwright: {
     provider: 'playwright',
     name: 'Playwright',

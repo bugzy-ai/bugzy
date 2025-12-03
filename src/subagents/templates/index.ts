@@ -16,6 +16,7 @@ import * as TestDebuggerFixerPlaywright from './test-debugger-fixer/playwright';
 
 // Team Communicator templates
 import * as TeamCommunicatorSlack from './team-communicator/slack';
+import * as TeamCommunicatorTeams from './team-communicator/teams';
 
 // Documentation Researcher templates
 import * as DocumentationResearcherNotion from './documentation-researcher/notion';
@@ -54,6 +55,10 @@ export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
     slack: {
       frontmatter: TeamCommunicatorSlack.FRONTMATTER,
       content: TeamCommunicatorSlack.CONTENT,
+    },
+    teams: {
+      frontmatter: TeamCommunicatorTeams.FRONTMATTER,
+      content: TeamCommunicatorTeams.CONTENT,
     },
   },
   'documentation-researcher': {
