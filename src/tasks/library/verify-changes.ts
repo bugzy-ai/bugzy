@@ -312,7 +312,7 @@ Read and analyze the JSON report:
 For each test classified as **[TEST ISSUE]**, use the test-debugger-fixer agent to automatically fix the test:
 
 \`\`\`
-Use the test-debugger-fixer agent to fix test issues:
+{{INVOKE_TEST_DEBUGGER_FIXER}}
 
 For each failed test classified as a test issue (not a product bug), provide:
 - Test file path: [from JSON report]
@@ -353,7 +353,7 @@ Classification guidelines:
 #### 4A.4 Fix Test Issues Automatically
 
 For tests classified as [TEST ISSUE]:
-- Use test-debugger-fixer agent to analyze and fix
+- {{INVOKE_TEST_DEBUGGER_FIXER}} to analyze and fix
 - Agent debugs with browser if needed
 - Applies fix (selector update, wait condition, assertion correction)
 - Reruns test to verify fix (10x for flaky tests)
@@ -369,7 +369,7 @@ Track fixed tests with:
 {{ISSUE_TRACKER_INSTRUCTIONS}}
 
 For tests classified as [PRODUCT BUG]:
-- Use issue-tracker agent to create bug reports
+- {{INVOKE_ISSUE_TRACKER}} to create bug reports
 - Agent checks for duplicates automatically
 - Creates detailed report with:
   - Title, description, reproduction steps
@@ -685,10 +685,10 @@ Format as comprehensive markdown report for terminal display:
 
 {{TEAM_COMMUNICATOR_INSTRUCTIONS}}
 
-Use team-communicator agent to post concise results to Slack thread:
+{{INVOKE_TEAM_COMMUNICATOR}} to post concise results to Slack thread:
 
 \`\`\`
-Use the team-communicator agent to post verification results.
+Post verification results.
 
 **Channel**: [from CHANGE_CONTEXT.slackChannel]
 **Thread**: [from CHANGE_CONTEXT.slackThread]
@@ -870,10 +870,10 @@ A successful verification includes:
       role: 'documentation-researcher',
       contentBlock: `#### Research Project Documentation
 
-Use the documentation-researcher agent to gather comprehensive context about the changed features:
+{{INVOKE_DOCUMENTATION_RESEARCHER}} to gather comprehensive context about the changed features:
 
 \`\`\`
-Use the documentation-researcher agent to explore project documentation related to the changes.
+Explore project documentation related to the changes.
 
 Specifically gather:
 - Product specifications for affected features
@@ -905,10 +905,9 @@ Use this information to:
       role: 'issue-tracker',
       contentBlock: `#### Log Product Bugs
 
-For tests classified as **[PRODUCT BUG]**, use the issue-tracker agent to log bugs:
+For tests classified as **[PRODUCT BUG]**, {{INVOKE_ISSUE_TRACKER}} to log bugs:
 
 \`\`\`
-Use issue-tracker agent to:
 1. Check for duplicate bugs in the tracking system
    - The agent will automatically search for similar existing issues
    - It maintains memory of recently reported issues
@@ -957,10 +956,9 @@ Use issue-tracker agent to:
       role: 'team-communicator',
       contentBlock: `#### Team Communication
 
-Use the team-communicator agent to share verification results (primarily for Slack trigger, but can be used for other triggers):
+{{INVOKE_TEAM_COMMUNICATOR}} to share verification results (primarily for Slack trigger, but can be used for other triggers):
 
 \`\`\`
-Use the team-communicator agent to:
 1. Post verification results summary
 2. Highlight critical failures that need immediate attention
 3. Share bugs logged with issue tracker links

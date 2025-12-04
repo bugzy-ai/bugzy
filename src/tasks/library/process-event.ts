@@ -95,7 +95,7 @@ Classify the ambiguity level to determine appropriate response:
 #### Clarification Approach by Severity
 
 **For CRITICAL/HIGH ambiguity:**
-1. **Use team-communicator to ask specific questions**
+1. **{{INVOKE_TEAM_COMMUNICATOR}} to ask specific questions**
 2. **WAIT for response before proceeding**
 3. **Document the clarification request in event history**
 
@@ -369,7 +369,7 @@ ${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}`,
       contentBlock: `#### 3.3 Use Documentation Researcher if Needed
 For events mentioning unknown features or components:
 \`\`\`
-Use documentation-researcher agent to find information about: [component/feature]
+{{INVOKE_DOCUMENTATION_RESEARCHER}} to find information about: [component/feature]
 \`\`\``
     },
     {
@@ -378,7 +378,7 @@ Use documentation-researcher agent to find information about: [component/feature
 
 When an issue needs to be tracked (task type: report_bug or update_story):
 \`\`\`
-Use issue-tracker agent to:
+{{INVOKE_ISSUE_TRACKER}}
 1. Check for duplicate issues in the tracking system
 2. For bugs: Create detailed bug report with:
    - Clear, descriptive title

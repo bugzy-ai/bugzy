@@ -18,21 +18,22 @@ This document explains how Bugzy works under the hood, from setup to task execut
 │  - Start Command     │
 └──────┬───────────────┘
        │
-       │ generates
+       │ generates (tool-specific)
        ▼
 ┌──────────────────────┐        ┌──────────────────────┐
-│  .bugzy/             │        │  .claude/            │
+│  .bugzy/             │        │  .<tool>/            │
 │  - config.json       │◄──────►│  - commands/         │
 │  - runtime/          │   reads │  - agents/           │
-│                      │         │  - .mcp.json         │
+│                      │         │  - mcp.json          │
 └──────────────────────┘         └──────┬───────────────┘
                                         │
                                         │ loads
                                         ▼
                               ┌──────────────────────┐
-                              │   Claude Code        │
-                              │  - Executes Tasks    │
-                              │  - Uses MCP Servers  │
+                              │   AI Coding Tool     │
+                              │  - Claude Code       │
+                              │  - Cursor (exp.)     │
+                              │  - Codex CLI (exp.)  │
                               └──────┬───────────────┘
                                      │
                                      │ calls
@@ -46,6 +47,8 @@ This document explains how Bugzy works under the hood, from setup to task execut
                             └──────────────────────┘
 ```
 
+> **Note**: The `.<tool>/` directory is `.claude/`, `.cursor/`, or `.codex/` depending on your selected tool. Cursor and Codex support is experimental.
+
 ## Core Components
 
 ### 1. Bugzy CLI
@@ -56,15 +59,15 @@ The command-line interface that manages your Bugzy configuration.
 
 **Commands**:
 - `bugzy setup` - Interactive configuration wizard
-- `bugzy` - Start Claude Code with Bugzy configuration
+- `bugzy` - Start your AI coding tool with Bugzy configuration
 
 **Responsibilities**:
 - Load and save configuration
-- Generate task commands
+- Generate tool-specific task commands
 - Generate subagent configurations
 - Generate MCP configuration
 - Validate environment variables
-- Launch Claude Code
+- Launch the configured AI coding tool (Claude Code, Cursor, or Codex)
 
 ### 2. Task Library
 
@@ -117,11 +120,28 @@ Manages Model Context Protocol server configuration.
 **Location**: `src/mcp/`
 
 **Responsibilities**:
-- Generate `.mcp.json` for Claude Code
+- Generate MCP config for the selected tool (JSON or TOML format)
 - Configure server commands and arguments
 - Map environment variables to MCP servers
 
-### 5. Generator Pipeline
+### 5. Tool Profile System
+
+Manages tool-specific configurations for different AI coding assistants.
+
+**Location**: `src/core/tool-profile.ts`
+
+**Supported Tools**:
+- **Claude Code** (recommended) - Full feature support
+- **Cursor** (experimental) - VS Code-based editor
+- **Codex CLI** (experimental) - OpenAI's terminal agent
+
+**Responsibilities**:
+- Define directory structures per tool (`.claude/`, `.cursor/`, `.codex/`)
+- Configure MCP format (JSON for Claude Code/Cursor, TOML for Codex)
+- Set command invocation prefixes (`/` vs `/prompts:`)
+- Handle frontmatter requirements per tool
+
+### 6. Generator Pipeline
 
 Transforms configuration into files.
 
@@ -131,12 +151,14 @@ Transforms configuration into files.
 ```
 Configuration (.bugzy/config.json)
          │
-         ├──► Commands Generator ──► .claude/commands/*.md
-         ├──► Agents Generator   ──► .claude/agents/*.md
-         ├──► MCP Generator      ──► .mcp.json
+         ├──► Commands Generator ──► .<tool>/commands/*.md
+         ├──► Agents Generator   ──► .<tool>/agents/*.md
+         ├──► MCP Generator      ──► .<tool>/mcp.json
          ├──► Env Generator      ──► .env.testdata
          └──► Structure Generator ──► .bugzy/runtime/
 ```
+
+> **Note**: `.<tool>/` is `.claude/`, `.cursor/`, or `.codex/` depending on your selected tool.
 
 ## Execution Flow
 
@@ -149,24 +171,29 @@ Configuration (.bugzy/config.json)
    ├─ Exists: Reconfiguration mode
    └─ Missing: First-time setup mode
 
-3. Interactive prompts for each subagent:
+3. Select AI coding tool:
+   - Claude Code (recommended)
+   - Cursor (experimental)
+   - Codex CLI (experimental)
+
+4. Interactive prompts for each subagent:
    - Test Runner (required)
    - Team Communicator (optional)
    - Documentation Researcher (optional)
    - Issue Tracker (optional)
 
-4. Save configuration to .bugzy/config.json
+5. Save configuration to .bugzy/config.json
 
-5. Generate all files:
+6. Generate all files:
    ├─ Create .bugzy/runtime/ structure
-   ├─ Generate task commands (.claude/commands/)
-   ├─ Generate subagent configs (.claude/agents/)
-   ├─ Generate MCP config (.mcp.json)
+   ├─ Generate task commands (.<tool>/commands/)
+   ├─ Generate subagent configs (.<tool>/agents/)
+   ├─ Generate MCP config (.<tool>/mcp.json)
    └─ Generate .env.testdata template
 
-6. Update .gitignore if needed
+7. Update .gitignore if needed
 
-7. Report success and next steps
+8. Report success and next steps
 ```
 
 ### Start Flow
@@ -179,7 +206,7 @@ Configuration (.bugzy/config.json)
 
 3. Validate project structure
    ├─ Check .bugzy/ directory
-   ├─ Check .claude/ directory
+   ├─ Check .<tool>/ directory
    └─ Check required files
 
 4. Load environment variables
@@ -190,20 +217,21 @@ Configuration (.bugzy/config.json)
 5. Validate required MCP secrets
    └─ Check each configured integration has required env vars
 
-6. Launch Claude Code:
+6. Launch AI coding tool:
    ├─ Set working directory to project root
    ├─ Export environment variables
-   └─ Execute: claude [optional-prompt]
+   └─ Execute: <tool-cli> [optional-prompt]
 
-7. Claude Code starts with Bugzy configuration
+7. AI coding tool starts with Bugzy configuration
 ```
 
 ### Task Execution Flow
 
 ```
 1. User types: /generate-test-plan user authentication
+   (or /prompts:generate-test-plan for Codex)
 
-2. Claude Code loads: .claude/commands/generate-test-plan.md
+2. AI tool loads: .<tool>/commands/generate-test-plan.md
 
 3. Task prompt includes:
    ├─ Task instructions
@@ -213,7 +241,7 @@ Configuration (.bugzy/config.json)
    │   └─ <documentation_researcher> block (if configured)
    └─ User arguments ($ARGUMENTS = "user authentication")
 
-4. Claude executes task:
+4. AI tool executes task:
    ├─ Reads project context (.bugzy/runtime/project-context.md)
    ├─ Uses subagent capabilities (MCP tools)
    │   ├─ Test Runner: Browser automation
@@ -266,6 +294,7 @@ function buildTaskDefinition(
 ```json
 {
   "version": "1.0.0",
+  "tool": "claude-code",
   "project": {
     "name": "my-project"
   },
@@ -275,6 +304,8 @@ function buildTaskDefinition(
   }
 }
 ```
+
+The `tool` field can be `"claude-code"` (default), `"cursor"` (experimental), or `"codex"` (experimental).
 
 **Why This Format?**
 - Simple: Just role → integration mapping
@@ -321,8 +352,9 @@ You are a test automation expert...
 
 ## MCP Integration
 
-Bugzy generates MCP configuration for Claude Code:
+Bugzy generates MCP configuration for your AI coding tool. The format depends on the selected tool:
 
+**Claude Code / Cursor (JSON format)**:
 ```json
 {
   "mcpServers": {
@@ -342,9 +374,15 @@ Bugzy generates MCP configuration for Claude Code:
 }
 ```
 
+**Codex CLI (TOML format via CLI)**:
+```bash
+codex mcp add playwright -- mcp-server-playwright --browser chromium --headless
+codex mcp add slack -- slack-mcp-server
+```
+
 **Environment Variable Substitution**:
-- `"${SLACK_BOT_TOKEN}"` → Claude Code reads from shell environment
-- Bugzy loads `.env` files and exports to shell before launching Claude
+- `"${SLACK_BOT_TOKEN}"` → The AI tool reads from shell environment
+- Bugzy loads `.env` files and exports to shell before launching
 - MCP servers receive environment variables at runtime
 
 ## File Organization
@@ -361,7 +399,7 @@ my-project/
 │       │   └── test-plan-template.md
 │       ├── test-plans/              # Generated test plans
 │       └── test-cases/              # Generated test cases
-├── .claude/                         # Claude Code configuration
+├── .<tool>/                         # Tool-specific configuration
 │   ├── commands/                    # Task commands (generated)
 │   │   ├── generate-test-plan.md
 │   │   ├── run-tests.md
@@ -370,11 +408,13 @@ my-project/
 │   │   ├── test-runner.md
 │   │   ├── team-communicator.md
 │   │   └── ...
-│   └── .mcp.json                    # MCP configuration (generated)
+│   └── mcp.json                     # MCP configuration (generated)
 ├── .env.testdata                     # Environment template (generated)
 ├── .env                             # Secrets (user-created, gitignored)
 └── .gitignore                       # Updated by Bugzy
 ```
+
+> **Note**: `.<tool>/` is `.claude/`, `.cursor/`, or `.codex/` depending on your selected tool.
 
 ### Bugzy Package Structure
 
@@ -419,7 +459,7 @@ bugzy/ (npm package)
      │
      └──► Exports to shell environment
             │
-            └──► Claude Code inherits
+            └──► AI coding tool inherits
                    │
                    └──► MCP servers access via ${VAR}
 ```
@@ -471,12 +511,12 @@ Tasks are instructed to:
 - **Portable**: Works across all tools
 - **Flexible**: Supports rich formatting
 
-### Why Separate .bugzy/ and .claude/?
+### Why Separate .bugzy/ and .<tool>/?
 
 - `.bugzy/` - Bugzy-specific (config, runtime files)
-- `.claude/` - Claude Code-specific (commands, agents, MCP)
+- `.<tool>/` - Tool-specific (commands, agents, MCP) - e.g., `.claude/`, `.cursor/`, `.codex/`
 - **Benefit**: Clear separation of concerns
-- **Benefit**: .claude/ can be regenerated safely
+- **Benefit**: Tool directory can be regenerated safely
 
 ### Why JSON for Config?
 

@@ -1,21 +1,24 @@
 /**
  * Subagent Configuration Generator
- * Generate .claude/agents/*.md files
+ * Generate agent/subagent files for AI coding tools
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { buildSubagentConfig } from '../../subagents';
+import { ToolId, getToolProfile, DEFAULT_TOOL } from '../../core/tool-profile';
 
 /**
  * Generate subagent configuration files
  * Only generates files for configured subagents
  *
  * @param subagents - Subagent role -> integration mapping
+ * @param tool - AI coding tool (default: 'claude-code')
  */
-export async function generateAgents(subagents: Record<string, string>): Promise<void> {
+export async function generateAgents(subagents: Record<string, string>, tool: ToolId = DEFAULT_TOOL): Promise<void> {
   const cwd = process.cwd();
-  const agentsDir = path.join(cwd, '.claude', 'agents');
+  const toolProfile = getToolProfile(tool);
+  const agentsDir = path.join(cwd, toolProfile.agentsDir);
 
   // Ensure agents directory exists
   if (!fs.existsSync(agentsDir)) {
@@ -39,22 +42,31 @@ export async function generateAgents(subagents: Record<string, string>): Promise
       continue;
     }
 
-    // Format as markdown with frontmatter
-    const content = formatAgentMarkdown(config.frontmatter, config.content);
+    // Format as markdown with or without frontmatter based on tool
+    const content = formatAgentMarkdown(config.frontmatter, config.content, toolProfile.agentFrontmatter);
 
     // Write to file
-    const filePath = path.join(agentsDir, `${role}.md`);
+    const fileName = `${role}${toolProfile.agentExtension}`;
+    const filePath = path.join(agentsDir, fileName);
     fs.writeFileSync(filePath, content, 'utf-8');
   }
 }
 
 /**
- * Format agent configuration as markdown with frontmatter
+ * Format agent configuration as markdown with optional frontmatter
  * @param frontmatter - Agent frontmatter
  * @param content - Agent content
+ * @param includeFrontmatter - Whether to include YAML frontmatter
  * @returns Formatted markdown
  */
-function formatAgentMarkdown(frontmatter: Record<string, any>, content: string): string {
+function formatAgentMarkdown(frontmatter: Record<string, any>, content: string, includeFrontmatter: boolean): string {
+  if (!includeFrontmatter) {
+    // For tools like Cursor and Codex that invoke agents via CLI,
+    // we don't need frontmatter - just the content
+    return content;
+  }
+
+  // For tools like Claude Code that use frontmatter
   const lines: string[] = ['---'];
 
   // Format frontmatter

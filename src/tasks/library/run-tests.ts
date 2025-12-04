@@ -256,7 +256,7 @@ For each failed test:
 For each test classified as **[TEST ISSUE]**, use the test-debugger-fixer agent to automatically fix the test:
 
 \`\`\`
-Use the test-debugger-fixer agent to fix test issues:
+{{INVOKE_TEST_DEBUGGER_FIXER}}
 
 For each failed test classified as a test issue (not a product bug), provide:
 - Test run timestamp: [from manifest.timestamp]
@@ -352,7 +352,7 @@ After triage in Step 5.1, for tests classified as **[PRODUCT BUG]**, use the iss
 For each bug to report, use the issue-tracker agent:
 
 \`\`\`
-Use issue-tracker agent to:
+{{INVOKE_ISSUE_TRACKER}}
 1. Check for duplicate bugs in the tracking system
    - The agent will automatically search for similar existing issues
    - It maintains memory of recently reported issues
@@ -423,10 +423,11 @@ After issue tracker agent completes, create a summary:
       role: 'team-communicator',
       contentBlock: `### Step 6: Team Communication
 
-Use the team-communicator agent to notify the product team about test execution:
+{{INVOKE_TEAM_COMMUNICATOR}}
+
+Notify the product team about test execution:
 
 \`\`\`
-Use the team-communicator agent to:
 1. Post test execution summary with key statistics
 2. Highlight critical failures that need immediate attention
 3. Share important learnings about product behavior

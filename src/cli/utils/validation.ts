@@ -5,20 +5,27 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { loadConfig, getToolFromConfig } from './config';
+import { getToolProfile, DEFAULT_TOOL } from '../../core/tool-profile';
 
 /**
  * Validate that project structure exists and is correct
- * Checks for required directories and files
+ * Checks for required directories and files based on configured tool
  *
  * @returns True if structure is valid, false otherwise
  */
-export function validateProjectStructure(): boolean {
+export async function validateProjectStructure(): Promise<boolean> {
+  // Load config to determine tool-specific directories
+  const config = await loadConfig();
+  const tool = config ? getToolFromConfig(config) : DEFAULT_TOOL;
+  const toolProfile = getToolProfile(tool);
+
   const requiredDirs = [
     '.bugzy',
     '.bugzy/runtime',
-    '.claude',
-    '.claude/commands',
-    '.claude/agents'
+    path.dirname(toolProfile.commandsDir),  // .claude, .cursor, or .codex
+    toolProfile.commandsDir,                 // .claude/commands, .cursor/commands, .codex/prompts
+    toolProfile.agentsDir                    // .claude/agents, .cursor/agents, .codex/agents
   ];
 
   const requiredFiles = [
@@ -73,14 +80,15 @@ export function validateSecrets(required: string[], env: Record<string, string |
 }
 
 /**
- * Check if Claude Code CLI is available
- * @returns True if claude command is available
+ * Check if a CLI tool is available
+ * @param command - The CLI command to check for (e.g., 'claude', 'cursor-agent', 'codex')
+ * @returns True if command is available
  */
-export async function checkClaudeAvailable(): Promise<boolean> {
+export async function checkToolAvailable(command: string): Promise<boolean> {
   const { spawn } = await import('child_process');
 
   return new Promise((resolve) => {
-    const proc = spawn('which', ['claude']);
+    const proc = spawn('which', [command]);
     proc.on('close', (code) => {
       resolve(code === 0);
     });

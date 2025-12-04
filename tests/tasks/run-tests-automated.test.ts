@@ -1,6 +1,18 @@
 import { describe, it, expect } from 'vitest';
 import { buildTaskDefinition } from '../../src/core/task-builder';
+import { replaceInvocationPlaceholders } from '../../src/core/tool-strings';
 import type { ProjectSubAgent } from '../../src/core/task-builder';
+
+/**
+ * Helper to build task and replace placeholders (simulates final generated content)
+ */
+function buildAndProcessTask(slug: string, subagents: ProjectSubAgent[]) {
+  const task = buildTaskDefinition(slug, subagents);
+  return {
+    ...task,
+    content: replaceInvocationPlaceholders(task.content, 'claude-code'),
+  };
+}
 
 describe('run-tests task (automated execution)', () => {
   const minimalSubAgents: ProjectSubAgent[] = [
@@ -75,9 +87,9 @@ describe('run-tests task (automated execution)', () => {
   });
 
   it('should include test-debugger-fixer instructions when configured', () => {
-    const result = buildTaskDefinition('run-tests', minimalSubAgents);
+    const result = buildAndProcessTask('run-tests', minimalSubAgents);
 
-    expect(result.content).toContain('test-debugger-fixer agent');
+    expect(result.content).toContain('test-debugger-fixer subagent');
     expect(result.content).toContain('fix test issues');
     expect(result.content).toContain('[TEST ISSUE]');
   });
@@ -91,17 +103,17 @@ describe('run-tests task (automated execution)', () => {
   });
 
   it('should include issue tracker instructions when configured', () => {
-    const result = buildTaskDefinition('run-tests', fullSubAgents);
+    const result = buildAndProcessTask('run-tests', fullSubAgents);
 
     expect(result.content).toContain('Log Product Bugs');
-    expect(result.content).toContain('issue-tracker agent');
+    expect(result.content).toContain('issue-tracker subagent');
   });
 
   it('should include team communication instructions when configured', () => {
-    const result = buildTaskDefinition('run-tests', fullSubAgents);
+    const result = buildAndProcessTask('run-tests', fullSubAgents);
 
     expect(result.content).toContain('Team Communication');
-    expect(result.content).toContain('team-communicator agent');
+    expect(result.content).toContain('team-communicator subagent');
   });
 
   it('should NOT include blocker/dependency logic for automated tests', () => {

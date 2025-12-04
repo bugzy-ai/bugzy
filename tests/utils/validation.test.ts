@@ -21,35 +21,59 @@ describe('validation utilities', () => {
   });
 
   describe('validateProjectStructure', () => {
-    it('should validate complete project structure', () => {
-      // Create expected structure
+    it('should validate complete project structure for claude-code', async () => {
+      // Create expected structure for claude-code (default tool)
       fs.mkdirSync('.bugzy/runtime', { recursive: true });
       fs.mkdirSync('.claude/commands', { recursive: true });
       fs.mkdirSync('.claude/agents', { recursive: true });
-      fs.writeFileSync('.bugzy/config.json', '{}');
+      fs.writeFileSync('.bugzy/config.json', JSON.stringify({ version: '1.0.0', tool: 'claude-code', project: { name: 'test' }, subagents: {} }));
       fs.writeFileSync('.bugzy/runtime/project-context.md', '# Project Context');
 
-      expect(validateProjectStructure()).toBe(true);
+      expect(await validateProjectStructure()).toBe(true);
     });
 
-    it('should return false if .bugzy directory is missing', () => {
+    it('should validate complete project structure for cursor', async () => {
+      // Create expected structure for cursor
+      fs.mkdirSync('.bugzy/runtime', { recursive: true });
+      fs.mkdirSync('.cursor/commands', { recursive: true });
+      fs.mkdirSync('.cursor/agents', { recursive: true });
+      fs.writeFileSync('.bugzy/config.json', JSON.stringify({ version: '1.0.0', tool: 'cursor', project: { name: 'test' }, subagents: {} }));
+      fs.writeFileSync('.bugzy/runtime/project-context.md', '# Project Context');
+
+      expect(await validateProjectStructure()).toBe(true);
+    });
+
+    it('should validate complete project structure for codex', async () => {
+      // Create expected structure for codex
+      fs.mkdirSync('.bugzy/runtime', { recursive: true });
+      fs.mkdirSync('.codex/prompts', { recursive: true });
+      fs.mkdirSync('.codex/agents', { recursive: true });
+      fs.writeFileSync('.bugzy/config.json', JSON.stringify({ version: '1.0.0', tool: 'codex', project: { name: 'test' }, subagents: {} }));
+      fs.writeFileSync('.bugzy/runtime/project-context.md', '# Project Context');
+
+      expect(await validateProjectStructure()).toBe(true);
+    });
+
+    it('should return false if .bugzy directory is missing', async () => {
       fs.mkdirSync('.claude/commands', { recursive: true });
 
-      expect(validateProjectStructure()).toBe(false);
+      expect(await validateProjectStructure()).toBe(false);
     });
 
-    it('should return false if .claude directory is missing', () => {
-      fs.mkdirSync('.bugzy', { recursive: true });
-      fs.writeFileSync('.bugzy/config.json', '{}');
+    it('should return false if tool-specific directory is missing', async () => {
+      fs.mkdirSync('.bugzy/runtime', { recursive: true });
+      fs.writeFileSync('.bugzy/config.json', JSON.stringify({ version: '1.0.0', tool: 'claude-code', project: { name: 'test' }, subagents: {} }));
+      fs.writeFileSync('.bugzy/runtime/project-context.md', '# Project Context');
+      // Missing .claude/ directory
 
-      expect(validateProjectStructure()).toBe(false);
+      expect(await validateProjectStructure()).toBe(false);
     });
 
-    it('should return false if config.json is missing', () => {
+    it('should return false if config.json is missing', async () => {
       fs.mkdirSync('.bugzy', { recursive: true });
       fs.mkdirSync('.claude/commands', { recursive: true });
 
-      expect(validateProjectStructure()).toBe(false);
+      expect(await validateProjectStructure()).toBe(false);
     });
   });
 

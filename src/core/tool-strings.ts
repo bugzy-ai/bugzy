@@ -1,0 +1,165 @@
+/**
+ * Tool-Specific Strings
+ *
+ * Provides tool-specific strings for subagent invocation and other tool-dependent text.
+ * Each AI coding tool has different patterns for invoking subagents/specialized agents.
+ *
+ * Claude Code: Uses Task tool with subagent_type parameter
+ * Cursor: Uses cursor-agent CLI with -p flag to provide prompt
+ * Codex: Uses codex CLI with -p flag to provide prompt
+ */
+
+import { ToolId } from './tool-profile';
+
+/**
+ * Subagent roles that can be invoked from tasks
+ */
+export type SubagentRole =
+  | 'test-runner'
+  | 'test-debugger-fixer'
+  | 'test-code-generator'
+  | 'team-communicator'
+  | 'issue-tracker'
+  | 'documentation-researcher';
+
+/**
+ * Intent-based keys for tool-specific strings
+ * These represent what action needs to happen, not how
+ */
+export type ToolStringKey =
+  | 'INVOKE_TEST_RUNNER'
+  | 'INVOKE_TEST_DEBUGGER_FIXER'
+  | 'INVOKE_TEST_CODE_GENERATOR'
+  | 'INVOKE_TEAM_COMMUNICATOR'
+  | 'INVOKE_ISSUE_TRACKER'
+  | 'INVOKE_DOCUMENTATION_RESEARCHER';
+
+/**
+ * Map subagent role to tool string key
+ */
+const ROLE_TO_KEY: Record<SubagentRole, ToolStringKey> = {
+  'test-runner': 'INVOKE_TEST_RUNNER',
+  'test-debugger-fixer': 'INVOKE_TEST_DEBUGGER_FIXER',
+  'test-code-generator': 'INVOKE_TEST_CODE_GENERATOR',
+  'team-communicator': 'INVOKE_TEAM_COMMUNICATOR',
+  'issue-tracker': 'INVOKE_ISSUE_TRACKER',
+  'documentation-researcher': 'INVOKE_DOCUMENTATION_RESEARCHER',
+};
+
+/**
+ * Tool-specific strings for each AI coding tool
+ *
+ * Claude Code: Natural language instructions - the Task tool handles subagent invocation
+ * Cursor: CLI command to spawn cursor-agent with the agent's prompt file
+ * Codex: CLI command to spawn codex with the agent's prompt file
+ */
+export const TOOL_STRINGS: Record<ToolId, Record<ToolStringKey, string>> = {
+  'claude-code': {
+    INVOKE_TEST_RUNNER:
+      'Use the test-runner subagent to execute the tests',
+    INVOKE_TEST_DEBUGGER_FIXER:
+      'Use the test-debugger-fixer subagent to debug and fix the failing test',
+    INVOKE_TEST_CODE_GENERATOR:
+      'Use the test-code-generator subagent to generate automated test code',
+    INVOKE_TEAM_COMMUNICATOR:
+      'Use the team-communicator subagent to notify the team',
+    INVOKE_ISSUE_TRACKER:
+      'Use the issue-tracker subagent to create or update issues',
+    INVOKE_DOCUMENTATION_RESEARCHER:
+      'Use the documentation-researcher subagent to search and gather documentation',
+  },
+
+  'cursor': {
+    INVOKE_TEST_RUNNER:
+      'Run the test-runner agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/test-runner.md)" --output-format text\n```',
+    INVOKE_TEST_DEBUGGER_FIXER:
+      'Run the test-debugger-fixer agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/test-debugger-fixer.md)" --output-format text\n```',
+    INVOKE_TEST_CODE_GENERATOR:
+      'Run the test-code-generator agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/test-code-generator.md)" --output-format text\n```',
+    INVOKE_TEAM_COMMUNICATOR:
+      'Run the team-communicator agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/team-communicator.md)" --output-format text\n```',
+    INVOKE_ISSUE_TRACKER:
+      'Run the issue-tracker agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/issue-tracker.md)" --output-format text\n```',
+    INVOKE_DOCUMENTATION_RESEARCHER:
+      'Run the documentation-researcher agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/documentation-researcher.md)" --output-format text\n```',
+  },
+
+  'codex': {
+    INVOKE_TEST_RUNNER:
+      'Run the test-runner agent:\n```bash\ncodex -p "$(cat .codex/agents/test-runner.md)"\n```',
+    INVOKE_TEST_DEBUGGER_FIXER:
+      'Run the test-debugger-fixer agent:\n```bash\ncodex -p "$(cat .codex/agents/test-debugger-fixer.md)"\n```',
+    INVOKE_TEST_CODE_GENERATOR:
+      'Run the test-code-generator agent:\n```bash\ncodex -p "$(cat .codex/agents/test-code-generator.md)"\n```',
+    INVOKE_TEAM_COMMUNICATOR:
+      'Run the team-communicator agent:\n```bash\ncodex -p "$(cat .codex/agents/team-communicator.md)"\n```',
+    INVOKE_ISSUE_TRACKER:
+      'Run the issue-tracker agent:\n```bash\ncodex -p "$(cat .codex/agents/issue-tracker.md)"\n```',
+    INVOKE_DOCUMENTATION_RESEARCHER:
+      'Run the documentation-researcher agent:\n```bash\ncodex -p "$(cat .codex/agents/documentation-researcher.md)"\n```',
+  },
+};
+
+/**
+ * Get a tool-specific string by key
+ * @param toolId - Tool identifier
+ * @param key - String key
+ * @returns Tool-specific string
+ */
+export function getToolString(toolId: ToolId, key: ToolStringKey): string {
+  const toolStrings = TOOL_STRINGS[toolId];
+  if (!toolStrings) {
+    throw new Error(`Unknown tool: ${toolId}`);
+  }
+  const value = toolStrings[key];
+  if (!value) {
+    throw new Error(`Unknown string key: ${key} for tool: ${toolId}`);
+  }
+  return value;
+}
+
+/**
+ * Get subagent invocation string for a specific role
+ * @param toolId - Tool identifier
+ * @param role - Subagent role
+ * @returns Invocation string for the tool
+ */
+export function getSubagentInvocation(toolId: ToolId, role: SubagentRole): string {
+  const key = ROLE_TO_KEY[role];
+  if (!key) {
+    throw new Error(`Unknown subagent role: ${role}`);
+  }
+  return getToolString(toolId, key);
+}
+
+/**
+ * Replace invocation placeholders in content with tool-specific strings
+ *
+ * This function finds {{INVOKE_*}} placeholders in content and replaces them
+ * with the corresponding tool-specific invocation strings.
+ *
+ * @param content - Content with {{INVOKE_*}} placeholders
+ * @param toolId - Target tool
+ * @returns Content with tool-specific invocations
+ */
+export function replaceInvocationPlaceholders(content: string, toolId: ToolId): string {
+  let result = content;
+
+  // Replace each invocation placeholder
+  const keys: ToolStringKey[] = [
+    'INVOKE_TEST_RUNNER',
+    'INVOKE_TEST_DEBUGGER_FIXER',
+    'INVOKE_TEST_CODE_GENERATOR',
+    'INVOKE_TEAM_COMMUNICATOR',
+    'INVOKE_ISSUE_TRACKER',
+    'INVOKE_DOCUMENTATION_RESEARCHER',
+  ];
+
+  for (const key of keys) {
+    const placeholder = `{{${key}}}`;
+    const replacement = getToolString(toolId, key);
+    result = result.replace(new RegExp(placeholder, 'g'), replacement);
+  }
+
+  return result;
+}

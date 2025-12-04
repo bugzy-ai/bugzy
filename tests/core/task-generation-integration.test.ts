@@ -5,6 +5,7 @@
 
 import { describe, test, expect } from 'vitest';
 import { buildTaskDefinition } from '../../src/core/task-builder';
+import { replaceInvocationPlaceholders } from '../../src/core/tool-strings';
 import { TASK_SLUGS } from '../../src/tasks/constants';
 import { FULL_SUBAGENTS_CONFIG, PARTIAL_SUBAGENTS_CONFIG } from '../fixtures/repo-configs';
 import type { ProjectSubAgent } from '../../src/core/task-builder';
@@ -14,6 +15,17 @@ import type { ProjectSubAgent } from '../../src/core/task-builder';
  */
 function hasSubagent(config: ProjectSubAgent[], role: string): boolean {
   return config.some(sa => sa.role === role);
+}
+
+/**
+ * Helper to build task and replace placeholders (simulates final generated content)
+ */
+function buildAndProcessTask(slug: string, subagents: ProjectSubAgent[]) {
+  const task = buildTaskDefinition(slug, subagents);
+  return {
+    ...task,
+    content: replaceInvocationPlaceholders(task.content, 'claude-code'),
+  };
 }
 
 describe('Task Generation - Full Subagents Config', () => {
@@ -110,9 +122,9 @@ describe('Task Generation - Partial Subagents Config', () => {
       test('excludes documentation-researcher when not configured', () => {
         const task = buildTaskDefinition(taskSlug, PARTIAL_SUBAGENTS_CONFIG);
 
-        // Should not contain documentation-researcher agent references
+        // Should not contain documentation-researcher subagent references
         // (it's not configured in PARTIAL_SUBAGENTS_CONFIG)
-        expect(task.content).not.toContain('documentation-researcher agent');
+        expect(task.content).not.toContain('documentation-researcher subagent');
       });
 
       test('no placeholders remain', () => {
@@ -128,28 +140,29 @@ describe('Task Generation - Partial Subagents Config', () => {
 
 describe('Specific Task Validation', () => {
   describe('generate-test-cases', () => {
-    test('includes test-code-generator delegation when configured', () => {
-      const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
-      expect(task.content).toContain('test-code-generator agent');
+    test('includes test-code-generator invocation when configured', () => {
+      const task = buildAndProcessTask(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
+      expect(task.content).toContain('test-code-generator subagent');
     });
 
     test('includes documentation gathering when docs configured', () => {
-      const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
+      const task = buildAndProcessTask(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
       if (hasSubagent(FULL_SUBAGENTS_CONFIG, 'documentation-researcher')) {
-        expect(task.content).toContain('documentation-researcher agent');
+        expect(task.content).toContain('documentation-researcher subagent');
       }
     });
 
     test('excludes documentation gathering when docs not configured', () => {
-      const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, PARTIAL_SUBAGENTS_CONFIG);
-      expect(task.content).not.toContain('documentation-researcher agent');
+      const task = buildAndProcessTask(TASK_SLUGS.GENERATE_TEST_CASES, PARTIAL_SUBAGENTS_CONFIG);
+      // When not configured, the content block was not injected
+      expect(task.content).not.toContain('documentation-researcher subagent');
     });
 
     test('includes team communication when configured', () => {
       if (hasSubagent(PARTIAL_SUBAGENTS_CONFIG, 'team-communicator')) {
-        const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, PARTIAL_SUBAGENTS_CONFIG);
-        expect(task.content).toMatch(/team-communicator|team communication/i);
+        const task = buildAndProcessTask(TASK_SLUGS.GENERATE_TEST_CASES, PARTIAL_SUBAGENTS_CONFIG);
+        expect(task.content).toContain('team-communicator subagent');
       }
     });
   });

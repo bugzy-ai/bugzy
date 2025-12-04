@@ -225,7 +225,9 @@ Document all findings including:
 \`\`\`
 
 #### 3.2 Launch Test Runner Agent
-Invoke the test-runner agent with special exploration instructions:
+{{INVOKE_TEST_RUNNER}}
+
+Execute the exploration test case with special exploration instructions:
 
 \`\`\`
 Execute the exploration test case at ./test-cases/EXPLORATION-TEMP.md with focus on discovery and documentation.

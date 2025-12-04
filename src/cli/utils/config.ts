@@ -5,6 +5,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { ToolId, DEFAULT_TOOL } from '../../core/tool-profile';
 
 /**
  * Bugzy Project Configuration
@@ -12,11 +13,16 @@ import * as path from 'path';
  */
 export interface BugzyConfig {
   version: string;
+  /** AI coding tool to generate configuration for (default: 'claude-code') */
+  tool?: ToolId;
   project: {
     name: string;
   };
   subagents: Record<string, string>; // role -> integration mapping
 }
+
+// Re-export DEFAULT_TOOL for convenience
+export { DEFAULT_TOOL };
 
 /**
  * Load configuration from .bugzy/config.json
@@ -34,6 +40,12 @@ export async function loadConfig(configPath: string = '.bugzy/config.json'): Pro
   try {
     const content = fs.readFileSync(fullPath, 'utf-8');
     const config = JSON.parse(content) as BugzyConfig;
+
+    // Apply default tool for backward compatibility with existing configs
+    if (!config.tool) {
+      config.tool = DEFAULT_TOOL;
+    }
+
     return config;
   } catch (error) {
     console.error(`Error loading config from ${fullPath}:`, error);
@@ -98,14 +110,25 @@ export function validateConfig(config: BugzyConfig): boolean {
 /**
  * Create default configuration
  * @param projectName - Name of the project
+ * @param tool - AI coding tool (default: 'claude-code')
  * @returns Default configuration
  */
-export function createDefaultConfig(projectName: string): BugzyConfig {
+export function createDefaultConfig(projectName: string, tool: ToolId = DEFAULT_TOOL): BugzyConfig {
   return {
     version: '1.0.0',
+    tool,
     project: {
       name: projectName
     },
     subagents: {}
   };
+}
+
+/**
+ * Get tool from config with default fallback
+ * @param config - Configuration object
+ * @returns Tool ID
+ */
+export function getToolFromConfig(config: BugzyConfig): ToolId {
+  return config.tool || DEFAULT_TOOL;
 }

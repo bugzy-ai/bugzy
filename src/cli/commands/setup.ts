@@ -7,15 +7,17 @@ import * as path from 'path';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import ora from 'ora';
-import { loadConfig, saveConfig, configExists, createDefaultConfig } from '../utils/config';
+import { loadConfig, saveConfig, configExists, createDefaultConfig, DEFAULT_TOOL, getToolFromConfig } from '../utils/config';
 import { getAllSubAgents, getRequiredSubAgents } from '../../subagents';
-import { createProjectStructure, updateGitignore, generateClaudeMd } from '../generators/structure';
+import { createProjectStructure, updateGitignore, generateClaudeMd, generateAgentsMd } from '../generators/structure';
 import { generateCommands } from '../generators/commands';
 import { generateAgents } from '../generators/agents';
-import { generateMCPConfig, getMCPServersFromSubagents } from '../generators/mcp';
+import { generateMCPConfig, getMCPServersFromSubagents, buildCodexMCPCommand, getConfiguredCodexMCPServers } from '../generators/mcp';
+import { execSync } from 'child_process';
 import { generateEnvExample } from '../generators/env';
 import { getBanner } from '../utils/banner';
 import { scaffoldPlaywrightProject, isPlaywrightScaffolded } from '../generators/scaffold-playwright';
+import { ToolId, getToolOptions, getToolProfile } from '../../core/tool-profile';
 
 /**
  * Parse CLI arguments in format "role=integration"
@@ -82,12 +84,30 @@ async function firstTimeSetup(cliSubagents?: Record<string, string>): Promise<vo
   console.log(getBanner());
   console.log(chalk.cyan('  Project Setup\n'));
 
-  // Step 1: Create folder structure
-  let spinner = ora('Creating project structure').start();
-  await createProjectStructure();
-  spinner.succeed(chalk.green('Created .bugzy/ and .claude/ directories'));
+  // Step 1: Select AI coding tool
+  const toolOptions = getToolOptions();
+  const { selectedTool } = await inquirer.prompt([{
+    type: 'list',
+    name: 'selectedTool',
+    message: 'Which AI coding assistant do you use?',
+    choices: toolOptions.map(opt => ({
+      name: opt.hint ? `${opt.label} - ${chalk.gray(opt.hint)}` : opt.label,
+      value: opt.value
+    })),
+    default: DEFAULT_TOOL
+  }]);
+  const tool: ToolId = selectedTool;
+  const toolProfile = getToolProfile(tool);
 
-  // Step 2: Subagent configuration
+  console.log(chalk.gray(`\n✓ Using ${toolProfile.name}\n`));
+
+  // Step 2: Create folder structure
+  let spinner = ora('Creating project structure').start();
+  await createProjectStructure(tool);
+  const toolDirName = path.dirname(toolProfile.commandsDir);
+  spinner.succeed(chalk.green(`Created .bugzy/ and ${toolDirName}/ directories`));
+
+  // Step 3: Subagent configuration
   const subagents: Record<string, string> = {};
 
   if (cliSubagents) {
@@ -159,28 +179,32 @@ async function firstTimeSetup(cliSubagents?: Record<string, string>): Promise<vo
     }
   }
 
-  // Step 3: Save configuration
+  // Step 4: Save configuration
   spinner = ora('Saving configuration').start();
   const projectName = path.basename(process.cwd());
-  const config = createDefaultConfig(projectName);
+  const config = createDefaultConfig(projectName, tool);
   config.subagents = subagents;
   saveConfig(config);
   spinner.succeed(chalk.green('Saved to .bugzy/config.json'));
 
-  // Step 4: Generate everything
-  await regenerateAll(subagents);
+  // Step 5: Generate everything
+  await regenerateAll(subagents, tool);
 
-  // Step 5: Generate CLAUDE.md in project root
-  spinner = ora('Creating CLAUDE.md').start();
-  await generateClaudeMd();
-  spinner.succeed(chalk.green('Created CLAUDE.md'));
+  // Step 6: Generate memory file (CLAUDE.md for Claude Code, AGENTS.md for others)
+  spinner = ora(`Creating ${toolProfile.memoryFile}`).start();
+  if (tool === 'claude-code') {
+    await generateClaudeMd();
+  } else {
+    await generateAgentsMd();
+  }
+  spinner.succeed(chalk.green(`Created ${toolProfile.memoryFile}`));
 
-  // Step 6: Update .gitignore (first time only)
+  // Step 7: Update .gitignore (first time only)
   spinner = ora('Updating .gitignore').start();
   await updateGitignore();
   spinner.succeed(chalk.green('Updated .gitignore'));
 
-  // Step 7: Scaffold Playwright project (if test-runner is configured)
+  // Step 8: Scaffold Playwright project (if test-runner is configured)
   if (subagents['test-runner'] && !isPlaywrightScaffolded(process.cwd())) {
     await scaffoldPlaywrightProject({
       projectName,
@@ -213,11 +237,41 @@ async function reconfigureProject(): Promise<void> {
     process.exit(1);
   }
 
+  // Get current tool
+  const currentTool = getToolFromConfig(existingConfig);
+  const currentToolProfile = getToolProfile(currentTool);
+
   console.log(chalk.gray('Current configuration:'));
+  console.log(chalk.gray(`  Tool: ${currentToolProfile.name}`));
   for (const [role, integration] of Object.entries(existingConfig.subagents)) {
     console.log(chalk.gray(`  • ${role}: ${integration}`));
   }
   console.log();
+
+  // Ask if user wants to change tool
+  const toolOptions = getToolOptions();
+  const { changeTool } = await inquirer.prompt([{
+    type: 'confirm',
+    name: 'changeTool',
+    message: `Keep using ${currentToolProfile.name}?`,
+    default: true
+  }]);
+
+  let tool = currentTool;
+  if (!changeTool) {
+    const { selectedTool } = await inquirer.prompt([{
+      type: 'list',
+      name: 'selectedTool',
+      message: 'Which AI coding assistant do you want to use?',
+      choices: toolOptions.map(opt => ({
+        name: opt.hint ? `${opt.label} - ${chalk.gray(opt.hint)}` : opt.label,
+        value: opt.value
+      })),
+      default: currentTool
+    }]);
+    tool = selectedTool;
+    console.log(chalk.gray(`\n✓ Switching to ${getToolProfile(tool).name}\n`));
+  }
 
   // Ask which subagents to reconfigure
   const allSubAgents = getAllSubAgents();
@@ -312,17 +366,23 @@ async function reconfigureProject(): Promise<void> {
 
   // Update configuration
   let spinner = ora('Updating configuration').start();
+  existingConfig.tool = tool;
   existingConfig.subagents = newSubagents;
   await saveConfig(existingConfig);
   spinner.succeed(chalk.green('Updated .bugzy/config.json'));
 
   // Regenerate everything
-  await regenerateAll(newSubagents);
+  await regenerateAll(newSubagents, tool);
 
-  // Generate CLAUDE.md if it doesn't exist
-  spinner = ora('Creating CLAUDE.md').start();
-  await generateClaudeMd();
-  spinner.succeed(chalk.green('Created CLAUDE.md'));
+  // Generate memory file (CLAUDE.md for Claude Code, AGENTS.md for others)
+  const toolProfile = getToolProfile(tool);
+  spinner = ora(`Creating ${toolProfile.memoryFile}`).start();
+  if (tool === 'claude-code') {
+    await generateClaudeMd();
+  } else {
+    await generateAgentsMd();
+  }
+  spinner.succeed(chalk.green(`Created ${toolProfile.memoryFile}`));
 
   // Success message
   console.log(chalk.green.bold('\n✅ Reconfiguration complete!\n'));
@@ -336,28 +396,74 @@ async function reconfigureProject(): Promise<void> {
 /**
  * Regenerate all generated files
  * @param subagents - Subagent role -> integration mapping
+ * @param tool - AI coding tool (default: 'claude-code')
  */
-async function regenerateAll(subagents: Record<string, string>): Promise<void> {
+async function regenerateAll(subagents: Record<string, string>, tool: ToolId = DEFAULT_TOOL): Promise<void> {
+  const toolProfile = getToolProfile(tool);
+
   // Generate all task commands
   let spinner = ora('Generating task commands').start();
-  await generateCommands(subagents);
+  await generateCommands(subagents, tool);
   const taskCount = Object.keys(require('../../tasks').TASK_TEMPLATES).length;
-  spinner.succeed(chalk.green(`Generated ${taskCount} task commands in .claude/commands/`));
+  spinner.succeed(chalk.green(`Generated ${taskCount} task commands in ${toolProfile.commandsDir}/`));
 
   // Generate subagent configurations
   spinner = ora('Generating subagent configurations').start();
-  await generateAgents(subagents);
+  await generateAgents(subagents, tool);
   const subagentCount = Object.keys(subagents).length;
-  spinner.succeed(chalk.green(`Generated ${subagentCount} subagent configurations in .claude/agents/`));
+  spinner.succeed(chalk.green(`Generated ${subagentCount} subagent configurations in ${toolProfile.agentsDir}/`));
 
-  // Generate MCP config
+  // Generate MCP config - format varies by tool (JSON or CLI commands)
   spinner = ora('Generating MCP configuration').start();
   const mcpServers = getMCPServersFromSubagents(subagents);
-  await generateMCPConfig(mcpServers);
-  spinner.succeed(chalk.green(`Generated .mcp.json (${mcpServers.length} servers)`));
+  await generateMCPConfig(mcpServers, tool);
+
+  if (toolProfile.mcpFormat === 'json') {
+    spinner.succeed(chalk.green(`Generated ${toolProfile.mcpConfigPath} (${mcpServers.length} servers)`));
+  } else if (toolProfile.mcpFormat === 'toml') {
+    spinner.succeed(chalk.green('MCP configuration ready'));
+
+    // Run MCP setup for Codex with user consent
+    await setupCodexMCP(mcpServers);
+  }
 
   // Generate .env.example
   spinner = ora('Creating environment template').start();
   await generateEnvExample(mcpServers);
   spinner.succeed(chalk.green('Created .env.example'));
+}
+
+/**
+ * Setup MCP servers for Codex CLI
+ * Runs `codex mcp add` commands for servers not already configured
+ * Note: No confirmation needed since this writes to local .codex/mcp.json
+ *
+ * @param mcpServers - List of MCP server names to configure
+ */
+async function setupCodexMCP(mcpServers: string[]): Promise<void> {
+  // Check which servers already exist
+  const existingServers = await getConfiguredCodexMCPServers();
+  const newServers = mcpServers.filter((s) => !existingServers.includes(s));
+
+  if (newServers.length === 0) {
+    console.log(chalk.gray('\n✓ All MCP servers already configured'));
+    return;
+  }
+
+  // Run codex mcp add for each new server (local config, no consent needed)
+  console.log();
+  for (const serverName of newServers) {
+    const spinner = ora(`Configuring ${serverName}`).start();
+    try {
+      const { args } = buildCodexMCPCommand(serverName);
+      execSync(['codex', ...args].join(' '), {
+        stdio: 'pipe',
+        env: { ...process.env, CODEX_HOME: path.join(process.cwd(), '.codex') },
+      });
+      spinner.succeed(chalk.green(`Configured ${serverName}`));
+    } catch (error) {
+      spinner.fail(chalk.red(`Failed to configure ${serverName}`));
+      console.error(chalk.gray((error as Error).message));
+    }
+  }
 }

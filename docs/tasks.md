@@ -1,6 +1,8 @@
 # Task Library
 
-Bugzy provides a built-in library of QA automation tasks. These tasks are available as slash commands in Claude Code after running `bugzy setup`.
+Bugzy provides a built-in library of QA automation tasks. These tasks are available as slash commands after running `bugzy setup`.
+
+> **Note**: Command invocation varies by tool. Claude Code and Cursor use `/command`, while Codex uses `/prompts:command`.
 
 ## Available Tasks
 

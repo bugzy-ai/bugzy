@@ -4,12 +4,14 @@
  */
 
 import { spawn } from 'child_process';
+import * as path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
-import { loadConfig } from '../utils/config';
+import { loadConfig, getToolFromConfig } from '../utils/config';
 import { loadEnvFiles, validateEnvVars } from '../utils/env';
-import { validateProjectStructure, getRequiredMCPs, checkClaudeAvailable } from '../utils/validation';
+import { validateProjectStructure, getRequiredMCPs, checkToolAvailable } from '../utils/validation';
 import { getBanner } from '../utils/banner';
+import { getToolProfile } from '../../core/tool-profile';
 
 /**
  * Start a Claude Code session
@@ -33,10 +35,14 @@ export async function startSession(prompt?: string): Promise<void> {
 
   spinner.succeed(chalk.green('Configuration loaded'));
 
+  // Get tool profile for the configured tool
+  const tool = getToolFromConfig(config);
+  const toolProfile = getToolProfile(tool);
+
   // Step 2: Validate project structure
   spinner = ora('Validating project structure').start();
   try {
-    validateProjectStructure();
+    await validateProjectStructure();
     spinner.succeed(chalk.green('Project structure validated'));
   } catch (error) {
     spinner.fail(chalk.red('Invalid project structure'));
@@ -45,16 +51,22 @@ export async function startSession(prompt?: string): Promise<void> {
     process.exit(1);
   }
 
-  // Step 3: Check Claude Code availability
-  spinner = ora('Checking Claude Code availability').start();
-  const claudeAvailable = await checkClaudeAvailable();
-  if (!claudeAvailable) {
-    spinner.fail(chalk.red('Claude Code CLI not found'));
-    console.log(chalk.yellow('\nPlease install Claude Code:'));
-    console.log(chalk.cyan('  https://claude.com/claude-code'));
+  // Step 3: Check CLI tool availability
+  spinner = ora(`Checking ${toolProfile.name} availability`).start();
+  const toolAvailable = await checkToolAvailable(toolProfile.cliCommand);
+  if (!toolAvailable) {
+    spinner.fail(chalk.red(`${toolProfile.name} CLI not found`));
+    console.log(chalk.yellow(`\nPlease install ${toolProfile.name}:`));
+    if (tool === 'claude-code') {
+      console.log(chalk.cyan('  https://claude.com/claude-code'));
+    } else if (tool === 'cursor') {
+      console.log(chalk.cyan('  https://www.cursor.com/'));
+    } else if (tool === 'codex') {
+      console.log(chalk.cyan('  npm install -g @openai/codex'));
+    }
     process.exit(1);
   }
-  spinner.succeed(chalk.green('Claude Code CLI found'));
+  spinner.succeed(chalk.green(`${toolProfile.name} CLI found`));
 
   // Step 4: Load environment variables
   spinner = ora('Loading environment variables').start();
@@ -79,17 +91,25 @@ export async function startSession(prompt?: string): Promise<void> {
 
   spinner.succeed(chalk.green('All required MCP secrets present'));
 
-  // Step 6: Launch Claude Code
-  console.log(chalk.green.bold('\n🚀 Launching Claude Code...\n'));
+  // Step 6: Launch CLI tool
+  console.log(chalk.green.bold(`\n🚀 Launching ${toolProfile.name}...\n`));
 
   const args = prompt ? [prompt] : [];
-  const claude = spawn('claude', args, {
+
+  // Build environment with tool-specific home directory
+  const spawnEnv: Record<string, string | undefined> = { ...process.env, ...envVars };
+  if (toolProfile.homeEnvVar) {
+    // Codex expects CODEX_HOME to point to the .codex directory
+    spawnEnv[toolProfile.homeEnvVar] = path.join(process.cwd(), '.codex');
+  }
+
+  const child = spawn(toolProfile.cliCommand, args, {
     cwd: process.cwd(),
-    env: { ...process.env, ...envVars },
+    env: spawnEnv,
     stdio: 'inherit'
   });
 
-  claude.on('close', (code) => {
+  child.on('close', (code) => {
     if (code === 0) {
       console.log(chalk.green('\n✓ Session ended successfully'));
     } else {
@@ -97,8 +117,8 @@ export async function startSession(prompt?: string): Promise<void> {
     }
   });
 
-  claude.on('error', (error) => {
-    console.error(chalk.red('\n✗ Error launching Claude Code:'), error);
+  child.on('error', (error) => {
+    console.error(chalk.red(`\n✗ Error launching ${toolProfile.name}:`), error);
     process.exit(1);
   });
 }

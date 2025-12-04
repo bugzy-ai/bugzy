@@ -236,10 +236,10 @@ Provide a summary of:
       role: 'documentation-researcher',
       contentBlock: `### Step 2: Gather comprehensive project documentation
 
-Use the documentation-researcher agent to explore and gather all available project information and other documentation sources. This ensures the test plan is based on complete and current information.
+{{INVOKE_DOCUMENTATION_RESEARCHER}} to explore and gather all available project information and other documentation sources. This ensures the test plan is based on complete and current information.
 
 \`\`\`
-Use the documentation-researcher agent to explore all available project documentation related to: \$ARGUMENTS
+Explore all available project documentation related to: \$ARGUMENTS
 
 Specifically gather:
 - Product specifications and requirements
@@ -264,10 +264,9 @@ The agent will:
       role: 'team-communicator',
       contentBlock: `### Step 7.5: Team Communication
 
-Use the team-communicator agent to notify the product team about the new test plan:
+{{INVOKE_TEAM_COMMUNICATOR}} to notify the product team about the new test plan:
 
 \`\`\`
-Use the team-communicator agent to:
 1. Post an update about the test plan creation
 2. Provide a brief summary of coverage areas and key features
 3. Mention any areas that need exploration or clarification

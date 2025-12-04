@@ -4,9 +4,19 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node Version](https://img.shields.io/node/v/@bugzy-ai/bugzy.svg)](https://nodejs.org)
 
-> Open-source AI agent configuration for QA automation with Claude Code
+> Open-source AI agent configuration for QA automation
 
-Bugzy is a CLI tool that manages AI agent configuration and starts Claude Code sessions with properly configured subagents, tasks, and MCP servers for test automation.
+Bugzy is a CLI tool that manages AI agent configuration for your AI coding assistant, providing properly configured subagents, tasks, and MCP servers for test automation.
+
+## Supported Tools
+
+| Tool | Status | Description |
+|------|--------|-------------|
+| **Claude Code** | Recommended | Anthropic's official CLI - full feature support |
+| **Cursor** | Experimental | VS Code-based AI editor |
+| **Codex CLI** | Experimental | OpenAI's terminal-based agent |
+
+> **Note**: Cursor and Codex support is experimental. Some features may not work as expected. Claude Code is the recommended and fully tested option.
 
 ## Features
 
@@ -61,18 +71,20 @@ After running `bugzy setup`, your project will have:
 ```
 your-project/
 ├── .bugzy/
-│   ├── config.json              # Your subagent configuration
+│   ├── config.json              # Your subagent configuration (includes selected tool)
 │   └── runtime/
 │       ├── project-context.md   # Project information
 │       └── templates/           # Customizable templates
-├── .claude/
-│   ├── commands/                # 8 task slash commands
+├── .<tool>/                     # Tool-specific directory (.claude/, .cursor/, or .codex/)
+│   ├── commands/                # Task commands (or prompts/ for Codex)
 │   ├── agents/                  # Configured subagent prompts
-│   └── .mcp.json                # MCP server configuration
+│   └── mcp.json                 # MCP server configuration
 ├── .env.example                 # MCP secrets template (empty values)
 ├── .env.testdata                # Test data with actual values (from /generate-test-plan)
 └── .env                         # Your actual secrets (gitignored)
 ```
+
+> **Note**: The directory structure varies by tool. Claude Code uses `.claude/`, Cursor uses `.cursor/`, and Codex uses `.codex/`.
 
 ## Available Subagents
 
@@ -104,6 +116,7 @@ Bugzy uses a simple configuration format:
 ```json
 {
   "version": "1.0.0",
+  "tool": "claude-code",
   "project": {
     "name": "my-project"
   },
@@ -115,6 +128,8 @@ Bugzy uses a simple configuration format:
   }
 }
 ```
+
+The `tool` field can be `"claude-code"` (default), `"cursor"` (experimental), or `"codex"` (experimental).
 
 **Don't edit `config.json` manually** - use `bugzy setup` to reconfigure.
 
@@ -153,7 +168,10 @@ Check out example configurations:
 ## Requirements
 
 - **Node.js** v18 or higher
-- **Claude Code** installed and configured
+- **AI Coding Tool**: One of the following installed and configured:
+  - **Claude Code** (recommended) - Anthropic's official CLI
+  - **Cursor** (experimental) - VS Code-based AI editor
+  - **Codex CLI** (experimental) - OpenAI's terminal-based agent
 - **npm** or **yarn** package manager
 
 ## Breaking Changes (v0.2.0)
@@ -211,9 +229,12 @@ npm install -g @bugzy-ai/bugzy
 
 Add the missing secret to your `.env` file.
 
-### Claude Code Not Found
+### AI Tool Not Found
 
-Install Claude Code and ensure it's in your PATH.
+Install your selected AI coding tool and ensure it's in your PATH:
+- **Claude Code**: Install from [claude.ai/code](https://claude.ai/code)
+- **Cursor**: Install from [cursor.com](https://cursor.com)
+- **Codex CLI**: Install from [OpenAI](https://github.com/openai/codex)
 
 See the [Getting Started Guide](./docs/getting-started.md) for more troubleshooting tips.
 

@@ -169,10 +169,10 @@ Before invoking the agent, identify the test cases for the current area:
 
 #### Step 2.2: Invoke test-code-generator Agent
 
-Use the test-code-generator agent for the current area with the following context:
+{{INVOKE_TEST_CODE_GENERATOR}} for the current area with the following context:
 
 **Agent Invocation:**
-"Use the test-code-generator agent to automate test cases for the [AREA_NAME] area.
+"Automate test cases for the [AREA_NAME] area.
 
 **Context:**
 - Area: [AREA_NAME]
@@ -313,10 +313,10 @@ Provide a comprehensive summary showing:
          role: 'documentation-researcher',
          contentBlock: `#### 1.4 Gather Product Documentation
 
-Use the documentation-researcher agent to gather comprehensive product documentation:
+{{INVOKE_DOCUMENTATION_RESEARCHER}} to gather comprehensive product documentation:
 
 \`\`\`
-Use the documentation-researcher agent to explore all available product documentation, specifically focusing on:
+Explore all available product documentation, specifically focusing on:
 - UI elements and workflows
 - User interactions and navigation paths
 - Form fields and validation rules
@@ -330,10 +330,9 @@ Use the documentation-researcher agent to explore all available product document
          role: 'team-communicator',
          contentBlock: `### Step 4.5: Team Communication
 
-Use the team-communicator agent to notify the product team about the new test cases and automated tests:
+{{INVOKE_TEAM_COMMUNICATOR}} to notify the product team about the new test cases and automated tests:
 
 \`\`\`
-Use the team-communicator agent to:
 1. Post an update about test case and automation creation
 2. Provide summary of coverage:
    - Number of manual test cases created

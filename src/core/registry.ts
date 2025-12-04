@@ -13,6 +13,7 @@ import { buildMCPConfig } from '../mcp';
 import { type SlashCommandConfig } from '../tasks';
 import { buildSubagentsConfig, type SubagentConfig } from '../subagents';
 import { type TaskDefinition, type ProjectSubAgent } from './task-builder';
+import { replaceInvocationPlaceholders } from './tool-strings';
 
 /**
  * Agent Configuration Result
@@ -48,11 +49,12 @@ export async function getAgentConfiguration(
   const mcpConfig = buildMCPConfig(Array.from(allMCPs));
 
   // Build slash commands for ALL tasks (each becomes a separate command file)
+  // Replace {{INVOKE_*}} placeholders with Claude Code-specific invocation strings
   const slashCommands: Record<string, SlashCommandConfig> = {};
   taskDefinitions.forEach(task => {
     slashCommands[task.slug] = {
       frontmatter: task.frontmatter,
-      content: task.content,
+      content: replaceInvocationPlaceholders(task.content, 'claude-code'),
     };
   });
 

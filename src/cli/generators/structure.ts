@@ -5,15 +5,19 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { ToolId, getToolProfile, DEFAULT_TOOL } from '../../core/tool-profile';
 
 /**
  * Create project folder structure
- * Creates .bugzy/ and .claude/ directories with initial files
+ * Creates .bugzy/ and tool-specific directories with initial files
+ *
+ * @param tool - AI coding tool (default: 'claude-code')
  */
-export async function createProjectStructure(): Promise<void> {
+export async function createProjectStructure(tool: ToolId = DEFAULT_TOOL): Promise<void> {
   const cwd = process.cwd();
+  const toolProfile = getToolProfile(tool);
 
-  // Create .bugzy/ structure
+  // Create .bugzy/ structure (common to all tools)
   const bugzyDirs = [
     '.bugzy',
     '.bugzy/runtime',
@@ -27,14 +31,14 @@ export async function createProjectStructure(): Promise<void> {
     }
   }
 
-  // Create .claude/ structure
-  const claudeDirs = [
-    '.claude',
-    '.claude/commands',
-    '.claude/agents'
+  // Create tool-specific directory structure
+  const toolDirs = [
+    path.dirname(toolProfile.commandsDir), // .claude, .cursor, or .codex
+    toolProfile.commandsDir,               // .claude/commands, .cursor/commands, .codex/prompts
+    toolProfile.agentsDir                  // .claude/agents, .cursor/agents, .codex/agents
   ];
 
-  for (const dir of claudeDirs) {
+  for (const dir of toolDirs) {
     const dirPath = path.join(cwd, dir);
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true });
@@ -146,6 +150,7 @@ async function createRuntimeFiles(): Promise<void> {
 
 /**
  * Generate CLAUDE.md in project root from template
+ * Used for Claude Code tool
  */
 export async function generateClaudeMd(): Promise<void> {
   const cwd = process.cwd();
@@ -157,6 +162,23 @@ export async function generateClaudeMd(): Promise<void> {
     const templatePath = path.join(templatesDir, 'CLAUDE.md');
     const content = fs.readFileSync(templatePath, 'utf-8');
     fs.writeFileSync(claudeMdPath, content, 'utf-8');
+  }
+}
+
+/**
+ * Generate AGENTS.md in project root from template
+ * Used for Cursor and Codex tools (equivalent to CLAUDE.md for Claude Code)
+ */
+export async function generateAgentsMd(): Promise<void> {
+  const cwd = process.cwd();
+  const templatesDir = getTemplatesDir();
+  const agentsMdPath = path.join(cwd, 'AGENTS.md');
+
+  // Only create if it doesn't exist (don't overwrite user modifications)
+  if (!fs.existsSync(agentsMdPath)) {
+    const templatePath = path.join(templatesDir, 'AGENTS.md');
+    const content = fs.readFileSync(templatePath, 'utf-8');
+    fs.writeFileSync(agentsMdPath, content, 'utf-8');
   }
 }
 

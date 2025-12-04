@@ -2,6 +2,8 @@
 
 > Compiled from official Anthropic documentation and community best practices (2025)
 
+> **Note**: This documentation is specific to **Claude Code**. Bugzy also has experimental support for Cursor and Codex CLI, which have different command systems. See [Configuration Guide](./configuration.md) for multi-tool support information.
+
 ## Overview
 
 Slash commands are custom prompt templates stored as Markdown files that enable quick access to predefined workflows in Claude Code. They provide a structured way to standardize team workflows and automate repetitive tasks.

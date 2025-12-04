@@ -33,6 +33,25 @@ describe('config utilities', () => {
 
       const config = await loadConfig();
 
+      // loadConfig adds default tool for backward compatibility
+      expect(config).toEqual({
+        ...sampleConfig,
+        tool: 'claude-code' // Default tool applied for configs without tool field
+      });
+    });
+
+    it('should preserve tool field when present', async () => {
+      const sampleConfig = {
+        version: '1.0.0',
+        tool: 'cursor',
+        project: { name: 'test-project' },
+        subagents: { 'test-runner': 'playwright' }
+      };
+
+      fs.writeFileSync(configPath, JSON.stringify(sampleConfig, null, 2));
+
+      const config = await loadConfig();
+
       expect(config).toEqual(sampleConfig);
     });
 
