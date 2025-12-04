@@ -1,8 +1,8 @@
 # Bugzy
 
-[![npm version](https://img.shields.io/npm/v/bugzy.svg)](https://www.npmjs.com/package/bugzy)
+[![npm version](https://img.shields.io/npm/v/@bugzy-ai/bugzy.svg)](https://www.npmjs.com/package/@bugzy-ai/bugzy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Node Version](https://img.shields.io/node/v/bugzy.svg)](https://nodejs.org)
+[![Node Version](https://img.shields.io/node/v/@bugzy-ai/bugzy.svg)](https://nodejs.org)
 
 > Open-source AI agent configuration for QA automation with Claude Code
 
@@ -10,8 +10,8 @@ Bugzy is a CLI tool that manages AI agent configuration and starts Claude Code s
 
 ## Features
 
-- ✅ **Complete Task Library** - 8 pre-built QA automation tasks
-- ✅ **Flexible Subagents** - Test Runner, Team Communicator, Documentation Researcher, Issue Tracker
+- ✅ **Complete Task Library** - 7 pre-built QA automation tasks
+- ✅ **Flexible Subagents** - Test Runner, Test Code Generator, Test Debugger & Fixer, Team Communicator, Documentation Researcher, Issue Tracker
 - ✅ **Easy Setup** - Interactive CLI configuration (`bugzy setup`)
 - ✅ **Local Execution** - Runs entirely on your machine with Claude Code
 - ✅ **Version Control Friendly** - Configuration stored in git-friendly files
@@ -23,7 +23,7 @@ Bugzy is a CLI tool that manages AI agent configuration and starts Claude Code s
 
 ```bash
 # Install globally
-npm install -g bugzy
+npm install -g @bugzy-ai/bugzy
 
 # Navigate to your project
 cd my-project
@@ -78,23 +78,24 @@ your-project/
 
 | Subagent | Purpose | Integrations | Required |
 |----------|---------|--------------|----------|
-| **Test Runner** | Execute automated tests | Playwright | ✅ Yes |
-| **Team Communicator** | Send team notifications | Slack | ❌ Optional |
+| **Test Runner** | Execute automated browser tests | Playwright | ✅ Yes |
+| **Test Code Generator** | Generate Playwright test scripts and Page Objects | Playwright | ✅ Yes |
+| **Test Debugger & Fixer** | Debug and fix failing tests automatically | Playwright | ✅ Yes |
+| **Team Communicator** | Send team notifications | Slack, Microsoft Teams | ❌ Optional |
 | **Documentation Researcher** | Search documentation | Notion, Confluence | ❌ Optional |
-| **Issue Tracker** | Create and track bugs | Linear, Jira, Notion, Slack | ❌ Optional |
+| **Issue Tracker** | Create and track bugs | Linear, Jira Cloud, Jira Server, Notion, Slack | ❌ Optional |
 
 ## Available Tasks
 
 | Task | Command | Description |
 |------|---------|-------------|
+| Explore Application | `/explore-application` | Explore and document application features |
 | Generate Test Plan | `/generate-test-plan` | Create comprehensive test plans |
 | Generate Test Cases | `/generate-test-cases` | Generate executable test cases |
-| Explore Application | `/explore-application` | Document application features |
-| Run Tests | `/run-tests` | Execute automated tests |
-| Verify Changes (Manual) | `/verify-changes-manual` | Verify changes locally |
-| Verify Changes (Slack) | `/verify-changes-slack` | Verify and notify team |
-| Handle Message | `/handle-message` | Process team messages |
-| Process Event | `/process-event` | Handle automated events |
+| Run Tests | `/run-tests` | Execute automated tests and analyze failures |
+| Verify Changes | `/verify-changes` | Verify product changes via automated testing |
+| Handle Message | `/handle-message` | Process team messages from Slack/Teams |
+| Process Event | `/process-event` | Handle automated webhooks and events |
 
 ## Configuration
 
@@ -199,7 +200,7 @@ Bugzy will detect your existing configuration and allow you to make changes.
 ### Command Not Found
 
 ```bash
-npm install -g bugzy
+npm install -g @bugzy-ai/bugzy
 ```
 
 ### Missing Secrets
@@ -231,7 +232,7 @@ A: In `.env` which is gitignored. `.env.example` (MCP secrets template) and `.en
 A: You can customize templates in `.bugzy/runtime/templates/`.
 
 **Q: How do I update to get new tasks?**
-A: Run `npm update -g bugzy && bugzy setup`
+A: Run `npm update -g @bugzy-ai/bugzy && bugzy setup`
 
 ## License
 
@@ -243,6 +244,6 @@ Contributions are welcome! Please read our contributing guidelines (coming soon)
 
 ## Support
 
-- **Issues**: [github.com/bugzy-ai/bugzy-oss/issues](https://github.com/bugzy-ai/bugzy-oss/issues)
-- **Discussions**: [github.com/bugzy-ai/bugzy-oss/discussions](https://github.com/bugzy-ai/bugzy-oss/discussions)
+- **Issues**: [github.com/bugzy-ai/bugzy/issues](https://github.com/bugzy-ai/bugzy/issues)
+- **Discussions**: [github.com/bugzy-ai/bugzy/discussions](https://github.com/bugzy-ai/bugzy/discussions)
 - **Documentation**: [docs.bugzy.dev](https://docs.bugzy.dev)
