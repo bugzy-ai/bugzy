@@ -18,12 +18,14 @@ export interface MCPServerConfig {
  * Defines MCP server configuration (secrets are expanded by Claude Code automatically)
  * - config: Base configuration suitable for local development
  * - containerExtensions: Additional settings merged when target='container'
+ * - npmPackages: Package names on npmjs for global installation (array for multiple packages)
  */
 export interface MCPServerTemplate {
   provider: string;
   name: string;
   description: string;
   requiresCredentials: boolean;
+  npmPackages?: string[];
   config: MCPServerConfig;
   containerExtensions?: Partial<MCPServerConfig>;
 }
@@ -39,6 +41,7 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
     name: 'Slack',
     description: 'Slack MCP server for messaging and channel operations',
     requiresCredentials: true,
+    npmPackages: ['simple-slack-mcp-server'],
     config: {
       command: 'slack-mcp-server',
       args: [],
@@ -52,6 +55,7 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
     name: 'Microsoft Teams',
     description: 'Microsoft Teams MCP server for messaging and channel operations',
     requiresCredentials: true,
+    npmPackages: ['@bugzy-ai/teams-mcp-server'],
     config: {
       command: 'teams-mcp-server',
       args: [],
@@ -65,6 +69,7 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
     name: 'Playwright',
     description: 'Playwright MCP server for browser automation',
     requiresCredentials: false,
+    npmPackages: ['@playwright/mcp'],
     config: {
       command: 'mcp-server-playwright',
       args: [
@@ -89,6 +94,7 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
     name: 'Notion',
     description: 'Notion MCP server for documentation',
     requiresCredentials: true,
+    npmPackages: ['@notionhq/notion-mcp-server'],
     config: {
       command: 'notion-mcp-server',
       args: [],
@@ -102,6 +108,7 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
     name: 'Jira Server (On-Prem)',
     description: 'Jira Server MCP via tunnel for on-premise instances',
     requiresCredentials: true,
+    npmPackages: ['@mcp-tunnel/wrapper', '@bugzy-ai/jira-mcp-server'],
     config: {
       command: 'mcp-tunnel',
       args: ["--server", "jira-mcp-server"],

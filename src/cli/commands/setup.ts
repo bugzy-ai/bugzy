@@ -13,6 +13,7 @@ import { createProjectStructure, updateGitignore, generateClaudeMd, generateAgen
 import { generateCommands } from '../generators/commands';
 import { generateAgents } from '../generators/agents';
 import { generateMCPConfig, getMCPServersFromSubagents, buildCodexMCPCommand, getConfiguredCodexMCPServers } from '../generators/mcp';
+import { MCP_SERVERS } from '../../mcp';
 import { execSync } from 'child_process';
 import { generateEnvExample } from '../generators/env';
 import { getBanner } from '../utils/banner';
@@ -179,6 +180,38 @@ async function firstTimeSetup(cliSubagents?: Record<string, string>): Promise<vo
     }
   }
 
+  // Step 3.5: Offer to install MCP packages
+  const mcpServers = getMCPServersFromSubagents(subagents);
+  const packagesToInstall = [...new Set(
+    mcpServers.flatMap(s => MCP_SERVERS[s]?.npmPackages ?? [])
+  )];
+
+  if (packagesToInstall.length > 0) {
+    console.log(chalk.cyan('\nMCP Server Packages Required:\n'));
+    packagesToInstall.forEach(pkg => console.log(chalk.white(`  • ${pkg}`)));
+
+    const { installMCP } = await inquirer.prompt([{
+      type: 'confirm',
+      name: 'installMCP',
+      message: 'Install MCP packages globally now?',
+      default: true
+    }]);
+
+    if (installMCP) {
+      const spinner = ora('Installing MCP packages').start();
+      try {
+        execSync(`npm install -g ${packagesToInstall.join(' ')}`, { stdio: 'pipe' });
+        spinner.succeed(chalk.green('MCP packages installed'));
+      } catch (e) {
+        spinner.fail(chalk.red('Some packages failed to install'));
+        console.log(chalk.yellow('\nInstall manually: npm install -g ' + packagesToInstall.join(' ')));
+      }
+    } else {
+      console.log(chalk.yellow('\n⚠️  MCP servers will not work until packages are installed:'));
+      console.log(chalk.white(`   npm install -g ${packagesToInstall.join(' ')}\n`));
+    }
+  }
+
   // Step 4: Save configuration
   spinner = ora('Saving configuration').start();
   const projectName = path.basename(process.cwd());
@@ -213,13 +246,27 @@ async function firstTimeSetup(cliSubagents?: Record<string, string>): Promise<vo
     });
   }
 
-  // Success message
+  // Success message with project context guidance
   console.log(chalk.green.bold('\n✅ Setup complete!\n'));
+
+  console.log(chalk.cyan('📋 Project Context:'));
+  console.log(chalk.white('   Edit .bugzy/runtime/project-context.md to help the AI understand your project:'));
+  console.log(chalk.gray('   • Project description and tech stack'));
+  console.log(chalk.gray('   • Team communication channels'));
+  console.log(chalk.gray('   • Bug tracking workflow'));
+  console.log(chalk.gray('   • Testing conventions\n'));
+
   console.log(chalk.yellow('Next steps:'));
   console.log(chalk.white('1. cp .env.example .env'));
   console.log(chalk.white('2. Edit .env and add your API tokens'));
-  console.log(chalk.white('3. npx playwright install (install browser binaries)'));
-  console.log(chalk.white('4. Run:'), chalk.cyan('bugzy'));
+  if (subagents['test-runner']) {
+    console.log(chalk.white('3. npx playwright install (install browser binaries)'));
+    console.log(chalk.white('4. Edit .bugzy/runtime/project-context.md'));
+    console.log(chalk.white('5. Run:'), chalk.cyan('bugzy'));
+  } else {
+    console.log(chalk.white('3. Edit .bugzy/runtime/project-context.md'));
+    console.log(chalk.white('4. Run:'), chalk.cyan('bugzy'));
+  }
   console.log();
 }
 

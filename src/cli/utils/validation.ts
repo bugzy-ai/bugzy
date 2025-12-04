@@ -82,18 +82,26 @@ export function validateSecrets(required: string[], env: Record<string, string |
 /**
  * Check if a CLI tool is available
  * @param command - The CLI command to check for (e.g., 'claude', 'cursor-agent', 'codex')
- * @returns True if command is available
+ * @returns Always true - prints warning if check fails but continues anyway
  */
 export async function checkToolAvailable(command: string): Promise<boolean> {
   const { spawn } = await import('child_process');
+  const isWindows = process.platform === 'win32';
+  const checkCommand = isWindows ? 'where' : 'which';
 
   return new Promise((resolve) => {
-    const proc = spawn('which', [command]);
+    const proc = spawn(checkCommand, [command], {
+      shell: isWindows  // Windows needs shell for 'where'
+    });
     proc.on('close', (code) => {
-      resolve(code === 0);
+      if (code !== 0) {
+        console.warn(`Warning: Could not verify '${command}' is installed (${checkCommand} check failed). Continuing anyway...`);
+      }
+      resolve(true);
     });
     proc.on('error', () => {
-      resolve(false);
+      console.warn(`Warning: Could not verify '${command}' is installed (${checkCommand} not available). Continuing anyway...`);
+      resolve(true);
     });
   });
 }

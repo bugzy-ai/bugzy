@@ -51,22 +51,10 @@ export async function startSession(prompt?: string): Promise<void> {
     process.exit(1);
   }
 
-  // Step 3: Check CLI tool availability
+  // Step 3: Check CLI tool availability (prints warning if check fails, but continues anyway)
   spinner = ora(`Checking ${toolProfile.name} availability`).start();
-  const toolAvailable = await checkToolAvailable(toolProfile.cliCommand);
-  if (!toolAvailable) {
-    spinner.fail(chalk.red(`${toolProfile.name} CLI not found`));
-    console.log(chalk.yellow(`\nPlease install ${toolProfile.name}:`));
-    if (tool === 'claude-code') {
-      console.log(chalk.cyan('  https://claude.com/claude-code'));
-    } else if (tool === 'cursor') {
-      console.log(chalk.cyan('  https://www.cursor.com/'));
-    } else if (tool === 'codex') {
-      console.log(chalk.cyan('  npm install -g @openai/codex'));
-    }
-    process.exit(1);
-  }
-  spinner.succeed(chalk.green(`${toolProfile.name} CLI found`));
+  await checkToolAvailable(toolProfile.cliCommand);
+  spinner.succeed(chalk.green(`${toolProfile.name} CLI check complete`));
 
   // Step 4: Load environment variables
   spinner = ora('Loading environment variables').start();

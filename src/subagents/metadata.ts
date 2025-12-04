@@ -133,8 +133,8 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     description: 'Automatically create and track bugs and issues',
     icon: 'bot',
     integrations: [
-      INTEGRATIONS.linear,
-      INTEGRATIONS.jira,
+      // INTEGRATIONS.linear,
+      // INTEGRATIONS.jira,
       INTEGRATIONS['jira-server'],
       INTEGRATIONS.notion,
       INTEGRATIONS.slack
@@ -148,7 +148,10 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     name: 'Documentation Researcher',
     description: 'Search and retrieve information from your documentation',
     icon: 'file-search',
-    integrations: [INTEGRATIONS.notion, INTEGRATIONS.confluence],
+    integrations: [
+      INTEGRATIONS.notion,
+      // INTEGRATIONS.confluence
+    ],
     model: 'sonnet',
     color: 'cyan',
     version: '1.0.0'

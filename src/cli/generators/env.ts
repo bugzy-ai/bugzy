@@ -50,12 +50,14 @@ function getMCPEnvConfig(serverName: string): string | undefined {
   const configs: Record<string, string> = {
     slack: `
 # Slack MCP Server
-# Get your token from: https://api.slack.com/apps
+# Setup guide: https://github.com/bugzy-ai/bugzy/blob/main/docs/slack-setup.md
+# Required scopes: channels:read, chat:write, chat:write.public, reactions:write
 SLACK_ACCESS_TOKEN=`,
 
     notion: `
 # Notion MCP Server
-# Get your token from: https://www.notion.so/my-integrations
+# Setup guide: https://github.com/bugzy-ai/bugzy/blob/main/docs/notion-setup.md
+# Requires: Internal Integration Token (ntn_* or secret_*)
 NOTION_TOKEN=`,
 
     linear: `
