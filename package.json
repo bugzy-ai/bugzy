@@ -3,7 +3,7 @@
   "version": "1.2.0",
   "description": "Open-source AI agent configuration for QA automation with Claude Code",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "keywords": [
     "ai",
@@ -65,8 +65,7 @@
     "test:ci": "vitest run",
     "type-check": "tsc --noEmit",
     "lint": "eslint src",
-    "prepublishOnly": "pnpm run build && pnpm run test:ci",
-    "publish:github": "node scripts/publish.js"
+    "prepublishOnly": "pnpm run build && pnpm run test:ci"
   },
   "dependencies": {
     "chalk": "^5.3.0",
