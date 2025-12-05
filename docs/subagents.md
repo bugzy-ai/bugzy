@@ -96,6 +96,41 @@ The Test Runner will:
 - `slack_get_users` - List team members
 - `slack_get_conversations` - Get channel conversations
 
+#### Microsoft Teams
+- **Provider**: Microsoft Teams
+- **Type**: External (requires OAuth token)
+- **Installation**: `npm install -g @bugzy-ai/teams-mcp-server`
+- **Environment Variables**:
+  ```bash
+  TEAMS_ACCESS_TOKEN=eyJ0eXAiOiJKV1QiLCJub25jZSI6...
+  ```
+- **Setup**: See [Teams Setup Guide](./teams-setup.md)
+- **Required Scopes**: `Team.ReadBasic.All`, `Channel.ReadBasic.All`, `ChannelMessage.Send`, `ChannelMessage.Read.All`
+
+**MCP Tools Available**:
+- `teams_list_teams` - List teams the user has joined
+- `teams_list_channels` - List channels in a team
+- `teams_post_message` - Post text/HTML messages to channels
+- `teams_post_rich_message` - Post Adaptive Card messages
+- `teams_get_channel_history` - Get recent channel messages
+- `teams_get_thread_replies` - Get replies to a message
+
+#### Email (Resend)
+- **Provider**: Resend
+- **Type**: External (requires API key)
+- **Installation**: `npm install -g @bugzy-ai/resend-mcp-server`
+- **Environment Variables**:
+  ```bash
+  RESEND_API_KEY=re_your-api-key
+  RESEND_FROM_EMAIL=bugzy@yourcompany.com
+  ```
+- **Setup**: See [Resend Setup Guide](./resend-setup.md)
+- **Best For**: Fallback communication when Slack/Teams not configured
+
+**MCP Tools Available**:
+- `resend_send_email` - Send email to one or more recipients
+- `resend_send_batch_emails` - Send batch emails
+
 **Example Usage**:
 ```
 /verify-changes-slack after running login tests

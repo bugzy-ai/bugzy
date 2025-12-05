@@ -4,6 +4,7 @@
  */
 
 import { TASK_TEMPLATES, type TaskTemplate, type TaskFrontmatter } from '../tasks';
+import { getIntegration } from '../subagents/metadata';
 
 /**
  * Dynamic Task Definition
@@ -82,8 +83,10 @@ export function buildTaskDefinition(
   for (const role of requiredSubAgentRoles) {
     const configured = projectSubAgents.find(sa => sa.role === role);
     if (configured) {
-      // Map integration to MCP provider (usually same name)
-      requiredMCPs.add(configured.integration);
+      // Map integration ID to MCP provider (e.g., 'email' -> 'resend')
+      const integrationMeta = getIntegration(configured.integration);
+      const mcpProvider = integrationMeta?.provider || configured.integration;
+      requiredMCPs.add(mcpProvider);
     }
   }
 

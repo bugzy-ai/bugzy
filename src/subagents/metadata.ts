@@ -36,6 +36,7 @@ export interface SubAgentMetadata {
   model?: string;
   color?: string;
   isRequired?: boolean;
+  defaultIntegration?: string; // Fallback integration ID when others aren't configured
   version: string;
 }
 
@@ -99,6 +100,13 @@ export const INTEGRATIONS: Record<string, SubAgentIntegration> = {
     provider: 'teams',
     requiredMCP: 'mcp__teams__*',
     integrationType: 'oauth'
+  },
+  email: {
+    id: 'email',
+    name: 'Email',
+    provider: 'resend',
+    requiredMCP: 'mcp__resend__*',
+    integrationType: 'local' // Uses platform API key, no OAuth needed
   }
 };
 
@@ -122,9 +130,11 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     name: 'Team Communicator',
     description: 'Send notifications and updates to your team',
     icon: 'message-square',
-    integrations: [INTEGRATIONS.slack, INTEGRATIONS.teams],
+    integrations: [INTEGRATIONS.slack, INTEGRATIONS.teams, INTEGRATIONS.email],
     model: 'sonnet',
     color: 'blue',
+    isRequired: true, // Required - falls back to email if Slack/Teams not configured
+    defaultIntegration: 'email', // Email is the fallback when OAuth integrations aren't set up
     version: '1.0.0'
   },
   'issue-tracker': {

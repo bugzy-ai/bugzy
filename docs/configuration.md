@@ -78,6 +78,8 @@ Sends notifications and messages to your team.
 
 **Integrations**:
 - `slack` - Send messages to Slack channels
+- `teams` - Send messages to Microsoft Teams channels
+- `email` - Send email notifications via Resend
 
 **Configuration**:
 ```json
@@ -89,8 +91,21 @@ Sends notifications and messages to your team.
 ```
 
 **Required Environment Variables**:
+
+For Slack:
 ```bash
 SLACK_BOT_TOKEN=xoxb-your-token-here
+```
+
+For Microsoft Teams:
+```bash
+TEAMS_ACCESS_TOKEN=eyJ0eXAiOiJKV1QiLCJub25jZSI6...
+```
+
+For Email (Resend):
+```bash
+RESEND_API_KEY=re_your-api-key
+RESEND_FROM_EMAIL=bugzy@yourcompany.com
 ```
 
 ---

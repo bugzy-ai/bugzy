@@ -84,6 +84,19 @@ CONFLUENCE_API_TOKEN=`,
 # Get your token from: https://github.com/settings/tokens
 GITHUB_TOKEN=`,
 
+    teams: `
+# Microsoft Teams MCP Server
+# Setup guide: https://github.com/bugzy-ai/bugzy/blob/main/docs/teams-setup.md
+# Required Graph API scopes: Team.ReadBasic.All, Channel.ReadBasic.All, ChannelMessage.Send, ChannelMessage.Read.All
+TEAMS_ACCESS_TOKEN=`,
+
+    resend: `
+# Resend Email MCP Server
+# Setup guide: https://github.com/bugzy-ai/bugzy/blob/main/docs/resend-setup.md
+# Get your API key from: https://resend.com/api-keys
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=`,
+
     // Playwright has no required env vars (runs locally)
   };
 

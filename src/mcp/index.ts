@@ -123,6 +123,21 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
       },
     },
   },
+  resend: {
+    provider: 'resend',
+    name: 'Email (Resend)',
+    description: 'Resend MCP server for sending email notifications',
+    requiresCredentials: true,
+    npmPackages: ['@bugzy-ai/resend-mcp-server'],
+    config: {
+      command: 'resend-mcp-server',
+      args: [],
+      env: {
+        RESEND_API_KEY: '${RESEND_API_KEY}',
+        RESEND_FROM_EMAIL: '${RESEND_FROM_EMAIL}',
+      },
+    },
+  },
   // github: {
   //   provider: 'github',
   //   name: 'GitHub',
