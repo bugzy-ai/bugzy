@@ -211,15 +211,16 @@ describe('Specific Task Validation', () => {
   });
 
   describe('process-event', () => {
-    test('has no required subagents', () => {
-      // process-event task has no required subagents (they are all optional)
+    test('requires team-communicator for clarifications', () => {
+      // process-event task requires team-communicator for clarifying unclear events
       const minimalConfig = [
         { role: 'test-runner', integration: 'playwright' },
         { role: 'test-debugger-fixer', integration: 'playwright' },
+        { role: 'team-communicator', integration: 'slack' },
       ];
 
       const task = buildTaskDefinition(TASK_SLUGS.PROCESS_EVENT, minimalConfig);
-      expect(task.requiredSubAgentRoles).toEqual([]);
+      expect(task.requiredSubAgentRoles).toContain('team-communicator');
     });
 
     test('can use documentation-researcher if configured', () => {

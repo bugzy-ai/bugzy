@@ -52,8 +52,11 @@ export async function generateCommands(subagents: Record<string, string>, tool: 
     ([role, integration]) => ({ role, integration })
   );
 
+  // Collect all task slugs
+  const allTaskSlugs = Object.keys(TASK_TEMPLATES);
+
   // Generate command files for all tasks
-  for (const [slug, template] of Object.entries(TASK_TEMPLATES)) {
+  for (const slug of allTaskSlugs) {
     // Apply command filter
     const filterValue = COMMAND_FILTER[slug];
 
@@ -64,6 +67,9 @@ export async function generateCommands(subagents: Record<string, string>, tool: 
 
     // Use renamed slug if specified, otherwise use original
     const outputSlug = typeof filterValue === 'string' ? filterValue : slug;
+
+    // Get template for fallback
+    const template = TASK_TEMPLATES[slug];
 
     try {
       // Try to build task definition with current subagent config
@@ -82,9 +88,16 @@ export async function generateCommands(subagents: Record<string, string>, tool: 
       fs.writeFileSync(filePath, content, 'utf-8');
     } catch (error) {
       // Task requires subagents that aren't configured
-      // Still generate the file with base content so users can see what's available
-      const processedContent = replaceInvocationPlaceholders(template.baseContent, tool);
-      const content = formatCommandMarkdown(template.frontmatter, processedContent, toolProfile.commandFrontmatter);
+      // Still generate the file with base/placeholder content so users can see what's available
+      if (!template) {
+        continue; // Shouldn't happen, but skip if no template found
+      }
+
+      const fallbackContent = `# ${template.name}\n\n${template.description}\n\n**Note**: This task requires additional subagents to be configured.`;
+      const frontmatter = template.frontmatter;
+
+      const processedContent = replaceInvocationPlaceholders(fallbackContent, tool);
+      const content = formatCommandMarkdown(frontmatter, processedContent, toolProfile.commandFrontmatter);
       const fileName = `${outputSlug}${toolProfile.commandExtension}`;
       const filePath = path.join(commandsDir, fileName);
       fs.writeFileSync(filePath, content, 'utf-8');

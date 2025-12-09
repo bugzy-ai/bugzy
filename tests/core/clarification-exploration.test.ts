@@ -9,19 +9,21 @@ import { TASK_SLUGS } from '../../src/tasks/constants';
 import { FULL_SUBAGENTS_CONFIG } from '../fixtures/repo-configs';
 
 describe('Exploration Protocol Integration', () => {
-  describe('generate-test-cases', () => {
-    test('includes exploration instructions (Step 1.4)', () => {
+  describe('generate-test-cases (composed)', () => {
+    test('includes exploration instructions', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('### Step 1.4: Explore Features (If Needed)');
+      // Step number is auto-generated, use regex to match
+      expect(task.content).toMatch(/### Step \d+: Explore Features \(If Needed\)/);
       expect(task.content).toContain('adaptive exploration');
       expect(task.content).toContain('understand actual feature behavior');
     });
 
-    test('includes clarification instructions (Step 1.5)', () => {
+    test('includes clarification instructions', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('### Step 1.5: Clarify Ambiguities');
+      // Step number is auto-generated, use regex to match
+      expect(task.content).toMatch(/### Step \d+: Clarify Ambiguities/);
       expect(task.content).toContain('CRITICAL/HIGH ambiguities');
       expect(task.content).toContain('STOP test case generation');
     });
@@ -29,8 +31,8 @@ describe('Exploration Protocol Integration', () => {
     test('exploration comes before clarification', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
-      const explorationIndex = task.content.indexOf('Step 1.4: Explore Features');
-      const clarificationIndex = task.content.indexOf('Step 1.5: Clarify Ambiguities');
+      const explorationIndex = task.content.indexOf('Explore Features (If Needed)');
+      const clarificationIndex = task.content.indexOf('Clarify Ambiguities');
 
       expect(explorationIndex).toBeLessThan(clarificationIndex);
       expect(explorationIndex).toBeGreaterThan(-1);
@@ -47,18 +49,20 @@ describe('Exploration Protocol Integration', () => {
     });
   });
 
-  describe('generate-test-plan', () => {
-    test('includes exploration instructions (Step 1.7)', () => {
+  describe('generate-test-plan (composed)', () => {
+    test('includes exploration instructions', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_PLAN, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('### Step 1.7: Explore Product (If Needed)');
+      // Step number is auto-generated, use regex to match
+      expect(task.content).toMatch(/### Step \d+: Explore Product \(If Needed\)/);
       expect(task.content).toContain('understand actual product features');
     });
 
-    test('includes clarification instructions (Step 1.8)', () => {
+    test('includes clarification instructions', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_PLAN, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('### Step 1.8: Clarify Ambiguities');
+      // Step number is auto-generated, use regex to match
+      expect(task.content).toMatch(/### Step \d+: Clarify Ambiguities/);
       expect(task.content).toContain('STOP test plan generation');
     });
 
@@ -71,27 +75,38 @@ describe('Exploration Protocol Integration', () => {
     });
   });
 
-  describe('explore-application', () => {
-    test('includes Step 0 referencing exploration protocol', () => {
+  describe('explore-application (composed)', () => {
+    test('includes overview and description', () => {
       const task = buildTaskDefinition(TASK_SLUGS.EXPLORE_APPLICATION, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('### Step 0: Understand Exploration Protocol');
-      expect(task.content).toContain('implements the exploration protocol');
+      expect(task.content).toContain('Explore Application Overview');
+      expect(task.content).toContain('test-runner agent');
     });
 
-    test('documents depth alignment with template', () => {
+    test('includes focus area strategy step', () => {
       const task = buildTaskDefinition(TASK_SLUGS.EXPLORE_APPLICATION, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('Shallow exploration (15-20 min)');
-      expect(task.content).toContain('Deep exploration (45-60 min)');
-      expect(task.content).toContain('Aligns with');
+      expect(task.content).toContain('Define Focus Area');
+      expect(task.content).toContain('auth');
+      expect(task.content).toContain('navigation');
+      expect(task.content).toContain('search');
     });
 
-    test('includes full exploration protocol reference', () => {
+    test('includes exploration steps at various depths', () => {
       const task = buildTaskDefinition(TASK_SLUGS.EXPLORE_APPLICATION, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('Full Exploration Protocol Reference');
-      expect(task.content).toContain('Step {{STEP_NUMBER}}.1');
+      expect(task.content).toContain('Quick Exploration');
+      expect(task.content).toContain('Moderate Exploration');
+      expect(task.content).toContain('Deep Exploration');
+    });
+
+    test('includes execution and update steps', () => {
+      const task = buildTaskDefinition(TASK_SLUGS.EXPLORE_APPLICATION, FULL_SUBAGENTS_CONFIG);
+
+      expect(task.content).toContain('Create Exploration Test Case');
+      expect(task.content).toContain('Run Exploration');
+      expect(task.content).toContain('Process Exploration Results');
+      expect(task.content).toContain('Update Exploration Artifacts');
     });
   });
 
@@ -124,11 +139,12 @@ describe('Exploration Protocol Integration', () => {
     });
   });
 
-  describe('process-event', () => {
-    test('includes Step 1.5 for clarifying unclear events', () => {
+  describe('process-event (composed)', () => {
+    test('includes clarify unclear events step', () => {
       const task = buildTaskDefinition(TASK_SLUGS.PROCESS_EVENT, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('### Step 1.5: Clarify Unclear Events');
+      // Step number is auto-generated, use regex to match
+      expect(task.content).toMatch(/### Step \d+: Clarify Unclear Events/);
       expect(task.content).toContain('incomplete or ambiguous');
     });
 
@@ -150,11 +166,12 @@ describe('Exploration Protocol Integration', () => {
     });
   });
 
-  describe('handle-message', () => {
+  describe('handle-message (composed)', () => {
     test('includes intent detection step', () => {
       const task = buildTaskDefinition(TASK_SLUGS.HANDLE_MESSAGE, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('### Step 0: Detect Message Intent and Load Handler');
+      // Step number is auto-generated, use regex to match
+      expect(task.content).toMatch(/### Step \d+: Detect Message Intent and Load Handler/);
       expect(task.content).toContain('intent');
     });
 
@@ -206,19 +223,27 @@ describe('Template Variable Replacement', () => {
     expect(exploreTask.content).not.toMatch(/\{\{[A-Z_]+_INSTRUCTIONS\}\}/);
   });
 
-  test('tasks have proper step structure', () => {
-    const tasks = [
+  test('all tasks are now composed and have proper step structure', () => {
+    // All tasks have been migrated to composed format
+    // Composed tasks have sequential Step N headers, not "## Process\n" as standalone header
+    const composedTasks = [
       TASK_SLUGS.GENERATE_TEST_CASES,
       TASK_SLUGS.GENERATE_TEST_PLAN,
+      TASK_SLUGS.HANDLE_MESSAGE,
+      TASK_SLUGS.PROCESS_EVENT,
       TASK_SLUGS.RUN_TESTS,
+      TASK_SLUGS.VERIFY_CHANGES,
+      TASK_SLUGS.EXPLORE_APPLICATION,
+      TASK_SLUGS.ONBOARD_TESTING,
     ];
 
-    tasks.forEach(taskSlug => {
+    composedTasks.forEach(taskSlug => {
       const task = buildTaskDefinition(taskSlug, FULL_SUBAGENTS_CONFIG);
 
-      // Should have structured steps
+      // Should have auto-numbered step headers
       expect(task.content).toMatch(/### Step \d+:/);
-      expect(task.content).toContain('## Process');
+      // Should NOT have legacy "## Process\n" standalone header (but "## Process Exploration Results" is OK)
+      expect(task.content).not.toMatch(/## Process\n/);
     });
   });
 });
@@ -250,9 +275,10 @@ describe('Protocol Flow Validation', () => {
   test('generate-test-cases: exploration → clarification → generation', () => {
     const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
-    const exploration = task.content.indexOf('Step 1.4: Explore Features');
-    const clarification = task.content.indexOf('Step 1.5: Clarify Ambiguities');
-    const generation = task.content.indexOf('### Step 1.7: Generate All Manual Test Case Files');
+    // Use step titles without hardcoded numbers (composed tasks use auto-numbering)
+    const exploration = task.content.indexOf('Explore Features (If Needed)');
+    const clarification = task.content.indexOf('Clarify Ambiguities');
+    const generation = task.content.indexOf('Generate All Manual Test Case Files');
 
     expect(exploration).toBeGreaterThan(-1);
     expect(clarification).toBeGreaterThan(exploration);

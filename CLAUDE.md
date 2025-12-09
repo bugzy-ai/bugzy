@@ -53,26 +53,33 @@ The package is published to npmjs as a public scoped package (`@bugzy-ai/bugzy`)
 
 ### Core System Design
 
-Bugzy uses a **template-based code generation** architecture:
+Bugzy uses a **step-based composition** architecture:
 
 1. **Registry System** (`src/core/registry.ts`): Central coordinator that assembles complete agent configuration from task definitions and project subagents
-2. **Task Builder** (`src/core/task-builder.ts`): Builds dynamic task definitions by injecting optional subagent blocks into base content using placeholders
+2. **Task Builder** (`src/core/task-builder.ts`): Builds dynamic task definitions from composable steps with conditional subagent injection
 3. **Generator Pipeline** (`src/cli/generators/`): Transforms configuration into files (.claude/commands/, .claude/agents/, .mcp.json)
 
 ### Key Concepts
 
 **Task Templates** (`src/tasks/`):
-- Define QA automation tasks (e.g., generate-test-plan, run-tests)
-- Each template has `baseContent` with placeholders like `{{DOCUMENTATION_RESEARCHER_INSTRUCTIONS}}`
-- Placeholders are replaced with actual subagent blocks if configured, or removed if not
+- Define QA automation tasks (8 tasks: explore-application, generate-test-plan, generate-test-cases, run-tests, verify-changes, onboard-testing, handle-message, process-event)
+- Each template uses a `steps: TaskStep[]` array for composable execution
+- Steps can be inline content, library references, or conditional on subagent configuration
+
+**Step Library** (`src/tasks/steps/`):
+- Reusable step definitions organized by category
+- Categories: setup/, exploration/, clarification/, execution/, generation/, communication/, maintenance/
+- Each step exports a `LibraryStep` with id, title, and content
 
 **Subagents** (`src/subagents/`):
-- Specialized AI agents (Test Runner, Team Communicator, Documentation Researcher, Issue Tracker)
+- 6 specialized AI agents:
+  - Required: test-runner, test-code-generator, test-debugger-fixer, team-communicator (with email fallback)
+  - Optional: documentation-researcher, issue-tracker
 - Each subagent has metadata defining role, integrations, and required MCP servers
-- Templates stored as markdown files in `src/subagents/templates/{role}/{integration}.md`
+- Templates stored as TypeScript files in `src/subagents/templates/{role}/{integration}.ts`
 
 **MCP Configuration** (`src/mcp/`):
-- Maps integrations (playwright, slack, notion) to MCP server configurations
+- Maps integrations (playwright, slack, teams, notion, jira-server, resend) to MCP server configurations
 - Environment variables like `${SLACK_BOT_TOKEN}` are expanded by Claude Code at runtime
 
 ### Configuration Flow
@@ -98,11 +105,13 @@ When building a task definition:
 
 1. Load task template from `TASK_TEMPLATES[slug]`
 2. Validate required subagents are configured
-3. For each optional subagent:
-   - If configured: Replace `{{ROLE_NAME_INSTRUCTIONS}}` with contentBlock
-   - If not configured: Replace placeholder with empty string
-4. Derive required MCP servers from subagent integrations
-5. Return complete TaskDefinition with processed content
+3. Process each step in the `steps` array:
+   - **String step**: Load step content from library (`src/tasks/steps/`)
+   - **Inline step**: Use the content directly
+   - **Conditional step**: Include only if the specified subagent is configured
+4. Inject subagent blocks where referenced in step content
+5. Derive required MCP servers from subagent integrations
+6. Return complete TaskDefinition with assembled content
 
 ## File Organization
 
@@ -114,13 +123,23 @@ src/
 │   └── utils/             # Config, validation, environment utilities
 ├── core/                  # Core coordination logic
 │   ├── registry.ts        # Main agent configuration assembler
-│   └── task-builder.ts    # Dynamic task definition builder
+│   ├── task-builder.ts    # Dynamic task definition builder
+│   ├── tool-profile.ts    # Tool-specific configurations
+│   └── tool-strings.ts    # Invocation placeholder replacement
 ├── tasks/                 # Task library
-│   ├── library/          # Individual task definitions
+│   ├── library/          # 8 task definitions (composed)
+│   ├── steps/            # Reusable step library
+│   │   ├── setup/        # Project context, security notices
+│   │   ├── exploration/  # Quick, moderate, deep exploration
+│   │   ├── clarification/ # Ambiguity detection, questions
+│   │   ├── execution/    # Test running, result parsing
+│   │   ├── generation/   # Test plan and case generation
+│   │   ├── communication/ # Team notifications
+│   │   └── maintenance/  # Cleanup, reporting
 │   ├── templates/        # Shared content blocks
-│   └── constants.ts       # TASK_SLUGS, TASK_TEMPLATES registry
+│   └── constants.ts       # TASK_SLUGS registry
 ├── subagents/            # Subagent system
-│   ├── templates/        # Markdown templates per integration
+│   ├── templates/        # TypeScript templates per integration
 │   ├── metadata.ts       # SUBAGENTS and INTEGRATIONS registry
 │   └── index.ts          # Config builder
 ├── mcp/                  # MCP server configuration
@@ -130,31 +149,53 @@ src/
 
 ## Important Implementation Details
 
-### Placeholder System
+### Step-Based Composition
 
-Task templates use placeholders that are replaced at build time:
-- Format: `{{ROLE_NAME_INSTRUCTIONS}}` (role in uppercase, hyphens → underscores)
-- Example: `{{DOCUMENTATION_RESEARCHER_INSTRUCTIONS}}`
-- Replacement happens in `buildTaskDefinition()` in task-builder.ts
+Tasks use composable steps instead of monolithic templates:
 
-### Optional vs Required Subagents
+**Step Types:**
+```typescript
+type TaskStep =
+  | string                        // Library step ID (e.g., 'security-notice')
+  | { inline: true; title: string; content: string }  // Inline content
+  | { stepId: string; conditionalOnSubagent: string }; // Conditional
+```
+
+**Example Task Definition:**
+```typescript
+{
+  slug: 'run-tests',
+  steps: [
+    { inline: true, title: 'Overview', content: '...' },
+    'security-notice',           // Library step
+    'read-knowledge-base',       // Library step
+    'run-playwright-tests',      // Library step
+    'parse-test-results',        // Library step
+    {
+      stepId: 'log-product-bugs',
+      conditionalOnSubagent: 'issue-tracker'  // Only if configured
+    }
+  ],
+  requiredSubagents: ['test-runner', 'test-code-generator', 'test-debugger-fixer'],
+  optionalSubagents: ['team-communicator', 'issue-tracker']
+}
+```
+
+### Required vs Optional Subagents
 
 **CRITICAL DISTINCTION:**
 
-- **Required Subagents**: Must ALWAYS be configured for task to work
-  - Examples: `test-runner`, `test-debugger-fixer`
-  - **Instructions should be embedded directly in `baseContent`** (no placeholders)
-  - Why: They're always present, so conditional injection is unnecessary complexity
+- **Required Subagents** (4): Must ALWAYS be configured for task to work
+  - `test-runner`, `test-code-generator`, `test-debugger-fixer` - Core test automation
+  - `team-communicator` - Falls back to email if Slack/Teams not configured
   - Listed in `requiredSubagents` array for validation
+  - Their steps are always included in task execution
 
-- **Optional Subagents**: May or may not be configured (user choice)
-  - Examples: `documentation-researcher`, `team-communicator`, `issue-tracker`
-  - **Instructions use placeholders** like `{{ROLE_NAME_INSTRUCTIONS}}`
-  - Why: Placeholder gets replaced with instructions if configured, or empty string if not
-  - Listed in `optionalSubagents` array with contentBlock
-
-**Common Mistake to Avoid:**
-DO NOT use placeholders for required subagents. If a subagent is required, embed its instructions directly in baseContent. Placeholders are ONLY for optional subagents where the content needs conditional inclusion.
+- **Optional Subagents** (2): User choice, task works without them
+  - `documentation-researcher` - Search Notion for context
+  - `issue-tracker` - Create issues for bugs
+  - Use conditional steps: `{ stepId: '...', conditionalOnSubagent: 'role' }`
+  - Step only included if subagent is configured
 
 ### Environment Variable Handling
 
@@ -182,10 +223,18 @@ Build output:
 ### Adding a New Task
 
 1. Create task definition in `src/tasks/library/new-task.ts`
-2. Define baseContent with placeholders for optional subagents
-3. Register in `src/tasks/constants.ts` TASK_TEMPLATES object
-4. Add to exports in `src/tasks/index.ts`
-5. Add tests in `tests/core/` or `tests/generators/`
+2. Define steps array using library steps and inline content
+3. Use conditional steps for optional subagent functionality
+4. Register in `src/tasks/constants.ts` TASK_SLUGS object
+5. Add to exports in `src/tasks/index.ts`
+6. Add tests in `tests/core/` or `tests/generators/`
+
+### Adding a New Step
+
+1. Create step definition in appropriate category: `src/tasks/steps/{category}/new-step.ts`
+2. Export a `LibraryStep` with id, title, and content
+3. Register in `src/tasks/steps/index.ts`
+4. Reference from tasks using the step ID string
 
 ### Adding a New Subagent Integration
 
@@ -204,8 +253,10 @@ Reusable content blocks are in `src/tasks/templates/`:
 ## Type Safety
 
 Key TypeScript interfaces:
-- `TaskTemplate`: Complete task definition with baseContent and optional subagents
-- `TaskDefinition`: Built task with processed content (placeholders replaced)
+- `ComposedTaskTemplate`: Task definition with steps array and subagent requirements
+- `TaskStep`: Union type for inline, library, or conditional steps
+- `LibraryStep`: Reusable step definition with id, title, content
+- `TaskDefinition`: Built task with processed content
 - `ProjectSubAgent`: User's configured subagent (role + integration)
 - `AgentConfiguration`: Complete config for Claude Code (MCP + commands + subagents)
 

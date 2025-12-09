@@ -1,5 +1,5 @@
 /**
- * Handle Message Task
+ * Handle Message Task (Composed)
  * Handle team responses and Slack communications, maintaining context for ongoing conversations
  *
  * Slack messages are processed by the LLM layer (lib/slack/llm-processor.ts)
@@ -7,41 +7,43 @@
  * This task must be in SLACK_ALLOWED_TASKS to be Slack-callable.
  */
 
-import { TaskTemplate } from '../types';
+import type { ComposedTaskTemplate } from '../steps/types';
 import { TASK_SLUGS } from '../constants';
-import { KNOWLEDGE_BASE_READ_INSTRUCTIONS, KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS } from '../templates/knowledge-base.js';
 
-export const handleMessageTask: TaskTemplate = {
-   slug: TASK_SLUGS.HANDLE_MESSAGE,
-   name: 'Handle Message',
-   description: 'Handle team responses and Slack communications, maintaining context for ongoing conversations (LLM-routed)',
+export const handleMessageTask: ComposedTaskTemplate = {
+  slug: TASK_SLUGS.HANDLE_MESSAGE,
+  name: 'Handle Message',
+  description: 'Handle team responses and Slack communications, maintaining context for ongoing conversations (LLM-routed)',
 
-   frontmatter: {
-      description: 'Handle team responses and Slack communications, maintaining context for ongoing conversations',
-      'argument-hint': '[slack thread context or team message]',
-   },
+  frontmatter: {
+    description: 'Handle team responses and Slack communications, maintaining context for ongoing conversations',
+    'argument-hint': '[slack thread context or team message]',
+  },
 
-   baseContent: `# Handle Message Command
+  steps: [
+    // Step 1: Overview (inline)
+    {
+      inline: true,
+      title: 'Handle Message Overview',
+      content: `# Handle Message Command
 
-## SECURITY NOTICE
-**CRITICAL**: Never read the \`.env\` file. It contains ONLY secrets (passwords, API keys).
-- **Read \`.env.testdata\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
-- \`.env.testdata\` contains actual values for test data, URLs, and non-sensitive configuration
-- For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
-- The \`.env\` file access is blocked by settings.json
-
-Process team responses from Slack threads and handle multi-turn conversations with the product team about testing clarifications, ambiguities, and questions.
-
-## Arguments
-Team message/thread context: \$ARGUMENTS
-
-${KNOWLEDGE_BASE_READ_INSTRUCTIONS}
-
-## Process
-
-### Step 0: Detect Message Intent and Load Handler
-
-Before processing the message, identify the intent type to load the appropriate handler.
+Process team responses from Slack threads and handle multi-turn conversations with the product team about testing clarifications, ambiguities, and questions.`,
+    },
+    // Step 2: Security Notice (library)
+    'security-notice',
+    // Step 3: Arguments (inline)
+    {
+      inline: true,
+      title: 'Arguments',
+      content: `Team message/thread context: $ARGUMENTS`,
+    },
+    // Step 4: Knowledge Base Read (library)
+    'read-knowledge-base',
+    // Step 5: Detect Intent (inline - task-specific)
+    {
+      inline: true,
+      title: 'Detect Message Intent and Load Handler',
+      content: `Before processing the message, identify the intent type to load the appropriate handler.
 
 #### 0.1 Extract Intent from Event Payload
 
@@ -84,11 +86,18 @@ The handler file contains all necessary processing logic for the detected intent
 - Specific processing steps for that intent
 - Context loading requirements
 - Response guidelines
-- Memory update instructions
-
-${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}
-
-## Key Principles
+- Memory update instructions`,
+    },
+    // Step 6-7: Clarification (for ambiguous intents)
+    'detect-ambiguity',
+    'formulate-questions',
+    // Step 8: Knowledge Base Update (library)
+    'update-knowledge-base',
+    // Step 9: Key Principles (inline)
+    {
+      inline: true,
+      title: 'Key Principles',
+      content: `## Key Principles
 
 ### Context Preservation
 - Always maintain full conversation context
@@ -108,9 +117,13 @@ ${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}
 ### Quality Communication
 - Acknowledge team input appropriately
 - Provide updates on actions taken
-- Ask good follow-up questions when needed
-
-## Important Considerations
+- Ask good follow-up questions when needed`,
+    },
+    // Step 10: Important Considerations (inline)
+    {
+      inline: true,
+      title: 'Important Considerations',
+      content: `## Important Considerations
 
 ### Thread Organization
 - Keep related discussions in same thread
@@ -131,7 +144,10 @@ ${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}
 - Keep active conversations visible and current
 - Archive resolved discussions appropriately
 - Maintain searchable history of resolutions`,
+    },
+  ],
 
-   optionalSubagents: [],
-   requiredSubagents: ['team-communicator']
+  requiredSubagents: ['team-communicator'],
+  optionalSubagents: [],
+  dependentTasks: [],
 };

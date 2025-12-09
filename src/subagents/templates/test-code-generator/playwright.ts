@@ -93,20 +93,90 @@ export const CONTENT = `You are an expert Playwright test automation engineer sp
      * Set \`automated_test:\` field to the path of the automated test file
      * Link manual ↔ automated test bidirectionally
 
-   **STEP 4: Iterate Until Working**
+   **STEP 4: Verify and Fix Until Working** (CRITICAL - up to 3 attempts)
 
    - **Run test**: Execute \`npx playwright test [test-file]\` using Bash tool
    - **Analyze results**:
-     * Pass → Run 2-3 more times to verify stability
-     * Fail → Debug and fix issues:
-       - Selector problems → Re-explore and update POMs
-       - Timing issues → Add proper waits or assertions
-       - Auth problems → Fix authentication setup
-       - Environment issues → Update .env.testdata
-   - **Fix and retry**: Continue iterating until test consistently:
-     * Passes (feature working as expected), OR
-     * Fails with a legitimate product bug (document the bug)
-   - **Document in memory**: Record what worked, issues encountered, fixes applied
+     * Pass → Run 2-3 more times to verify stability, then proceed to STEP 5
+     * Fail → Proceed to failure analysis below
+
+   **4a. Failure Classification** (MANDATORY before fixing):
+
+   Classify each failure as either **Product Bug** or **Test Issue**:
+
+   | Type | Indicators | Action |
+   |------|------------|--------|
+   | **Product Bug** | Selectors are correct, test logic matches user flow, app behaves unexpectedly, screenshots show app in wrong state | STOP fixing - document as bug, mark test as blocked |
+   | **Test Issue** | Selector not found (but element exists), timeout errors, flaky behavior, wrong assertions | Proceed to fix |
+
+   **4b. Fix Patterns** (apply based on root cause):
+
+   **Fix Type 1: Brittle Selectors**
+   - **Problem**: CSS selectors or fragile XPath that breaks when UI changes
+   - **Fix**: Replace with role-based selectors
+   \`\`\`typescript
+   // BEFORE (brittle)
+   await page.locator('.btn-primary').click();
+   // AFTER (semantic)
+   await page.getByRole('button', { name: 'Sign In' }).click();
+   \`\`\`
+
+   **Fix Type 2: Missing Wait Conditions**
+   - **Problem**: Test doesn't wait for elements or actions to complete
+   - **Fix**: Add explicit wait for expected state
+   \`\`\`typescript
+   // BEFORE (race condition)
+   await page.goto('/dashboard');
+   const items = await page.locator('.item').count();
+   // AFTER (explicit wait)
+   await page.goto('/dashboard');
+   await expect(page.locator('.item')).toHaveCount(5);
+   \`\`\`
+
+   **Fix Type 3: Race Conditions**
+   - **Problem**: Test executes actions before application is ready
+   - **Fix**: Wait for specific application state
+   \`\`\`typescript
+   // BEFORE
+   await saveButton.click();
+   await expect(successMessage).toBeVisible();
+   // AFTER
+   await page.locator('.validation-complete').waitFor();
+   await saveButton.click();
+   await expect(successMessage).toBeVisible();
+   \`\`\`
+
+   **Fix Type 4: Wrong Assertions**
+   - **Problem**: Assertion expects incorrect value or state
+   - **Fix**: Update assertion to match actual app behavior (if app is correct)
+
+   **Fix Type 5: Test Isolation Issues**
+   - **Problem**: Test depends on state from previous tests
+   - **Fix**: Add proper setup/teardown or use fixtures
+
+   **Fix Type 6: Flaky Tests**
+   - **Problem**: Test passes inconsistently
+   - **Fix**: Identify non-determinism source (timing, race conditions, animation delays)
+   - Run test 10 times to confirm stability after fix
+
+   **4c. Fix Workflow**:
+   1. Read failure report and classify (product bug vs test issue)
+   2. If product bug: Document and mark test as blocked, move to next test
+   3. If test issue: Apply appropriate fix from patterns above
+   4. Re-run test to verify fix
+   5. If still failing: Repeat (max 3 total attempts: exec-1, exec-2, exec-3)
+   6. After 3 failed attempts: Reclassify as likely product bug and document
+
+   **4d. Decision Matrix**:
+
+   | Failure Type | Root Cause | Action |
+   |--------------|------------|--------|
+   | Selector not found | Element exists, wrong selector | Replace with semantic selector |
+   | Timeout waiting | Missing wait condition | Add explicit wait |
+   | Flaky (timing) | Race condition | Add synchronization wait |
+   | Wrong assertion | Incorrect expected value | Update assertion (if app is correct) |
+   | Test isolation | Depends on other tests | Add setup/teardown or fixtures |
+   | Product bug | App behaves incorrectly | STOP - Report as bug, don't fix test |
 
    **STEP 5: Move to Next Test Case**
 
@@ -146,13 +216,44 @@ export const CONTENT = `You are an expert Playwright test automation engineer sp
 [Test automation sessions with iterations, issues encountered, fixes applied]
 [Tests passing vs failing with product bugs]
 
+## Fixed Issues History
+- [Date] TC-001 login.spec.ts: Replaced CSS selector with getByRole('button', { name: 'Submit' })
+- [Date] TC-003 checkout.spec.ts: Added waitForLoadState for async validation
+
+## Failure Pattern Library
+
+### Pattern: Selector Timeout on Dynamic Content
+**Symptoms**: "Timeout waiting for selector", element loads after timeout
+**Root Cause**: Selector runs before element rendered
+**Fix Strategy**: Add \`await expect(locator).toBeVisible()\` before interaction
+**Success Rate**: [track over time]
+
+### Pattern: Race Condition on Form Submission
+**Symptoms**: Test clicks submit before validation completes
+**Root Cause**: Missing wait for validation state
+**Fix Strategy**: Wait for validation indicator before submit
+
+## Known Stable Selectors
+[Selectors that reliably work for this application]
+- Login button: \`getByRole('button', { name: 'Sign In' })\`
+- Email field: \`getByLabel('Email')\`
+
+## Known Product Bugs (Do Not Fix Tests)
+[Actual bugs discovered - tests should remain failing]
+- [Date] Description (affects TC-XXX)
+
+## Flaky Test Tracking
+[Tests with intermittent failures and their root causes]
+
+## Application Behavior Patterns
+[Load times, async patterns, navigation flows discovered]
+- Auth pages: redirect timing
+- Dashboard: lazy loading patterns
+- Forms: validation timing
+
 ## Selector Strategy Library
 [Successful selector patterns and their success rates]
 [Failed patterns to avoid]
-
-## Application Architecture Knowledge
-[Auth patterns, page structure, SPA behavior]
-[Test data creation patterns]
 
 ## Environment Variables Used
 [TEST_* variables and their purposes]

@@ -60,14 +60,94 @@ The Test Runner will:
 
 ---
 
+### Test Code Generator
+
+**Status**: Required
+**Role**: `test-code-generator`
+**Model**: Sonnet
+**Version**: 1.0.0
+
+**Description**: Generate automated Playwright test scripts and Page Objects. This subagent is always included in your configuration.
+
+**Capabilities**:
+- Generate Playwright test scripts from test cases
+- Create Page Object patterns for maintainable tests
+- Write reusable test utilities and helpers
+- Generate test data fixtures
+- Create assertions and verification logic
+- Structure tests following best practices
+
+**Available Integrations**:
+
+#### Playwright (Recommended)
+- **Provider**: Playwright
+- **Type**: Local (no external secrets needed)
+- **Installation**: `npm install -g @modelcontextprotocol/server-playwright`
+- **Environment Variables**: None required
+- **Best For**: Generating maintainable, cross-browser test automation
+
+**Example Usage**:
+```
+/generate-test-cases from the authentication test plan
+```
+
+The Test Code Generator will:
+1. Read the test plan or requirements
+2. Generate Playwright test files
+3. Create Page Objects for UI interactions
+4. Add proper assertions and wait conditions
+5. Structure code for maintainability
+
+---
+
+### Test Debugger & Fixer
+
+**Status**: Required
+**Role**: `test-debugger-fixer`
+**Model**: Sonnet
+**Version**: 1.0.0
+
+**Description**: Debug and fix failing automated tests automatically. This subagent is always included in your configuration.
+
+**Capabilities**:
+- Analyze test failure logs and screenshots
+- Identify root causes of test failures
+- Fix flaky tests and timing issues
+- Update selectors for changed UI
+- Improve test stability
+- Add proper error handling
+
+**Available Integrations**:
+
+#### Playwright (Recommended)
+- **Provider**: Playwright
+- **Type**: Local (no external secrets needed)
+- **Installation**: `npm install -g @modelcontextprotocol/server-playwright`
+- **Environment Variables**: None required
+- **Best For**: Automatically fixing and stabilizing test suites
+
+**Example Usage**:
+```
+/run-tests for the checkout flow
+```
+
+When tests fail, the Test Debugger & Fixer will:
+1. Analyze failure screenshots and traces
+2. Identify the root cause (selector change, timing issue, etc.)
+3. Apply fixes to the test code
+4. Re-run to verify the fix works
+5. Update Page Objects if needed
+
+---
+
 ### Team Communicator
 
-**Status**: Optional
+**Status**: Required (Email fallback)
 **Role**: `team-communicator`
 **Model**: Sonnet
 **Version**: 1.0.0
 
-**Description**: Send notifications and updates to your team via messaging platforms.
+**Description**: Send notifications and updates to your team via messaging platforms. This subagent is always included - it falls back to Email if Slack/Teams are not configured.
 
 **Capabilities**:
 - Post messages to team channels
@@ -133,12 +213,12 @@ The Test Runner will:
 
 **Example Usage**:
 ```
-/verify-changes-slack after running login tests
+/verify-changes after running login tests
 ```
 
 The Team Communicator will:
-1. Format test results as a Slack message
-2. Post to configured channel
+1. Format test results as a message
+2. Post to configured channel (Slack, Teams, or Email)
 3. Include screenshots if available
 4. Tag relevant team members
 
@@ -180,24 +260,6 @@ The Team Communicator will:
 - `notion_query_database` - Query databases
 - `notion_create_page` - Create new pages
 
-#### Confluence
-- **Provider**: Confluence
-- **Type**: External (requires API token)
-- **Installation**: `npm install -g @modelcontextprotocol/server-confluence`
-- **Environment Variables**:
-  ```bash
-  CONFLUENCE_URL=https://your-domain.atlassian.net
-  CONFLUENCE_EMAIL=your-email@company.com
-  CONFLUENCE_API_TOKEN=your-api-token
-  ```
-- **Setup**: Create API token at [id.atlassian.com](https://id.atlassian.com/manage-profile/security/api-tokens)
-- **Best For**: Teams using Confluence for documentation
-
-**MCP Tools Available**:
-- `confluence_search` - Search spaces and pages
-- `confluence_get_page` - Retrieve page content
-- `confluence_list_spaces` - List available spaces
-
 **Example Usage**:
 ```
 /generate-test-plan for user authentication
@@ -229,37 +291,19 @@ The Team Communicator will:
 
 **Available Integrations**:
 
-#### Linear
-- **Provider**: Linear
-- **Type**: External (requires API key)
-- **Installation**: `npm install -g @modelcontextprotocol/server-linear`
+#### Jira Server
+- **Provider**: Jira Server (on-premise)
+- **Type**: Custom (via MCP tunnel)
+- **Installation**: `npm install -g @bugzy-ai/jira-mcp-server`
 - **Environment Variables**:
   ```bash
-  LINEAR_API_KEY=lin_api_your-key-here
-  LINEAR_TEAM_ID=your-team-id
-  ```
-- **Setup**: Generate API key at [linear.app/settings/api](https://linear.app/settings/api)
-- **Best For**: Modern product teams using Linear
-
-**MCP Tools Available**:
-- `linear_create_issue` - Create new issues
-- `linear_get_teams` - List teams
-- `linear_get_issues` - Query issues
-- `linear_update_issue` - Update issue details
-
-#### Jira
-- **Provider**: Jira
-- **Type**: External (requires API token)
-- **Installation**: `npm install -g @modelcontextprotocol/server-jira`
-- **Environment Variables**:
-  ```bash
-  JIRA_HOST=your-domain.atlassian.net
+  JIRA_HOST=your-jira-server.company.com
   JIRA_EMAIL=your-email@company.com
   JIRA_API_TOKEN=your-api-token
   JIRA_PROJECT_KEY=PROJ
   ```
-- **Setup**: Create API token at [id.atlassian.com](https://id.atlassian.com/manage-profile/security/api-tokens)
-- **Best For**: Enterprise teams using Jira
+- **Setup**: Requires MCP tunnel for on-premise Jira access
+- **Best For**: Enterprise teams using self-hosted Jira Server
 
 **MCP Tools Available**:
 - `jira_create_issue` - Create new issues
@@ -335,7 +379,7 @@ Bugzy stores your configuration in `.bugzy/config.json`:
     "test-runner": "playwright",
     "team-communicator": "slack",
     "documentation-researcher": "notion",
-    "issue-tracker": "linear"
+    "issue-tracker": "jira-server"
   }
 }
 ```

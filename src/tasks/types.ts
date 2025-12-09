@@ -1,7 +1,21 @@
 /**
  * Task Module Types
- * Type definitions for task templates
+ * Type definitions for task templates (legacy and composed)
  */
+
+// Re-export composed task types for convenience
+export type {
+  TaskStep,
+  StepReference,
+  StepReferenceObject,
+  InlineStep,
+  ComposedTaskTemplate,
+  StepCategory,
+  NormalizedStepReference,
+} from './steps/types';
+
+// Re-export type guards
+export { isInlineStep, isStepReferenceObject } from './steps/types';
 
 /**
  * Task Frontmatter

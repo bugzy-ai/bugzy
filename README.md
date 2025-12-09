@@ -20,7 +20,7 @@ Bugzy is a CLI tool that manages AI agent configuration for your AI coding assis
 
 ## Features
 
-- ✅ **Complete Task Library** - 7 pre-built QA automation tasks
+- ✅ **Complete Task Library** - 8 pre-built QA automation tasks
 - ✅ **Flexible Subagents** - Test Runner, Test Code Generator, Test Debugger & Fixer, Team Communicator, Documentation Researcher, Issue Tracker
 - ✅ **Easy Setup** - Interactive CLI configuration (`bugzy setup`)
 - ✅ **Local Execution** - Runs entirely on your machine with Claude Code
@@ -61,7 +61,7 @@ bugzy "generate test plan for user authentication"
 # Or use slash commands in Claude Code
 /generate-test-plan for checkout flow
 /run-tests for payment processing
-/verify-changes-slack deployed new feature
+/verify-changes deployed new feature
 ```
 
 ## What Gets Created
@@ -93,9 +93,9 @@ your-project/
 | **Test Runner** | Execute automated browser tests | Playwright | ✅ Yes |
 | **Test Code Generator** | Generate Playwright test scripts and Page Objects | Playwright | ✅ Yes |
 | **Test Debugger & Fixer** | Debug and fix failing tests automatically | Playwright | ✅ Yes |
-| **Team Communicator** | Send team notifications | Slack, Microsoft Teams | ❌ Optional |
-| **Documentation Researcher** | Search documentation | Notion, Confluence | ❌ Optional |
-| **Issue Tracker** | Create and track bugs | Linear, Jira Cloud, Jira Server, Notion, Slack | ❌ Optional |
+| **Team Communicator** | Send team notifications | Slack, Microsoft Teams, Email | ✅ Yes (Email fallback) |
+| **Documentation Researcher** | Search documentation | Notion | ❌ Optional |
+| **Issue Tracker** | Create and track bugs | Jira Server, Notion, Slack | ❌ Optional |
 
 ## Available Tasks
 
@@ -106,6 +106,7 @@ your-project/
 | Generate Test Cases | `/generate-test-cases` | Generate executable test cases |
 | Run Tests | `/run-tests` | Execute automated tests and analyze failures |
 | Verify Changes | `/verify-changes` | Verify product changes via automated testing |
+| Onboard Testing | `/onboard-testing` | Complete workflow: explore → plan → cases → test → fix → report |
 | Handle Message | `/handle-message` | Process team messages from Slack/Teams |
 | Process Event | `/process-event` | Handle automated webhooks and events |
 
@@ -124,7 +125,7 @@ Bugzy uses a simple configuration format:
     "test-runner": "playwright",
     "team-communicator": "slack",
     "documentation-researcher": "notion",
-    "issue-tracker": "linear"
+    "issue-tracker": "jira-server"
   }
 }
 ```
@@ -141,7 +142,7 @@ Bugzy loads environment variables for MCP servers and test configuration:
 # MCP Secrets
 SLACK_BOT_TOKEN=xoxb-...
 NOTION_TOKEN=secret_...
-LINEAR_API_KEY=lin_api_...
+RESEND_API_KEY=re_...
 
 # Test Configuration
 TEST_BASE_URL=http://localhost:3000

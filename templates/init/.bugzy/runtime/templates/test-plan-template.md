@@ -1,25 +1,50 @@
-# Test Plan Template
+---
+version: 1.0.0
+created_at: [DATE]
+updated_at: [DATE]
+status: draft
+---
 
-## Test Scenarios
+# Test Plan: [PROJECT_NAME]
 
-### Scenario 1: [Name]
-**Objective**: [What are we testing?]
+## Overview
 
-**Test Cases**:
-1. [Test case description]
-2. [Test case description]
+[2-3 sentences describing what the application does and the testing focus]
 
-**Expected Results**:
-- [Expected outcome]
+## Features to Test
 
-### Scenario 2: [Name]
-**Objective**: [What are we testing?]
+### [Feature Area 1]
+- [ ] Feature 1.1 - Brief description
+- [ ] Feature 1.2 - Brief description
 
-**Test Cases**:
-1. [Test case description]
+### [Feature Area 2]
+- [ ] Feature 2.1 - Brief description
+- [ ] Feature 2.2 - Brief description
 
-**Expected Results**:
-- [Expected outcome]
+### [Feature Area 3]
+- [ ] Feature 3.1 - Brief description
+
+## Out of Scope
+
+- Item 1 - Reason (e.g., requires native mobile app)
+- Item 2 - Reason (e.g., backend-only, no UI)
+
+## Test Environment
+
+- **URL**: TEST_BASE_URL
+- **User Credentials**: TEST_USER_EMAIL / TEST_USER_PASSWORD
+- **Admin Credentials**: TEST_ADMIN_EMAIL / TEST_ADMIN_PASSWORD (if applicable)
+
+## Automation Priority
+
+| Priority | Criteria |
+|----------|----------|
+| High | Critical user flows, smoke tests, frequent regression areas |
+| Medium | Important features, moderate user impact |
+| Low | Edge cases, rarely used features |
 
 ## Notes
-[Add any additional context or requirements]
+
+- See `./exploration-reports/` for detailed UI element discovery
+- See `.bugzy/runtime/knowledge-base.md` for technical patterns
+- See `.bugzy/runtime/project-context.md` for SDLC and team info

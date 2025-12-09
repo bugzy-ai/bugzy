@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bugzy Task Steps Reference</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .color-composed { background: #22c55e; }
+        .color-inline { background: #a855f7; }
+        .color-empty { background: #e5e7eb; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 12px;
+        }
+        th, td {
+            padding: 10px 6px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        th {
+            background: #1f2937;
+            color: white;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        th:first-child {
+            text-align: left;
+            min-width: 180px;
+        }
+        th:nth-child(2) {
+            min-width: 100px;
+        }
+        th.task-header {
+            background: #15803d;
+        }
+        td:first-child {
+            text-align: left;
+            font-weight: 500;
+            background: #f9fafb;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 11px;
+        }
+        td:nth-child(2) {
+            font-size: 10px;
+            color: #6b7280;
+        }
+        tr:hover {
+            background: #f0f9ff;
+        }
+
+        /* Cell states */
+        .cell-composed {
+            background: #dcfce7;
+            color: #166534;
+            font-weight: 600;
+        }
+        .cell-inline {
+            background: #f3e8ff;
+            color: #7c3aed;
+            font-weight: 600;
+        }
+        .cell-empty {
+            background: white;
+            color: #d1d5db;
+        }
+
+        /* Category grouping */
+        .category-header {
+            background: #374151 !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            color: white;
+        }
+        .category-header td {
+            background: #374151 !important;
+            color: white;
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        /* Stats section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-composed .stat-number { color: #15803d; }
+        .stat-inline .stat-number { color: #7c3aed; }
+
+        /* Insights section */
+        .insights {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .insight-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .insight-card h3 {
+            margin: 0 0 15px 0;
+            color: #1f2937;
+            font-size: 16px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .insight-card ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .insight-card li {
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #4b5563;
+        }
+        .highlight-composed {
+            color: #15803d;
+            font-weight: 600;
+        }
+        .highlight-inline {
+            color: #7c3aed;
+            font-weight: 600;
+        }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        /* Subagents table */
+        .subagents-section {
+            margin-top: 40px;
+        }
+        .subagents-section h2 {
+            margin-bottom: 15px;
+        }
+        .subagent-table {
+            font-size: 11px;
+        }
+        .subagent-table th {
+            font-size: 11px;
+        }
+        .required {
+            color: #dc2626;
+            font-weight: 600;
+        }
+        .optional {
+            color: #6b7280;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            th, td {
+                padding: 6px 3px;
+                font-size: 10px;
+            }
+            td:first-child {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bugzy Task Steps Reference</h1>
+        <p class="subtitle">Step library mapping across all tasks - <strong>30 library steps</strong> + <strong>inline steps</strong> per task</p>
+
+        <div class="stats-grid">
+            <div class="stat-card stat-composed">
+                <div class="stat-number">30</div>
+                <div class="stat-label">Library Steps</div>
+            </div>
+            <div class="stat-card stat-inline">
+                <div class="stat-number">~40</div>
+                <div class="stat-label">Inline Steps (total)</div>
+            </div>
+            <div class="stat-card stat-composed">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Tasks</div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color color-composed"></div>
+                <span>Library Step (Reusable)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color color-inline"></div>
+                <span>Inline Step (Task-specific)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color color-empty"></div>
+                <span>Not Applicable</span>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Step ID</th>
+                    <th>Category</th>
+                    <th class="task-header">Onboard Testing<br><small>(24 steps)</small></th>
+                    <th class="task-header">Explore App<br><small>(18 steps)</small></th>
+                    <th class="task-header">Gen Test Plan<br><small>(10 steps)</small></th>
+                    <th class="task-header">Gen Test Cases<br><small>(14 steps)</small></th>
+                    <th class="task-header">Run Tests<br><small>(14 steps)</small></th>
+                    <th class="task-header">Verify Changes<br><small>(15 steps)</small></th>
+                    <th class="task-header">Handle Msg<br><small>(10 steps)</small></th>
+                    <th class="task-header">Process Event<br><small>(14 steps)</small></th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Inline Steps Category -->
+                <tr class="category-header">
+                    <td colspan="10">INLINE STEPS (task-specific, not reusable)</td>
+                </tr>
+                <tr>
+                    <td><em>[task-overview]</em></td>
+                    <td>inline</td>
+                    <td class="cell-inline">Step 1</td>
+                    <td class="cell-inline">Step 1</td>
+                    <td class="cell-inline">Step 1</td>
+                    <td class="cell-inline">Step 1</td>
+                    <td class="cell-inline">Step 1</td>
+                    <td class="cell-inline">Step 1</td>
+                    <td class="cell-inline">Step 1</td>
+                    <td class="cell-inline">Step 1</td>
+                </tr>
+                <tr>
+                    <td><em>[task-arguments]</em></td>
+                    <td>inline</td>
+                    <td class="cell-inline">Step 3</td>
+                    <td class="cell-inline">Step 3</td>
+                    <td class="cell-inline">Step 3</td>
+                    <td class="cell-inline">Step 3</td>
+                    <td class="cell-inline">Step 3</td>
+                    <td class="cell-inline">Step 3</td>
+                    <td class="cell-inline">Step 3</td>
+                    <td class="cell-inline">Step 3</td>
+                </tr>
+
+                <!-- Setup Category -->
+                <tr class="category-header">
+                    <td colspan="10">SETUP (5 library + 6 inline)</td>
+                </tr>
+                <tr>
+                    <td>security-notice</td>
+                    <td>setup</td>
+                    <td class="cell-composed">Step 2</td>
+                    <td class="cell-composed">Step 2</td>
+                    <td class="cell-composed">Step 2</td>
+                    <td class="cell-composed">Step 2</td>
+                    <td class="cell-composed">Step 2</td>
+                    <td class="cell-composed">Step 2</td>
+                    <td class="cell-composed">Step 2</td>
+                    <td class="cell-composed">Step 2</td>
+                </tr>
+                <tr>
+                    <td>read-knowledge-base</td>
+                    <td>setup</td>
+                    <td class="cell-composed">Step 4</td>
+                    <td class="cell-composed">Step 4</td>
+                    <td class="cell-composed">Step 4</td>
+                    <td class="cell-composed">Step 4</td>
+                    <td class="cell-composed">Step 4</td>
+                    <td class="cell-composed">Step 4</td>
+                    <td class="cell-composed">Step 4</td>
+                    <td class="cell-composed">Step 4</td>
+                </tr>
+                <tr>
+                    <td>load-project-context</td>
+                    <td>setup</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 5</td>
+                    <td class="cell-composed">Step 5</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>check-existing-artifacts</td>
+                    <td>setup</td>
+                    <td class="cell-composed">Step 5</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 5</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>read-test-strategy</td>
+                    <td>setup</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 5</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>detect-trigger-source</td>
+                    <td>setup</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 5</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>extract-trigger-context</td>
+                    <td>setup</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 6</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>detect-message-intent</td>
+                    <td>setup</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 5</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>load-message-handler</td>
+                    <td>setup</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 5</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>parse-event-context</td>
+                    <td>setup</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 5</td>
+                </tr>
+                <tr>
+                    <td>load-event-memory</td>
+                    <td>setup</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 7</td>
+                </tr>
+                <tr>
+                    <td>load-event-handler</td>
+                    <td>setup</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 7</td>
+                </tr>
+
+                <!-- Exploration Category -->
+                <tr class="category-header">
+                    <td colspan="10">EXPLORATION (5 library)</td>
+                </tr>
+                <tr>
+                    <td>assess-requirements</td>
+                    <td>exploration</td>
+                    <td class="cell-composed">Step 6</td>
+                    <td class="cell-composed">Step 6</td>
+                    <td class="cell-composed">Step 6</td>
+                    <td class="cell-composed">Step 6</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 7</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>define-focus-area</td>
+                    <td>exploration</td>
+                    <td class="cell-composed">Step 7</td>
+                    <td class="cell-composed">Step 7</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>quick-exploration</td>
+                    <td>exploration</td>
+                    <td class="cell-composed">Step 10</td>
+                    <td class="cell-composed">Step 10</td>
+                    <td class="cell-composed">Step 7</td>
+                    <td class="cell-composed">Step 7</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 8</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>moderate-exploration</td>
+                    <td>exploration</td>
+                    <td class="cell-composed">Step 11</td>
+                    <td class="cell-composed">Step 11</td>
+                    <td class="cell-composed">Step 8</td>
+                    <td class="cell-composed">Step 8</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 9</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>deep-exploration</td>
+                    <td>exploration</td>
+                    <td class="cell-composed">Step 12</td>
+                    <td class="cell-composed">Step 12</td>
+                    <td class="cell-composed">Step 9</td>
+                    <td class="cell-composed">Step 9</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 10</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+
+                <!-- Clarification Category -->
+                <tr class="category-header">
+                    <td colspan="10">CLARIFICATION (4 library + inline steps)</td>
+                </tr>
+                <tr>
+                    <td>detect-ambiguity</td>
+                    <td>clarification</td>
+                    <td class="cell-composed">Step 8</td>
+                    <td class="cell-composed">Step 8</td>
+                    <td class="cell-composed">Step 10</td>
+                    <td class="cell-composed">Step 10</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 6</td>
+                    <td class="cell-inline">Step 6</td>
+                </tr>
+                <tr>
+                    <td>check-memory</td>
+                    <td>clarification</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 7</td>
+                </tr>
+                <tr>
+                    <td>formulate-questions</td>
+                    <td>clarification</td>
+                    <td class="cell-composed">Step 9</td>
+                    <td class="cell-composed">Step 9</td>
+                    <td class="cell-composed">Step 11</td>
+                    <td class="cell-composed">Step 11</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 7</td>
+                    <td class="cell-inline">Step 6</td>
+                </tr>
+                <tr>
+                    <td>register-blocked-task</td>
+                    <td>clarification</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+
+                <!-- Execution Category -->
+                <tr class="category-header">
+                    <td colspan="10">EXECUTION (8 library + inline steps)</td>
+                </tr>
+                <tr>
+                    <td>run-playwright-tests</td>
+                    <td>execution</td>
+                    <td class="cell-composed">Step 16</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 7</td>
+                    <td class="cell-composed">Step 8</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>parse-test-results</td>
+                    <td>execution</td>
+                    <td class="cell-composed">Step 17</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 8</td>
+                    <td class="cell-composed">Step 9</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>triage-failures</td>
+                    <td>execution</td>
+                    <td class="cell-composed">Step 18</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 9</td>
+                    <td class="cell-composed">Step 10</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>fix-test-issues</td>
+                    <td>execution</td>
+                    <td class="cell-composed">Step 19</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 10</td>
+                    <td class="cell-composed">Step 11</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>log-product-bugs</td>
+                    <td>execution</td>
+                    <td class="cell-composed">Step 20*</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 11*</td>
+                    <td class="cell-composed">Step 12*</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 11*</td>
+                </tr>
+                <tr>
+                    <td>create-exploration-test-case</td>
+                    <td>execution</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 11</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>run-exploration</td>
+                    <td>execution</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 12</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>process-exploration-results</td>
+                    <td>execution</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 13</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>identify-tests-to-run</td>
+                    <td>execution</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 6</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>determine-test-scope</td>
+                    <td>execution</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 7</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>analyze-event</td>
+                    <td>execution</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 8</td>
+                </tr>
+                <tr>
+                    <td>plan-event-tasks</td>
+                    <td>execution</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 10</td>
+                </tr>
+
+                <!-- Generation Category -->
+                <tr class="category-header">
+                    <td colspan="10">GENERATION (4 library + inline steps)</td>
+                </tr>
+                <tr>
+                    <td>generate-test-plan</td>
+                    <td>generation</td>
+                    <td class="cell-composed">Step 10</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 10</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>extract-env-variables</td>
+                    <td>generation</td>
+                    <td class="cell-composed">Step 11</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 12</td>
+                    <td class="cell-composed">Step 12</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>generate-test-cases</td>
+                    <td>generation</td>
+                    <td class="cell-composed">Step 12</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 12</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>automate-test-cases</td>
+                    <td>generation</td>
+                    <td class="cell-composed">Step 13</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 13</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>organize-test-scenarios</td>
+                    <td>generation</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 12</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>generate-manual-checklist</td>
+                    <td>generation</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 14</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+
+                <!-- Communication Category -->
+                <tr class="category-header">
+                    <td colspan="10">COMMUNICATION (1 library + inline steps)</td>
+                </tr>
+                <tr>
+                    <td>notify-team</td>
+                    <td>communication</td>
+                    <td class="cell-composed">Step 20*</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 10*</td>
+                    <td class="cell-inline">Step 14*</td>
+                    <td class="cell-inline">Step 13*</td>
+                    <td class="cell-inline">Step 15*</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>route-output-by-channel</td>
+                    <td>communication</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 14</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+
+                <!-- Maintenance Category -->
+                <tr class="category-header">
+                    <td colspan="10">MAINTENANCE (5 library + inline steps)</td>
+                </tr>
+                <tr>
+                    <td>update-knowledge-base</td>
+                    <td>maintenance</td>
+                    <td class="cell-composed">Step 19</td>
+                    <td class="cell-composed">Step 16</td>
+                    <td class="cell-composed">Step 9</td>
+                    <td class="cell-composed">Step 13</td>
+                    <td class="cell-composed">Step 12</td>
+                    <td class="cell-composed">Step 14</td>
+                    <td class="cell-composed">Step 6</td>
+                    <td class="cell-composed">Step 14</td>
+                </tr>
+                <tr>
+                    <td>generate-final-report</td>
+                    <td>maintenance</td>
+                    <td class="cell-composed">Step 21</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 10</td>
+                    <td class="cell-inline">Step 14</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 15</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>update-exploration-artifacts</td>
+                    <td>maintenance</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 14</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>cleanup-temp-files</td>
+                    <td>maintenance</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 15</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>validate-test-artifacts</td>
+                    <td>maintenance</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-composed">Step 14</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>aggregate-verification-results</td>
+                    <td>maintenance</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 14</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                </tr>
+                <tr>
+                    <td>update-event-history</td>
+                    <td>maintenance</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-empty">-</td>
+                    <td class="cell-inline">Step 12</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="insights">
+            <div class="insight-card">
+                <h3>Step Types Explained</h3>
+                <ul>
+                    <li><span class="highlight-composed">Library Steps</span>: Reusable across multiple tasks (defined in STEP_LIBRARY)</li>
+                    <li><span class="highlight-inline">Inline Steps</span>: Task-specific content defined directly in task file</li>
+                    <li><strong>Every task needs:</strong> Overview (inline) + Security Notice (library) + Arguments (inline)</li>
+                    <li><strong>Pattern:</strong> <code>{ inline: true, title: '...', content: '...' }</code></li>
+                </ul>
+            </div>
+
+            <div class="insight-card">
+                <h3>Task Step Counts</h3>
+                <ul>
+                    <li><span class="highlight-composed">onboard-testing</span>: 24 steps (2 inline + 22 library)</li>
+                    <li><span class="highlight-composed">explore-application</span>: 18 steps (2 inline + 16 library)</li>
+                    <li><span class="highlight-composed">generate-test-plan</span>: 10 steps</li>
+                    <li><span class="highlight-composed">generate-test-cases</span>: 14 steps</li>
+                    <li><span class="highlight-composed">run-tests</span>: 14 steps</li>
+                    <li><span class="highlight-composed">verify-changes</span>: 15 steps</li>
+                    <li><span class="highlight-composed">handle-message</span>: 10 steps</li>
+                    <li><span class="highlight-composed">process-event</span>: 14 steps</li>
+                </ul>
+            </div>
+
+            <div class="insight-card">
+                <h3>Step Reuse Analysis</h3>
+                <ul>
+                    <li><code>security-notice</code> - Used by <strong>all 8 tasks</strong></li>
+                    <li><code>read-knowledge-base</code> - Used by <strong>8/8 tasks</strong></li>
+                    <li><code>update-knowledge-base</code> - Used by <strong>8/8 tasks</strong></li>
+                    <li><code>detect-ambiguity</code> - Used by <strong>6 tasks</strong></li>
+                    <li><code>formulate-questions</code> - Used by <strong>6 tasks</strong></li>
+                    <li><code>define-focus-area</code> - Used by <strong>2 tasks</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="subagents-section">
+            <h2>Required vs Optional Subagents by Task</h2>
+            <table class="subagent-table">
+                <thead>
+                    <tr>
+                        <th>Subagent</th>
+                        <th>Onboard Testing</th>
+                        <th>Explore App</th>
+                        <th>Gen Test Plan</th>
+                        <th>Gen Test Cases</th>
+                        <th>Run Tests</th>
+                        <th>Verify Changes</th>
+                        <th>Handle Msg</th>
+                        <th>Process Event</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>test-runner</td>
+                        <td class="required">Required</td>
+                        <td class="required">Required</td>
+                        <td class="required">Required</td>
+                        <td class="required">Required</td>
+                        <td class="required">Required</td>
+                        <td class="required">Required</td>
+                        <td class="cell-empty">-</td>
+                        <td class="cell-empty">-</td>
+                    </tr>
+                    <tr>
+                        <td>test-code-generator</td>
+                        <td class="required">Required</td>
+                        <td class="cell-empty">-</td>
+                        <td class="cell-empty">-</td>
+                        <td class="required">Required</td>
+                        <td class="cell-empty">-</td>
+                        <td class="cell-empty">-</td>
+                        <td class="cell-empty">-</td>
+                        <td class="cell-empty">-</td>
+                    </tr>
+                    <tr>
+                        <td>test-debugger-fixer</td>
+                        <td class="required">Required</td>
+                        <td class="cell-empty">-</td>
+                        <td class="cell-empty">-</td>
+                        <td class="cell-empty">-</td>
+                        <td class="required">Required</td>
+                        <td class="required">Required</td>
+                        <td class="cell-empty">-</td>
+                        <td class="cell-empty">-</td>
+                    </tr>
+                    <tr>
+                        <td>documentation-researcher</td>
+                        <td class="optional">Optional</td>
+                        <td class="cell-empty">-</td>
+                        <td class="optional">Optional</td>
+                        <td class="optional">Optional</td>
+                        <td class="cell-empty">-</td>
+                        <td class="optional">Optional</td>
+                        <td class="cell-empty">-</td>
+                        <td class="optional">Optional</td>
+                    </tr>
+                    <tr>
+                        <td>issue-tracker</td>
+                        <td class="optional">Optional</td>
+                        <td class="cell-empty">-</td>
+                        <td class="cell-empty">-</td>
+                        <td class="cell-empty">-</td>
+                        <td class="optional">Optional</td>
+                        <td class="optional">Optional</td>
+                        <td class="cell-empty">-</td>
+                        <td class="optional">Optional</td>
+                    </tr>
+                    <tr>
+                        <td>team-communicator</td>
+                        <td class="optional">Optional</td>
+                        <td class="cell-empty">-</td>
+                        <td class="optional">Optional</td>
+                        <td class="optional">Optional</td>
+                        <td class="optional">Optional</td>
+                        <td class="optional">Optional</td>
+                        <td class="required">Required</td>
+                        <td class="cell-empty">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

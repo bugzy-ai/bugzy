@@ -1,69 +1,98 @@
 /**
- * Generate Test Plan Task
+ * Generate Test Plan Task (Composed)
  * Generate a comprehensive test plan from product description
  */
 
-import { TaskTemplate } from '../types';
+import type { ComposedTaskTemplate } from '../steps/types';
 import { TASK_SLUGS } from '../constants';
 import { EXPLORATION_INSTRUCTIONS } from '../templates/exploration-instructions';
 import { CLARIFICATION_INSTRUCTIONS } from '../templates/clarification-instructions';
-import { KNOWLEDGE_BASE_READ_INSTRUCTIONS, KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS } from '../templates/knowledge-base.js';
 
-export const generateTestPlanTask: TaskTemplate = {
+export const generateTestPlanTask: ComposedTaskTemplate = {
   slug: TASK_SLUGS.GENERATE_TEST_PLAN,
   name: 'Generate Test Plan',
-  description: 'Generate a comprehensive test plan from product description',
+  description: 'Generate a concise feature checklist test plan from product description',
 
   frontmatter: {
-    description: 'Generate a comprehensive test plan from product description',
+    description: 'Generate a concise feature checklist test plan (~50-100 lines)',
     'argument-hint': '<product-description>',
   },
 
-  baseContent: `# Generate Test Plan Command
+  steps: [
+    // Step 1: Overview (inline)
+    {
+      inline: true,
+      title: 'Generate Test Plan Overview',
+      content: `Generate a comprehensive test plan from product description following the Brain Module specifications.`,
+    },
+    // Step 2: Security Notice (library)
+    'security-notice',
+    // Step 3: Arguments (inline)
+    {
+      inline: true,
+      title: 'Arguments',
+      content: `Product description: $ARGUMENTS`,
+    },
+    // Step 4: Knowledge Base Read (library)
+    'read-knowledge-base',
+    // Step 5: Load Project Context (library)
+    'load-project-context',
+    // Step 6: Process Description (inline)
+    {
+      inline: true,
+      title: 'Process the Product Description',
+      content: `Use the product description provided directly in the arguments, enriched with project context understanding.`,
+    },
+    // Step 7: Initialize Env Tracking (inline)
+    {
+      inline: true,
+      title: 'Initialize Environment Variables Tracking',
+      content: `Create a list to track all TEST_ prefixed environment variables discovered throughout the process.`,
+    },
+    // Step 8: Documentation Researcher (conditional inline)
+    {
+      inline: true,
+      title: 'Gather Comprehensive Project Documentation',
+      content: `{{INVOKE_DOCUMENTATION_RESEARCHER}} to explore and gather all available project information and other documentation sources. This ensures the test plan is based on complete and current information.
 
-## SECURITY NOTICE
-**CRITICAL**: Never read the \`.env\` file. It contains ONLY secrets (passwords, API keys).
-- **Read \`.env.testdata\`** for non-secret test data (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
-- \`.env.testdata\` contains actual values for test data, URLs, and non-sensitive configuration
-- For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
-- The \`.env\` file access is blocked by settings.json
+\`\`\`
+Explore all available project documentation related to: $ARGUMENTS
 
-Generate a comprehensive test plan from product description following the Brain Module specifications.
+Specifically gather:
+- Product specifications and requirements
+- User stories and acceptance criteria
+- Technical architecture documentation
+- API documentation and endpoints
+- User roles and permissions
+- Business rules and validations
+- UI/UX specifications
+- Known limitations or constraints
+- Existing test documentation
+- Bug reports or known issues
+\`\`\`
 
-## Arguments
-Product description: \$ARGUMENTS
+The agent will:
+1. Check its memory for previously discovered documentation
+2. Explore workspace for relevant pages and databases
+3. Build a comprehensive understanding of the product
+4. Return synthesized information about all discovered documentation`,
+      conditionalOnSubagent: 'documentation-researcher',
+    },
+    // Step 9: Explore Product (inline with full exploration instructions)
+    {
+      inline: true,
+      title: 'Explore Product (If Needed)',
+      content: `If product description is vague or incomplete, perform adaptive exploration to understand actual product features and behavior.
 
-${KNOWLEDGE_BASE_READ_INSTRUCTIONS}
+${EXPLORATION_INSTRUCTIONS}`,
+    },
+    // Step 10: Clarify Ambiguities (inline with full clarification instructions)
+    {
+      inline: true,
+      title: 'Clarify Ambiguities',
+      content: `If exploration or product description reveals ambiguous requirements, use the clarification protocol before generating the test plan.
 
-## Process
-
-### Step 1: Load project context
-Read \`.bugzy/runtime/project-context.md\` to understand:
-- Project overview and key platform features
-- SDLC methodology and sprint duration
-- Testing environment and goals
-- Technical stack and constraints
-- QA workflow and processes
-
-### Step 1.5: Process the product description
-Use the product description provided directly in the arguments, enriched with project context understanding.
-
-### Step 1.6: Initialize environment variables tracking
-Create a list to track all TEST_ prefixed environment variables discovered throughout the process.
-
-{{DOCUMENTATION_RESEARCHER_INSTRUCTIONS}}
-
-### Step 1.7: Explore Product (If Needed)
-
-If product description is vague or incomplete, perform adaptive exploration to understand actual product features and behavior.
-
-${EXPLORATION_INSTRUCTIONS.replace(/{{STEP_NUMBER}}/g, '1.7')}
-
-### Step 1.8: Clarify Ambiguities
-
-If exploration or product description reveals ambiguous requirements, use the clarification protocol before generating the test plan.
-
-${CLARIFICATION_INSTRUCTIONS.replace(/{{STEP_NUMBER}}/g, '1.8')}
+${CLARIFICATION_INSTRUCTIONS}
 
 **Important Notes:**
 - **CRITICAL/HIGH ambiguities:** STOP test plan generation and seek clarification
@@ -71,116 +100,74 @@ ${CLARIFICATION_INSTRUCTIONS.replace(/{{STEP_NUMBER}}/g, '1.8')}
 - **MEDIUM ambiguities:** Document assumptions in test plan with [ASSUMED: reason] and seek async clarification
   - Examples: Missing field lists, unclear validation rules, vague user roles
 - **LOW ambiguities:** Mark with [TO BE EXPLORED: detail] in test plan for future investigation
-  - Examples: Optional features, cosmetic details, non-critical edge cases
-
-### Step 3: Prepare the test plan generation context
-
-**After ensuring requirements are clear through exploration and clarification:**
+  - Examples: Optional features, cosmetic details, non-critical edge cases`,
+    },
+    // Step 11: Prepare Context (inline)
+    {
+      inline: true,
+      title: 'Prepare Test Plan Generation Context',
+      content: `**After ensuring requirements are clear through exploration and clarification:**
 
 Based on the gathered information:
 - **goal**: Extract the main purpose and objectives from all available documentation
 - **knowledge**: Combine product description with discovered documentation insights
 - **testPlan**: Use the standard test plan template structure, enriched with documentation findings
-- **gaps**: Identify areas lacking documentation that will need exploration
+- **gaps**: Identify areas lacking documentation that will need exploration`,
+    },
+    // Step 12: Generate Test Plan (inline - more detailed than library step)
+    {
+      inline: true,
+      title: 'Generate Test Plan Using Simplified Format',
+      content: `You are an expert QA Test Plan Writer. Generate a **concise** test plan (~50-100 lines) that serves as a feature checklist for test case generation.
 
-### Step 4: Generate the test plan using the prompt template
+**CRITICAL - Keep it Simple:**
+- The test plan is a **feature checklist**, NOT a comprehensive document
+- Detailed UI elements and exploration findings go to \`./exploration-reports/\`
+- Technical patterns and architecture go to \`.bugzy/runtime/knowledge-base.md\`
+- Process documentation stays in \`.bugzy/runtime/project-context.md\`
 
-You are an expert QA Test Plan Writer with expertise in both manual and automated testing strategies. Using the gathered information and context from the product description provided, you will now produce a comprehensive test plan in Markdown format that includes an automation strategy.
+**Writing Instructions:**
+- **Use Product Terminology:** Use exact feature names from the product description
+- **Feature Checklist Format:** Each feature is a checkbox item with brief description
+- **Group by Feature Area:** Organize features into logical sections
+- **NO detailed UI elements** - those belong in exploration reports
+- **NO test scenarios** - those are generated in test cases
+- **NO process documentation** - keep only what's needed for test generation
 
-Writing Instructions:
-- **Use Product Terminology:** Incorporate exact terms and labels from the product description for features and UI elements (to ensure the test plan uses official naming).
-- **Testing Scope:** The plan covers both automated E2E testing via Playwright and exploratory manual testing. Focus on what a user can do and see in a browser.
-- **Test Data - IMPORTANT:**
-  - DO NOT include test data values in the test plan body
-  - Test data goes ONLY to the \`.env.testdata\` file
-  - In the test plan, reference \`.env.testdata\` for test data requirements
-  - Define test data as environment variables prefixed with TEST_ (e.g., TEST_BASE_URL, TEST_USER_EMAIL, TEST_USER_PASSWORD)
-  - DO NOT GENERATE VALUES FOR THE ENV VARS, ONLY THE KEYS
-  - Track all TEST_ variables for extraction to .env.testdata in Step 7
-- **DO NOT INCLUDE TEST SCENARIOS**
-- **Incorporate All Relevant Info:** If the product description mentions specific requirements, constraints, or acceptance criteria (such as field validations, role-based access rules, important parameters), make sure these are reflected in the test plan. Do not add anything not supported by the given information.
-- **Test Automation Strategy Section - REQUIRED:** Include a comprehensive "Test Automation Strategy" section with the following subsections:
+**Test Data Handling:**
+- Test data goes ONLY to \`.env.testdata\` file
+- In test plan, reference environment variable NAMES only (e.g., TEST_BASE_URL)
+- DO NOT generate values for env vars, only keys
+- Track all TEST_ variables for extraction to .env.testdata in the next step`,
+    },
+    // Step 13: Create Test Plan File (inline)
+    {
+      inline: true,
+      title: 'Create Test Plan File',
+      content: `Read the simplified template from \`.bugzy/runtime/templates/test-plan-template.md\` and fill it in:
 
-  **## Test Automation Strategy**
-
-  ### Automated Test Coverage
-  - Identify critical user paths to automate (login, checkout, core features)
-  - Define regression test scenarios for automation
-  - Specify API endpoints that need automated testing
-  - List smoke test scenarios for CI/CD pipeline
-
-  ### Exploratory Testing Areas
-  - New features not yet automated
-  - Complex edge cases requiring human judgment
-  - Visual/UX validation requiring subjective assessment
-  - Scenarios that are not cost-effective to automate
-
-  ### Test Data Management
-  - Environment variables strategy (which vars go in .env.example vs .env)
-  - Dynamic test data generation approach (use data generators)
-  - API-based test data setup (10-20x faster than UI)
-  - Test data isolation and cleanup strategy
-
-  ### Automation Approach
-  - **Framework:** Playwright + TypeScript (already scaffolded)
-  - **Pattern:** Page Object Model for all pages
-  - **Selectors:** Prioritize role-based selectors (getByRole, getByLabel, getByText)
-  - **Components:** Reusable component objects for common UI elements
-  - **Fixtures:** Custom fixtures for authenticated sessions and common setup
-  - **API for Speed:** Use Playwright's request context to create test data via API
-  - **Best Practices:** Reference \`.bugzy/runtime/testing-best-practices.md\` for patterns
-
-  ### Test Organization
-  - Automated tests location: \`./tests/specs/[feature]/\`
-  - Page Objects location: \`./tests/pages/\`
-  - Manual test cases location: \`./test-cases/\` (human-readable documentation)
-  - Test case naming: TC-XXX-feature-description.md
-  - Automated test naming: feature.spec.ts
-
-  ### Automation Decision Criteria
-  Define which scenarios warrant automation:
-  - ✅ Automate: Frequent execution, critical paths, regression tests, CI/CD integration
-  - ❌ Keep Manual: Rare edge cases, exploratory tests, visual validation, one-time checks
-
-### Step 5: Create the test plan file
-
-Read the test plan template from \`.bugzy/runtime/templates/test-plan-template.md\` and use it as the base structure. Fill in the placeholders with information extracted from BOTH the product description AND documentation research:
-
-1. Read the template file from \`.bugzy/runtime/templates/test-plan-template.md\`
-2. Replace placeholders like:
-   - \`[ProjectName]\` with the actual project name from the product description
-   - \`[Date]\` with the current date
-   - Feature sections with actual features identified from all documentation sources
-   - Test data requirements based on the product's needs and API documentation
-   - Risks based on the complexity, known issues, and technical constraints
-3. Add any product-specific sections that may be needed based on discovered documentation
-4. **Mark ambiguities based on severity:**
-   - CRITICAL/HIGH: Should be clarified before plan creation (see Step 1.8)
-   - MEDIUM: Mark with [ASSUMED: reason] and note assumption
-   - LOW: Mark with [TO BE EXPLORED: detail] for future investigation
-5. Include references to source documentation for traceability
-
-### Step 6: Save the test plan
-
-Save the generated test plan to a file named \`test-plan.md\` in the project root with appropriate frontmatter:
-
-\`\`\`yaml
----
-version: 1.0.0
-lifecycle_phase: initial
-created_at: [current date]
-updated_at: [current date]
-last_exploration: null
-total_discoveries: 0
-status: draft
-author: claude
-tags: [functional, security, performance]
----
-\`\`\`
-
-### Step 7: Extract and save environment variables
-
-**CRITICAL**: Test data values must ONLY go to .env.testdata, NOT in the test plan document.
+1. Read the template file
+2. Replace placeholders:
+   - \`[PROJECT_NAME]\` with the actual project name
+   - \`[DATE]\` with the current date
+   - Feature sections with actual features grouped by area
+3. Each feature is a **checkbox item** with brief description
+4. **Mark ambiguities:**
+   - MEDIUM: Mark with [ASSUMED: reason]
+   - LOW: Mark with [TO BE EXPLORED: detail]
+5. Keep total document under 100 lines`,
+    },
+    // Step 14: Save Test Plan (inline)
+    {
+      inline: true,
+      title: 'Save Test Plan',
+      content: `Save to \`test-plan.md\` in project root. The template already includes frontmatter - just fill in the dates.`,
+    },
+    // Step 15: Extract Env Variables (inline - more detailed than library step)
+    {
+      inline: true,
+      title: 'Extract and Save Environment Variables',
+      content: `**CRITICAL**: Test data values must ONLY go to .env.testdata, NOT in the test plan document.
 
 After saving the test plan:
 
@@ -217,54 +204,15 @@ After saving the test plan:
 5. **Verify test plan references .env.testdata**:
    - Ensure test plan DOES NOT contain test data values
    - Ensure test plan references \`.env.testdata\` for test data requirements
-   - Add instruction: "Fill in actual values in .env.testdata before running tests"
-
-${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}
-
-{{TEAM_COMMUNICATOR_INSTRUCTIONS}}
-
-### Step 8: Final summary
-
-Provide a summary of:
-- Test plan created successfully at \`test-plan.md\`
-- Environment variables extracted to \`.env.testdata\`
-- Number of TEST_ variables discovered
-- Instructions for the user to fill in actual values in .env.testdata before running tests`,
-
-  optionalSubagents: [
-    {
-      role: 'documentation-researcher',
-      contentBlock: `### Step 2: Gather comprehensive project documentation
-
-{{INVOKE_DOCUMENTATION_RESEARCHER}} to explore and gather all available project information and other documentation sources. This ensures the test plan is based on complete and current information.
-
-\`\`\`
-Explore all available project documentation related to: \$ARGUMENTS
-
-Specifically gather:
-- Product specifications and requirements
-- User stories and acceptance criteria
-- Technical architecture documentation
-- API documentation and endpoints
-- User roles and permissions
-- Business rules and validations
-- UI/UX specifications
-- Known limitations or constraints
-- Existing test documentation
-- Bug reports or known issues
-\`\`\`
-
-The agent will:
-1. Check its memory for previously discovered documentation
-2. Explore workspace for relevant pages and databases
-3. Build a comprehensive understanding of the product
-4. Return synthesized information about all discovered documentation`
+   - Add instruction: "Fill in actual values in .env.testdata before running tests"`,
     },
+    // Step 16: Knowledge Base Update (library)
+    'update-knowledge-base',
+    // Step 17: Team Communication (conditional inline)
     {
-      role: 'team-communicator',
-      contentBlock: `### Step 7.5: Team Communication
-
-{{INVOKE_TEAM_COMMUNICATOR}} to notify the product team about the new test plan:
+      inline: true,
+      title: 'Team Communication',
+      content: `{{INVOKE_TEAM_COMMUNICATOR}} to notify the product team about the new test plan:
 
 \`\`\`
 1. Post an update about the test plan creation
@@ -285,8 +233,22 @@ The team communication should include:
 **Update team communicator memory:**
 - Record this communication in the team-communicator memory
 - Note this as a test plan creation communication
-- Track team response to this type of update`
-    }
+- Track team response to this type of update`,
+      conditionalOnSubagent: 'team-communicator',
+    },
+    // Step 18: Final Summary (inline)
+    {
+      inline: true,
+      title: 'Final Summary',
+      content: `Provide a summary of:
+- Test plan created successfully at \`test-plan.md\`
+- Environment variables extracted to \`.env.testdata\`
+- Number of TEST_ variables discovered
+- Instructions for the user to fill in actual values in .env.testdata before running tests`,
+    },
   ],
-  requiredSubagents: ['test-runner']
+
+  requiredSubagents: ['test-runner'],
+  optionalSubagents: ['documentation-researcher', 'team-communicator'],
+  dependentTasks: [],
 };

@@ -71,25 +71,35 @@ The command-line interface that manages your Bugzy configuration.
 
 ### 2. Task Library
 
-Collection of pre-built QA automation tasks.
+Collection of 8 pre-built QA automation tasks using step-based composition.
 
 **Location**: `src/tasks/`
 
 **Structure**:
 ```typescript
-interface TaskTemplate {
+interface ComposedTaskTemplate {
   slug: string;
   name: string;
   description: string;
   frontmatter: TaskFrontmatter;
-  promptTemplate: (subagents: SubAgentConfig) => string;
+  steps: TaskStep[];              // Array of execution steps
+  requiredSubagents: string[];
+  optionalSubagents: string[];
+  dependentTasks?: string[];
 }
+
+// Steps can be inline, library references, or conditional
+type TaskStep =
+  | string                        // Library step ID
+  | { inline: true; title: string; content: string }
+  | { stepId: string; conditionalOnSubagent: string };
 ```
 
 **Responsibilities**:
-- Define task behavior
+- Define task behavior through composable steps
 - Specify required/optional subagents
-- Generate task prompts with subagent blocks injected
+- Reference reusable steps from the step library
+- Support conditional step execution based on subagent configuration
 
 ### 3. Subagent System
 
@@ -176,11 +186,16 @@ Configuration (.bugzy/config.json)
    - Cursor (experimental)
    - Codex CLI (experimental)
 
-4. Interactive prompts for each subagent:
-   - Test Runner (required)
-   - Team Communicator (optional)
-   - Documentation Researcher (optional)
-   - Issue Tracker (optional)
+4. Configure subagents:
+   Required (always included):
+   - Test Runner (playwright)
+   - Test Code Generator (playwright)
+   - Test Debugger & Fixer (playwright)
+   - Team Communicator (slack/teams/email - falls back to email)
+
+   Optional (user choice):
+   - Documentation Researcher (notion)
+   - Issue Tracker (jira-server/notion/slack)
 
 5. Save configuration to .bugzy/config.json
 
@@ -255,28 +270,56 @@ Configuration (.bugzy/config.json)
 
 ## Task Building Process
 
-When a task is loaded, Bugzy builds the complete task definition:
+Bugzy uses **step-based composition** where tasks are built from reusable steps.
+
+### Step Library
+
+Steps are organized in categories under `src/tasks/steps/`:
+
+```
+steps/
+├── setup/              # Project context, security notices
+├── exploration/        # Quick, moderate, deep exploration
+├── clarification/      # Ambiguity detection, question formulation
+├── execution/          # Test running, result parsing, triaging
+├── generation/         # Test plan and case generation
+├── communication/      # Team notifications
+└── maintenance/        # Cleanup, reporting, knowledge updates
+```
+
+### Building Process
 
 ```typescript
 function buildTaskDefinition(
-  template: TaskTemplate,
+  template: ComposedTaskTemplate,
   subagents: SubAgentConfig
 ): TaskDefinition {
   // 1. Validate required subagents are present
-  for (const required of template.frontmatter.requiredSubAgents) {
+  for (const required of template.requiredSubagents) {
     if (!subagents[required]) {
       throw new Error(`Required subagent ${required} not configured`);
     }
   }
 
-  // 2. Build subagent blocks map
-  const subagentBlocks = {};
-  for (const [role, config] of Object.entries(subagents)) {
-    subagentBlocks[role] = config.block; // Template content
+  // 2. Build content from steps
+  let content = '';
+  for (const step of template.steps) {
+    if (typeof step === 'string') {
+      // Library step - load from registry
+      content += loadStep(step);
+    } else if ('inline' in step) {
+      // Inline step - use content directly
+      content += step.content;
+    } else if ('conditionalOnSubagent' in step) {
+      // Conditional step - only include if subagent configured
+      if (subagents[step.conditionalOnSubagent]) {
+        content += loadStep(step.stepId);
+      }
+    }
   }
 
-  // 3. Generate task content with injected blocks
-  const content = template.promptTemplate(subagentBlocks);
+  // 3. Inject subagent blocks where referenced
+  content = injectSubagentBlocks(content, subagents);
 
   // 4. Return complete task definition
   return {
@@ -284,6 +327,26 @@ function buildTaskDefinition(
     frontmatter: template.frontmatter,
     content: content
   };
+}
+```
+
+### Example: onboard-testing Task
+
+```typescript
+{
+  slug: 'onboard-testing',
+  steps: [
+    { inline: true, title: 'Overview', content: '...' },
+    'security-notice',              // Library step
+    'read-knowledge-base',          // Library step
+    'quick-exploration',            // Library step
+    'generate-test-plan',           // Library step
+    'run-playwright-tests',         // Library step
+    {
+      stepId: 'log-product-bugs',
+      conditionalOnSubagent: 'issue-tracker'  // Only if configured
+    }
+  ]
 }
 ```
 
@@ -315,25 +378,43 @@ The `tool` field can be `"claude-code"` (default), `"cursor"` (experimental), or
 
 ### Template System
 
-Bugzy uses a template-based approach for both tasks and subagents:
+Bugzy uses a **step-based template** approach for tasks and markdown templates for subagents:
 
-**Task Templates** (TypeScript):
+**Task Templates** (Step-based TypeScript):
 ```typescript
 {
   slug: 'generate-test-plan',
-  promptTemplate: (subagents) => `
-    # Generate Test Plan
-
-    ${subagents['test-runner']?.block || ''}
-    ${subagents['documentation-researcher']?.block || ''}
-
-    Generate comprehensive test plan...
-  `
+  steps: [
+    'security-notice',
+    { inline: true, title: 'Args', content: 'Focus: $ARGUMENTS' },
+    'read-knowledge-base',
+    'generate-test-plan',
+    'extract-env-variables',
+    { stepId: 'notify-team', conditionalOnSubagent: 'team-communicator' }
+  ],
+  requiredSubagents: ['test-runner', 'test-code-generator'],
+  optionalSubagents: ['documentation-researcher', 'team-communicator']
 }
 ```
 
-**Subagent Templates** (Markdown files):
-```markdown
+**Step Templates** (TypeScript in `src/tasks/steps/`):
+```typescript
+// steps/execution/run-playwright-tests.ts
+export const runPlaywrightTests: LibraryStep = {
+  id: 'run-playwright-tests',
+  title: 'Execute Playwright Tests',
+  content: `
+## Execute Tests
+
+Run the Playwright tests with proper configuration...
+  `
+};
+```
+
+**Subagent Templates** (TypeScript):
+```typescript
+// subagents/templates/test-runner/playwright.ts
+export const CONTENT = `
 # Playwright Test Runner
 
 You are a test automation expert...
@@ -342,13 +423,14 @@ You are a test automation expert...
 - playwright_navigate
 - playwright_click
 - ...
+`;
 ```
 
 **Benefits**:
-- Separation of concerns (logic vs content)
-- Easy to update templates without code changes
-- Version-controllable
-- Understandable by non-developers
+- **Composability**: Steps can be reused across tasks
+- **Conditional logic**: Steps execute based on subagent configuration
+- **Maintainability**: Update one step, all tasks benefit
+- **Separation of concerns**: Logic in code, content in templates
 
 ## MCP Integration
 
@@ -530,8 +612,8 @@ Tasks are instructed to:
 ### Setup Performance
 
 Setup is intentionally thorough but not optimized for speed because it runs infrequently:
-- Generates all task commands (8 files)
-- Generates subagent configs (1-4 files)
+- Generates all task commands (8 files for 8 tasks)
+- Generates subagent configs (4-6 files based on configuration)
 - Generates MCP config (1 file)
 - Total time: ~1-2 seconds
 

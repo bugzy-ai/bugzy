@@ -70,11 +70,55 @@ Executes automated tests in your application.
 
 ---
 
-#### Team Communicator (Optional)
+#### Test Code Generator (Required)
+
+**Role**: `test-code-generator`
+
+Generates Playwright test scripts and Page Objects from test cases.
+
+**Integrations**:
+- `playwright` - Generate Playwright test code
+
+**Configuration**:
+```json
+{
+  "subagents": {
+    "test-code-generator": "playwright"
+  }
+}
+```
+
+**Required Environment Variables**: None (runs locally)
+
+---
+
+#### Test Debugger & Fixer (Required)
+
+**Role**: `test-debugger-fixer`
+
+Debugs and fixes failing automated tests automatically.
+
+**Integrations**:
+- `playwright` - Debug and fix Playwright tests
+
+**Configuration**:
+```json
+{
+  "subagents": {
+    "test-debugger-fixer": "playwright"
+  }
+}
+```
+
+**Required Environment Variables**: None (runs locally)
+
+---
+
+#### Team Communicator (Required)
 
 **Role**: `team-communicator`
 
-Sends notifications and messages to your team.
+Sends notifications and messages to your team. This subagent is always included - it falls back to Email if Slack/Teams are not configured.
 
 **Integrations**:
 - `slack` - Send messages to Slack channels
@@ -118,7 +162,6 @@ Searches and retrieves documentation from your knowledge base.
 
 **Integrations**:
 - `notion` - Search Notion pages and databases
-- `confluence` - Search Confluence spaces and pages
 
 **Configuration**:
 ```json
@@ -136,13 +179,6 @@ For Notion:
 NOTION_TOKEN=secret_your-token-here
 ```
 
-For Confluence:
-```bash
-CONFLUENCE_URL=https://your-domain.atlassian.net
-CONFLUENCE_EMAIL=your-email@company.com
-CONFLUENCE_API_TOKEN=your-api-token
-```
-
 ---
 
 #### Issue Tracker (Optional)
@@ -152,8 +188,7 @@ CONFLUENCE_API_TOKEN=your-api-token
 Creates and manages issues/bugs in your tracking system.
 
 **Integrations**:
-- `linear` - Create issues in Linear
-- `jira` - Create issues in Jira
+- `jira-server` - Create issues in Jira Server (on-premise)
 - `notion` - Create issues in Notion database
 - `slack` - Post issues to Slack channel
 
@@ -161,22 +196,16 @@ Creates and manages issues/bugs in your tracking system.
 ```json
 {
   "subagents": {
-    "issue-tracker": "linear"
+    "issue-tracker": "jira-server"
   }
 }
 ```
 
 **Required Environment Variables**:
 
-For Linear:
+For Jira Server:
 ```bash
-LINEAR_API_KEY=lin_api_your-key-here
-LINEAR_TEAM_ID=your-team-id
-```
-
-For Jira:
-```bash
-JIRA_HOST=your-domain.atlassian.net
+JIRA_HOST=your-jira-server.company.com
 JIRA_EMAIL=your-email@company.com
 JIRA_API_TOKEN=your-api-token
 JIRA_PROJECT_KEY=PROJ
@@ -234,8 +263,9 @@ SLACK_BOT_TOKEN=xoxb-1234567890-1234567890-abcdefghijklmnopqrstuvwx
 # Notion MCP Server
 NOTION_TOKEN=secret_abcdefghijklmnopqrstuvwxyz1234567890
 
-# Linear MCP Server
-LINEAR_API_KEY=lin_api_1234567890abcdefghijklmnopqrstuvwxyz
+# Resend MCP Server (Email)
+RESEND_API_KEY=re_1234567890abcdefghijklmnopqrstuvwxyz
+RESEND_FROM_EMAIL=bugzy@yourcompany.com
 
 # ============================================
 # Test Configuration
@@ -297,13 +327,8 @@ Current configuration:
 ❯ Change to different integration
   Remove
 
-? Select new integration for documentation-researcher:
-❯ Confluence
-  Notion
-
 ? Add issue-tracker? (currently: not configured)
-❯ Linear
-  Jira
+❯ Jira Server
   Notion
   Slack
   None (skip)

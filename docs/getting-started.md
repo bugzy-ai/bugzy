@@ -63,19 +63,29 @@ The setup wizard will ask you to configure subagents. Here's what each one does:
 - **Options**: Playwright (local, no secrets needed)
 - **Recommendation**: Choose Playwright for browser testing
 
-#### Team Communicator (Optional)
+#### Test Code Generator (Required)
+- **Purpose**: Generate Playwright test scripts and Page Objects
+- **Options**: Playwright (local, no secrets needed)
+- **Recommendation**: Automatically configured with Test Runner
+
+#### Test Debugger & Fixer (Required)
+- **Purpose**: Debug and fix failing tests automatically
+- **Options**: Playwright (local, no secrets needed)
+- **Recommendation**: Automatically configured with Test Runner
+
+#### Team Communicator (Required)
 - **Purpose**: Send notifications to your team
-- **Options**: Slack, None
-- **Recommendation**: Choose Slack if you want test result notifications
+- **Options**: Slack, Microsoft Teams, Email (fallback)
+- **Recommendation**: Choose Slack or Teams if you want rich notifications, otherwise Email is used automatically
 
 #### Documentation Researcher (Optional)
 - **Purpose**: Search and retrieve documentation
-- **Options**: Notion, Confluence, None
-- **Recommendation**: Choose your team's documentation platform
+- **Options**: Notion, None
+- **Recommendation**: Choose Notion if your team uses it for documentation
 
 #### Issue Tracker (Optional)
 - **Purpose**: Create and track bugs automatically
-- **Options**: Linear, Jira, Notion, Slack, None
+- **Options**: Jira Server, Notion, Slack, None
 - **Recommendation**: Choose your team's issue tracking tool
 
 ### Step 4: Configure Environment Variables
@@ -108,9 +118,10 @@ TEST_USER_PASSWORD=your-password
 #### Getting API Tokens
 
 - **Slack**: Create a Slack App at [api.slack.com/apps](https://api.slack.com/apps) and get a Bot Token
+- **Teams**: Register an app in Microsoft Entra - see [Teams Setup Guide](./teams-setup.md)
 - **Notion**: Create an integration at [notion.so/my-integrations](https://www.notion.so/my-integrations)
-- **Linear**: Get API key from [linear.app/settings/api](https://linear.app/settings/api)
-- **Jira**: Create API token at [id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens)
+- **Jira Server**: Create API token for your Jira Server instance
+- **Resend (Email)**: Get API key from [resend.com](https://resend.com) - see [Resend Setup Guide](./resend-setup.md)
 
 ## Starting Your First Session
 
@@ -169,14 +180,16 @@ your-project/
 
 ## Using Tasks
 
-Bugzy provides several built-in tasks (available as slash commands):
+Bugzy provides 8 built-in tasks (available as slash commands):
 
 - `/generate-test-plan` - Create comprehensive test plans
 - `/generate-test-cases` - Generate specific test cases
 - `/explore-application` - Explore and document your application
 - `/run-tests` - Execute automated tests
-- `/verify-changes-manual` - Verify changes manually
-- `/verify-changes-slack` - Verify and notify via Slack
+- `/verify-changes` - Verify changes with smart output routing
+- `/onboard-testing` - Complete workflow: explore → plan → cases → test → fix → report
+- `/handle-message` - Process team messages from Slack/Teams
+- `/process-event` - Handle automated webhooks and events
 
 > **Note**: Command invocation varies by tool. Claude Code and Cursor use `/command`, while Codex uses `/prompts:command`.
 

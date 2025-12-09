@@ -133,59 +133,77 @@ Bugzy provides a built-in library of QA automation tasks. These tasks are availa
 
 ---
 
-### verify-changes-manual
+### verify-changes
 
-**Command**: `/verify-changes-manual`
-**Description**: Verify changes manually without notifications
-**Required Subagents**: test-runner
-**Optional Subagents**: None
+**Command**: `/verify-changes`
+**Description**: Unified verification command for all trigger sources
+**Required Subagents**: test-runner, test-code-generator, test-debugger-fixer
+**Optional Subagents**: team-communicator, issue-tracker
 
-**Purpose**: Execute verification tests for recent changes. Runs relevant tests and provides results without external notifications.
+**Purpose**: Comprehensive change verification with automated testing and smart output routing. Works from manual CLI, Slack messages, GitHub PRs, and CI/CD pipelines.
 
-**Arguments**: `<changes-description>`
+**Arguments**: `<changes-description or trigger-context>` (auto-detected)
 
 **Usage**:
 ```
-/verify-changes-manual updated login form validation
-/verify-changes-manual new payment gateway integration
+/verify-changes updated login form validation
+/verify-changes deployed v2.3.0 to staging
+/verify-changes fixed checkout bug
 ```
 
 **What It Does**:
-1. Analyzes the changes description
-2. Identifies affected features and flows
-3. Runs relevant tests
-4. Provides detailed results
-5. Reports locally (no external notifications)
+1. **Detects trigger source** (manual CLI, Slack, GitHub PR, CI/CD)
+2. **Extracts context** from the input format
+3. **Analyzes changes** to identify affected features and flows
+4. **Runs relevant tests** with automatic triage and fixing
+5. **Routes output** to appropriate channels based on trigger
+6. **Creates issues** for failures if issue-tracker configured
+7. **Notifies team** if team-communicator configured
 
-**Output**: Verification report with test results
+**Trigger Sources**:
+- **Manual CLI**: Direct command execution
+- **Slack Message**: Event payload with channel context
+- **GitHub PR**: Pull request webhook payload
+- **CI/CD**: Environment variables like `CI=true`, `GITHUB_REF`
+
+**Output**: Verification report with test results, routed to appropriate channel
 
 ---
 
-### verify-changes-slack
+### onboard-testing
 
-**Command**: `/verify-changes-slack`
-**Description**: Verify changes and notify team via Slack
-**Required Subagents**: test-runner, team-communicator
-**Optional Subagents**: issue-tracker
+**Command**: `/onboard-testing`
+**Description**: Complete workflow - explore → plan → cases → test → fix → report
+**Required Subagents**: test-runner, test-code-generator, test-debugger-fixer
+**Optional Subagents**: documentation-researcher, team-communicator, issue-tracker
 
-**Purpose**: Like verify-changes-manual but sends results to Slack. Useful for keeping the team informed about verification status.
+**Purpose**: End-to-end test automation onboarding for a new feature or project area. Orchestrates the complete workflow from exploration to passing tests in a single execution.
 
-**Arguments**: `<changes-description>`
+**Arguments**: `<focus-area-or-feature-description>`
 
 **Usage**:
 ```
-/verify-changes-slack deployed v2.3.0 to staging
-/verify-changes-slack fixed checkout bug
+/onboard-testing for user authentication
+/onboard-testing checkout flow
+/onboard-testing admin dashboard
 ```
 
 **What It Does**:
-1. Executes verification tests (same as verify-changes-manual)
-2. Formats results as Slack message
-3. Includes screenshots if there are failures
-4. Posts to configured Slack channel
-5. Optionally creates issues for failures
+1. **Phase 1: Assess** - Check for existing artifacts and skip phases if found
+2. **Phase 2: Explore** - Explore application if no project context exists
+3. **Phase 3: Plan** - Generate lightweight test plan if needed
+4. **Phase 4: Generate** - Create and verify test cases until passing
+5. **Phase 5: Triage** - Analyze failures and fix test issues
+6. **Phase 6: Log Bugs** - Create issues for product bugs (if issue-tracker configured)
+7. **Phase 7: Report** - Generate final report and notify team
 
-**Output**: Verification report + Slack notification
+**Key Features**:
+- **Fully automatic** - Agent decides what to skip based on existing context
+- **Incremental** - Reuses existing artifacts instead of regenerating
+- **Self-healing** - Automatically fixes failing tests
+- **End-to-end** - From zero to passing test suite
+
+**Output**: Complete test suite with passing tests, test plan, and optional team notification
 
 ---
 
@@ -280,10 +298,20 @@ Bugzy provides a built-in library of QA automation tasks. These tasks are availa
 ### Verify and Notify
 
 ```
-# 1. Verify changes with Slack notification
-/verify-changes-slack updated payment processing
+# 1. Verify changes (auto-detects trigger and routes output)
+/verify-changes updated payment processing
 
 # If issues found, they'll be auto-created in your issue tracker
+# Results are sent to team via configured communicator (Slack, Teams, or Email)
+```
+
+### Complete Onboarding
+
+```
+# Run the complete workflow for a new feature area
+/onboard-testing for user profile management
+
+# This will: explore → plan → generate tests → run → fix → report
 ```
 
 ## Task Customization
@@ -356,7 +384,7 @@ TEST_HEADLESS=false
 2. **Generate Before Running**: Create test plans and cases before execution
 3. **Use Context**: Keep `.bugzy/runtime/project-context.md` updated
 4. **Name Descriptively**: Use clear descriptions in arguments
-5. **Verify After Changes**: Run `/verify-changes-slack` after deploys
+5. **Verify After Changes**: Run `/verify-changes` after deploys
 6. **Automate Events**: Use `/process-event` for CI/CD integration
 
 ## Task Extensibility

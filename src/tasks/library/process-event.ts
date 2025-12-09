@@ -1,13 +1,12 @@
 /**
- * Process Event Task
+ * Process Event Task (Composed)
  * Process external system events (Jira, GitHub, Linear) using handler-defined rules to extract insights and track issues
  */
 
-import { TaskTemplate } from '../types';
+import type { ComposedTaskTemplate } from '../steps/types';
 import { TASK_SLUGS } from '../constants';
-import { KNOWLEDGE_BASE_READ_INSTRUCTIONS, KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS } from '../templates/knowledge-base.js';
 
-export const processEventTask: TaskTemplate = {
+export const processEventTask: ComposedTaskTemplate = {
   slug: TASK_SLUGS.PROCESS_EVENT,
   name: 'Process Event',
   description: 'Process external system events (Jira, GitHub, Linear) using handler-defined rules to extract insights and track issues',
@@ -17,42 +16,47 @@ export const processEventTask: TaskTemplate = {
     'argument-hint': '[event payload or description]',
   },
 
-  baseContent: `# Process Event Command
+  steps: [
+    // Step 1: Overview (inline)
+    {
+      inline: true,
+      title: 'Process Event Overview',
+      content: `# Process Event Command
 
-## SECURITY NOTICE
-**CRITICAL**: Never read the \`.env\` file. It contains ONLY secrets (passwords, API keys).
-- **Read \`.env.testdata\`** for non-secret environment variables (TEST_BASE_URL, TEST_OWNER_EMAIL, etc.)
-- \`.env.testdata\` contains actual values for test data, URLs, and non-sensitive configuration
-- For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
-- The \`.env\` file access is blocked by settings.json
-
-Process various types of events using intelligent pattern matching and historical context to maintain and evolve the testing system.
-
-## Arguments
-Arguments: \$ARGUMENTS
-
-${KNOWLEDGE_BASE_READ_INSTRUCTIONS}
-
-## Process
-
-### Step 1: Understand Event Context
-
-Events come from integrated external systems via webhooks or manual input. Common sources include:
+Process various types of events using intelligent pattern matching and historical context to maintain and evolve the testing system.`,
+    },
+    // Step 2: Security Notice (library)
+    'security-notice',
+    // Step 3: Arguments (inline)
+    {
+      inline: true,
+      title: 'Arguments',
+      content: `Arguments: $ARGUMENTS`,
+    },
+    // Step 4: Knowledge Base Read (library)
+    'read-knowledge-base',
+    // Step 5: Understand Event Context (inline)
+    {
+      inline: true,
+      title: 'Understand Event Context',
+      content: `Events come from integrated external systems via webhooks or manual input. Common sources include:
 - **Issue Trackers**: Jira, Linear, GitHub Issues
 - **Source Control**: GitHub, GitLab
 - **Communication Tools**: Slack
 
-**Event structure and semantics vary by source.** Do not interpret events based on generic assumptions. Instead, load the appropriate handler file (Step 2.4) for system-specific processing rules.
+**Event structure and semantics vary by source.** Do not interpret events based on generic assumptions. Instead, load the appropriate handler file for system-specific processing rules.
 
 #### Event Context to Extract:
 - **What happened**: The core event (test failed, PR merged, etc.)
 - **Where**: Component, service, or area affected
 - **Impact**: How this affects testing strategy
-- **Action Required**: What needs to be done in response
-
-### Step 1.5: Clarify Unclear Events
-
-If the event information is incomplete or ambiguous, seek clarification before processing:
+- **Action Required**: What needs to be done in response`,
+    },
+    // Step 6: Clarify Unclear Events (inline - task-specific)
+    {
+      inline: true,
+      title: 'Clarify Unclear Events',
+      content: `If the event information is incomplete or ambiguous, seek clarification before processing:
 
 #### Detect Unclear Events
 
@@ -135,9 +139,13 @@ In event history, record:
 - **Assumption made**: If proceeded with assumption
 - **Resolution**: How ambiguity was resolved
 
-This ensures future similar events can reference past clarifications and avoid redundant questions.
-
-### Step 2: Load Context and Memory
+This ensures future similar events can reference past clarifications and avoid redundant questions.`,
+    },
+    // Step 7: Load Context and Memory (inline)
+    {
+      inline: true,
+      title: 'Load Context and Memory',
+      content: `### Step 2: Load Context and Memory
 
 #### 2.1 Check Event Processor Memory
 Read \`.bugzy/runtime/memory/event-processor.md\` to:
@@ -162,10 +170,10 @@ Read \`.bugzy/runtime/memory/event-history.md\` to:
 Based on the event source, load the handler from \`.bugzy/runtime/handlers/\`:
 
 **Step 1: Detect Event Source from Payload:**
-- \`com.jira-server.*\` event type prefix → \`.bugzy/runtime/handlers/jira.md\`
-- \`github.*\` or GitHub webhook structure → \`.bugzy/runtime/handlers/github.md\`
-- \`linear.*\` or Linear webhook → \`.bugzy/runtime/handlers/linear.md\`
-- Other sources → Check for matching handler file by source name
+- \`com.jira-server.*\` event type prefix -> \`.bugzy/runtime/handlers/jira.md\`
+- \`github.*\` or GitHub webhook structure -> \`.bugzy/runtime/handlers/github.md\`
+- \`linear.*\` or Linear webhook -> \`.bugzy/runtime/handlers/linear.md\`
+- Other sources -> Check for matching handler file by source name
 
 **Step 2: Load and Read the Handler File:**
 The handler file contains system-specific instructions for:
@@ -191,9 +199,13 @@ Do NOT guess or apply generic logic. Instead:
 Handlers reference \`.bugzy/runtime/project-context.md\` for project-specific rules like:
 - Which status transitions trigger verify-changes
 - Which resolutions should update the knowledge base
-- Which transitions to ignore
-
-### Step 3: Intelligent Event Analysis
+- Which transitions to ignore`,
+    },
+    // Step 8: Intelligent Event Analysis (inline)
+    {
+      inline: true,
+      title: 'Intelligent Event Analysis',
+      content: `### Step 3: Intelligent Event Analysis
 
 #### 3.1 Contextual Pattern Analysis
 Don't just match patterns - analyze the event within the full context:
@@ -224,11 +236,28 @@ Based on event type and content, generate 3-5 specific search queries:
 - Search for similar past events
 - Look for related test cases
 - Find relevant documentation
-- Check for known issues
+- Check for known issues`,
+    },
+    // Step 9: Documentation Research (conditional inline)
+    {
+      inline: true,
+      title: 'Use Documentation Researcher',
+      content: `#### 3.3 Use Documentation Researcher if Needed
 
-{{DOCUMENTATION_RESEARCHER_INSTRUCTIONS}}
+{{INVOKE_DOCUMENTATION_RESEARCHER}} to find information about unknown features or components:
 
-### Step 4: Task Planning with Reasoning
+For events mentioning unknown features or components, ask the agent to explore project documentation and return:
+- Feature specifications
+- Related test cases
+- Known issues or limitations
+- Component dependencies`,
+      conditionalOnSubagent: 'documentation-researcher',
+    },
+    // Step 10: Task Planning (inline)
+    {
+      inline: true,
+      title: 'Task Planning with Reasoning',
+      content: `### Step 4: Task Planning with Reasoning
 
 Generate tasks based on event analysis, using examples from memory as reference.
 
@@ -244,11 +273,11 @@ Analyze the event in context of ALL available information to decide what actions
 
 **Contextual Decision Making**:
 The same event type can require different actions based on context:
-- If handler says this status triggers verification → Invoke /verify-changes
-- If this issue was already processed (check event history) → Skip to avoid duplicates
-- If related PR exists in knowledge base → Include PR context in actions
-- If this is a recurring pattern from the same source → Consider flagging for review
-- If handler has no rule for this event type → Ask user for guidance
+- If handler says this status triggers verification -> Invoke /verify-changes
+- If this issue was already processed (check event history) -> Skip to avoid duplicates
+- If related PR exists in knowledge base -> Include PR context in actions
+- If this is a recurring pattern from the same source -> Consider flagging for review
+- If handler has no rule for this event type -> Ask user for guidance
 
 **Dynamic Task Selection**:
 Based on the contextual analysis, decide which tasks make sense:
@@ -266,15 +295,40 @@ For each task, document WHY it's being executed:
 Task: extract_learning
 Reasoning: This event reveals a pattern of login failures on Chrome that wasn't previously documented
 Data: "Chrome-specific timeout issues with login button"
-\`\`\`
+\`\`\``,
+    },
+    // Step 11: Issue Tracking (conditional inline)
+    {
+      inline: true,
+      title: 'Issue Tracking',
+      content: `##### For Issue Tracking:
 
-### Step 5: Execute Tasks with Memory Updates
+When an issue needs to be tracked (task type: report_bug or update_story):
+
+{{INVOKE_ISSUE_TRACKER}}
+
+1. Check for duplicate issues in the tracking system
+2. For bugs: Create detailed bug report with:
+   - Clear, descriptive title
+   - Detailed description with context
+   - Step-by-step reproduction instructions
+   - Expected vs actual behavior
+   - Environment and configuration details
+   - Test case reference (if applicable)
+   - Screenshots or error logs
+3. For stories: Update status and add QA comments
+4. Track issue lifecycle and maintain categorization
+
+The issue-tracker agent will handle all aspects of issue tracking including duplicate detection, story management, QA workflow transitions, and integration with your project management system (Jira, Linear, Notion, etc.).`,
+      conditionalOnSubagent: 'issue-tracker',
+    },
+    // Step 12: Execute Tasks (inline)
+    {
+      inline: true,
+      title: 'Execute Tasks with Memory Updates',
+      content: `### Step 5: Execute Tasks with Memory Updates
 
 #### 5.1 Execute Each Task
-
-{{ISSUE_TRACKER_INSTRUCTIONS}}
-
-##### For Other Tasks:
 Follow the standard execution logic with added context from memory.
 
 #### 5.2 Update Event Processor Memory
@@ -311,9 +365,13 @@ source: [source]
 **Outcome**: [Success/Partial/Failed]
 **Notes**: [Any additional context]
 ---
-\`\`\`
-
-### Step 6: Learning from Events
+\`\`\``,
+    },
+    // Step 13: Learning and Maintenance (inline)
+    {
+      inline: true,
+      title: 'Learning from Events',
+      content: `### Step 6: Learning from Events
 
 After processing, check if this event teaches us something new:
 1. Is this a new type of event we haven't seen?
@@ -333,9 +391,15 @@ mkdir -p ./test-cases .claude/memory
 Create files if they don't exist:
 - \`.bugzy/runtime/knowledge-base.md\`
 - \`.bugzy/runtime/memory/event-processor.md\`
-- \`.bugzy/runtime/memory/event-history.md\`
-
-## Important Considerations
+- \`.bugzy/runtime/memory/event-history.md\``,
+    },
+    // Step 14: Knowledge Base Update (library)
+    'update-knowledge-base',
+    // Step 15: Important Considerations (inline)
+    {
+      inline: true,
+      title: 'Important Considerations',
+      content: `## Important Considerations
 
 ### Contextual Intelligence
 - Never process events in isolation - always consider full context
@@ -359,42 +423,11 @@ Create files if they don't exist:
 - Each event adds to our understanding of the system
 - Update patterns when new correlations are discovered
 - Refine decision rules based on outcomes
-- Build institutional memory through event history
-
-${KNOWLEDGE_BASE_UPDATE_INSTRUCTIONS}`,
-
-  optionalSubagents: [
-    {
-      role: 'documentation-researcher',
-      contentBlock: `#### 3.3 Use Documentation Researcher if Needed
-For events mentioning unknown features or components:
-\`\`\`
-{{INVOKE_DOCUMENTATION_RESEARCHER}} to find information about: [component/feature]
-\`\`\``
+- Build institutional memory through event history`,
     },
-    {
-      role: 'issue-tracker',
-      contentBlock: `##### For Issue Tracking:
-
-When an issue needs to be tracked (task type: report_bug or update_story):
-\`\`\`
-{{INVOKE_ISSUE_TRACKER}}
-1. Check for duplicate issues in the tracking system
-2. For bugs: Create detailed bug report with:
-   - Clear, descriptive title
-   - Detailed description with context
-   - Step-by-step reproduction instructions
-   - Expected vs actual behavior
-   - Environment and configuration details
-   - Test case reference (if applicable)
-   - Screenshots or error logs
-3. For stories: Update status and add QA comments
-4. Track issue lifecycle and maintain categorization
-\`\`\`
-
-The issue-tracker agent will handle all aspects of issue tracking including duplicate detection, story management, QA workflow transitions, and integration with your project management system (Jira, Linear, Notion, etc.).`
-    }
   ],
-  requiredSubagents: [],
-  dependentTasks: ['verify-changes']
+
+  requiredSubagents: ['team-communicator'],
+  optionalSubagents: ['documentation-researcher', 'issue-tracker'],
+  dependentTasks: ['verify-changes'],
 };
