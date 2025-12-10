@@ -93,7 +93,7 @@ your-project/
 | **Test Runner** | Execute automated browser tests | Playwright | ✅ Yes |
 | **Test Code Generator** | Generate Playwright test scripts and Page Objects | Playwright | ✅ Yes |
 | **Test Debugger & Fixer** | Debug and fix failing tests automatically | Playwright | ✅ Yes |
-| **Team Communicator** | Send team notifications | Slack, Microsoft Teams, Email | ✅ Yes (Email fallback) |
+| **Team Communicator** | Send team notifications | Slack, Teams, Email, Local (CLI) | ✅ Yes (auto-configured) |
 | **Documentation Researcher** | Search documentation | Notion | ❌ Optional |
 | **Issue Tracker** | Create and track bugs | Jira Server, Notion, Slack | ❌ Optional |
 
@@ -133,6 +133,8 @@ Bugzy uses a simple configuration format:
 The `tool` field can be `"claude-code"` (default), `"cursor"` (experimental), or `"codex"` (experimental).
 
 **Don't edit `config.json` manually** - use `bugzy setup` to reconfigure.
+
+> **Note**: When using CLI (`bugzy`), the `team-communicator` is automatically configured to use terminal-based communication. No setup required.
 
 ## Environment Variables
 

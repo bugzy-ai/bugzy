@@ -8,6 +8,7 @@ import * as path from 'path';
 import { execSync } from 'child_process';
 import { buildMCPConfig, MCP_SERVERS } from '../../mcp';
 import { ToolId, getToolProfile, DEFAULT_TOOL } from '../../core/tool-profile';
+import { getIntegration } from '../../subagents/metadata';
 
 /**
  * Generate MCP configuration file
@@ -114,6 +115,7 @@ export async function getConfiguredCodexMCPServers(): Promise<string[]> {
 
 /**
  * Get list of MCP servers from subagent configuration
+ * Only includes integrations that actually require an MCP server
  * @param subagents - Subagent role -> integration mapping
  * @returns List of MCP server names
  */
@@ -121,9 +123,11 @@ export function getMCPServersFromSubagents(subagents: Record<string, string>): s
   const mcps = new Set<string>();
 
   for (const [_role, integration] of Object.entries(subagents)) {
-    // Map integrations to MCP servers
-    // Usually the integration name matches the MCP name
-    mcps.add(integration);
+    // Only add integrations that actually need an MCP server
+    const integrationMeta = getIntegration(integration);
+    if (integrationMeta?.requiredMCP) {
+      mcps.add(integration);
+    }
   }
 
   return Array.from(mcps);

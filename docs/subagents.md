@@ -142,12 +142,12 @@ When tests fail, the Test Debugger & Fixer will:
 
 ### Team Communicator
 
-**Status**: Required (Email fallback)
+**Status**: Required (auto-configured)
 **Role**: `team-communicator`
 **Model**: Sonnet
 **Version**: 1.0.0
 
-**Description**: Send notifications and updates to your team via messaging platforms. This subagent is always included - it falls back to Email if Slack/Teams are not configured.
+**Description**: Send notifications and updates to your team via messaging platforms. For CLI usage, this is auto-configured to use terminal communication. For cloud, it falls back to Email if Slack/Teams are not configured.
 
 **Capabilities**:
 - Post messages to team channels
@@ -210,6 +210,20 @@ When tests fail, the Test Debugger & Fixer will:
 **MCP Tools Available**:
 - `resend_send_email` - Send email to one or more recipients
 - `resend_send_batch_emails` - Send batch emails
+
+#### Local (Terminal) - CLI Only
+- **Provider**: Local
+- **Type**: Local (no external secrets needed)
+- **Installation**: None required (uses built-in Claude Code tools)
+- **Environment Variables**: None required
+- **Best For**: CLI users who want interactive terminal communication
+
+**How it works**:
+- Uses Claude Code's `AskUserQuestion` tool for user input
+- Outputs status updates directly to the terminal
+- Auto-configured during `bugzy setup` - no user prompt needed
+
+> **Note**: This integration is only available when running Bugzy locally via CLI. Cloud deployments use Email, Slack, or Teams.
 
 **Example Usage**:
 ```

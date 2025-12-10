@@ -118,12 +118,15 @@ Debugs and fixes failing automated tests automatically.
 
 **Role**: `team-communicator`
 
-Sends notifications and messages to your team. This subagent is always included - it falls back to Email if Slack/Teams are not configured.
+Sends notifications and messages to your team. For CLI usage, this is auto-configured to use terminal communication. For cloud, it falls back to Email if Slack/Teams are not configured.
 
 **Integrations**:
 - `slack` - Send messages to Slack channels
 - `teams` - Send messages to Microsoft Teams channels
 - `email` - Send email notifications via Resend
+- `local` - Terminal-based communication (CLI only, auto-configured)
+
+> **CLI Note**: When running `bugzy setup` locally, team-communicator is automatically configured to use terminal communication. You won't be prompted to choose an integration.
 
 **Configuration**:
 ```json

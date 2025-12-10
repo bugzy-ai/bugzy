@@ -143,6 +143,10 @@ async function firstTimeSetup(cliSubagents?: Record<string, string>): Promise<vo
         if (subagent.integrations.length === 1) {
           subagents[subagent.role] = subagent.integrations[0].id;
           console.log(chalk.gray(`✓ ${subagent.name}: ${subagent.integrations[0].name} (required)`));
+        } else if (subagent.role === 'team-communicator') {
+          // Auto-configure team-communicator with 'local' for CLI usage
+          subagents[subagent.role] = 'local';
+          console.log(chalk.gray(`✓ ${subagent.name}: Local (Terminal) (auto-configured for CLI)`));
         } else {
           // Prompt for required subagents with multiple integrations
           const { integration } = await inquirer.prompt([{
@@ -394,6 +398,10 @@ async function reconfigureProject(): Promise<void> {
           // Auto-configure if only one integration
           newSubagents[subagent.role] = subagent.integrations[0].id;
           console.log(chalk.gray(`✓ ${subagent.name}: ${subagent.integrations[0].name} (required)`));
+        } else if (subagent.role === 'team-communicator') {
+          // Auto-configure team-communicator with 'local' for CLI usage
+          newSubagents[subagent.role] = 'local';
+          console.log(chalk.gray(`✓ ${subagent.name}: Local (Terminal) (auto-configured for CLI)`));
         } else {
           // Prompt if multiple integrations
           const { integration } = await inquirer.prompt([{

@@ -75,8 +75,9 @@ The setup wizard will ask you to configure subagents. Here's what each one does:
 
 #### Team Communicator (Required)
 - **Purpose**: Send notifications to your team
-- **Options**: Slack, Microsoft Teams, Email (fallback)
-- **Recommendation**: Choose Slack or Teams if you want rich notifications, otherwise Email is used automatically
+- **CLI**: Auto-configured to use terminal (no setup needed)
+- **Cloud Options**: Slack, Microsoft Teams, Email (fallback)
+- **Recommendation**: For CLI, just run setup - it's automatic. For cloud, choose Slack or Teams for rich notifications.
 
 #### Documentation Researcher (Optional)
 - **Purpose**: Search and retrieve documentation

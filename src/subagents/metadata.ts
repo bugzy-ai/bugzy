@@ -107,6 +107,14 @@ export const INTEGRATIONS: Record<string, SubAgentIntegration> = {
     provider: 'resend',
     requiredMCP: 'mcp__resend__*',
     integrationType: 'local' // Uses platform API key, no OAuth needed
+  },
+  local: {
+    id: 'local',
+    name: 'Local (Terminal)',
+    provider: 'local',
+    // No requiredMCP - uses built-in Claude Code tools (AskUserQuestion, text output)
+    isLocal: true,
+    integrationType: 'local'
   }
 };
 
@@ -133,8 +141,8 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     integrations: [INTEGRATIONS.slack, INTEGRATIONS.teams, INTEGRATIONS.email],
     model: 'sonnet',
     color: 'blue',
-    isRequired: true, // Required - falls back to email if Slack/Teams not configured
-    defaultIntegration: 'email', // Email is the fallback when OAuth integrations aren't set up
+    isRequired: true, // Required - CLI uses 'local' (auto-configured), cloud uses email fallback
+    defaultIntegration: 'email', // Email fallback for cloud (CLI auto-configures 'local' separately)
     version: '1.0.0'
   },
   'issue-tracker': {

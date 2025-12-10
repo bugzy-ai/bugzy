@@ -15,6 +15,7 @@ import * as TestCodeGeneratorPlaywright from './test-code-generator/playwright';
 import * as TestDebuggerFixerPlaywright from './test-debugger-fixer/playwright';
 
 // Team Communicator templates
+import * as TeamCommunicatorLocal from './team-communicator/local';
 import * as TeamCommunicatorSlack from './team-communicator/slack';
 import * as TeamCommunicatorTeams from './team-communicator/teams';
 import * as TeamCommunicatorEmail from './team-communicator/email';
@@ -53,6 +54,10 @@ export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
     },
   },
   'team-communicator': {
+    local: {
+      frontmatter: TeamCommunicatorLocal.FRONTMATTER,
+      content: TeamCommunicatorLocal.CONTENT,
+    },
     slack: {
       frontmatter: TeamCommunicatorSlack.FRONTMATTER,
       content: TeamCommunicatorSlack.CONTENT,
