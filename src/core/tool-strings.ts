@@ -31,6 +31,7 @@ export type ToolStringKey =
   | 'INVOKE_TEST_DEBUGGER_FIXER'
   | 'INVOKE_TEST_CODE_GENERATOR'
   | 'INVOKE_TEAM_COMMUNICATOR'
+  | 'INLINE_TEAM_COMMUNICATOR'
   | 'INVOKE_ISSUE_TRACKER'
   | 'INVOKE_DOCUMENTATION_RESEARCHER';
 
@@ -68,6 +69,9 @@ export const TOOL_STRINGS: Record<ToolId, Record<ToolStringKey, string>> = {
     INVOKE_TEAM_COMMUNICATOR:
       '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "team-communicator"` to send team notifications.\n' +
       'The agent will post to Slack/Teams/Email. Include message content and context in the prompt.',
+    INLINE_TEAM_COMMUNICATOR:
+      '**TEAM COMMUNICATION**: Read `.claude/agents/team-communicator.md` and follow its instructions to communicate with the team.\n' +
+      'Use the tools and guidelines specified in that file within this context. Do NOT spawn a sub-agent.',
     INVOKE_ISSUE_TRACKER:
       '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "issue-tracker"` to create/update issues.\n' +
       'The agent will interact with Jira. Include bug details and classification in the prompt.',
@@ -85,6 +89,9 @@ export const TOOL_STRINGS: Record<ToolId, Record<ToolStringKey, string>> = {
       'Run the test-code-generator agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/test-code-generator.md)" --output-format text\n```',
     INVOKE_TEAM_COMMUNICATOR:
       'Run the team-communicator agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/team-communicator.md)" --output-format text\n```',
+    INLINE_TEAM_COMMUNICATOR:
+      '**TEAM COMMUNICATION**: Read `.cursor/agents/team-communicator.md` and follow its instructions to communicate with the team.\n' +
+      'Use the tools and guidelines specified in that file within this context.',
     INVOKE_ISSUE_TRACKER:
       'Run the issue-tracker agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/issue-tracker.md)" --output-format text\n```',
     INVOKE_DOCUMENTATION_RESEARCHER:
@@ -100,6 +107,9 @@ export const TOOL_STRINGS: Record<ToolId, Record<ToolStringKey, string>> = {
       'Run the test-code-generator agent:\n```bash\ncodex -p "$(cat .codex/agents/test-code-generator.md)"\n```',
     INVOKE_TEAM_COMMUNICATOR:
       'Run the team-communicator agent:\n```bash\ncodex -p "$(cat .codex/agents/team-communicator.md)"\n```',
+    INLINE_TEAM_COMMUNICATOR:
+      '**TEAM COMMUNICATION**: Read `.codex/agents/team-communicator.md` and follow its instructions to communicate with the team.\n' +
+      'Use the tools and guidelines specified in that file within this context.',
     INVOKE_ISSUE_TRACKER:
       'Run the issue-tracker agent:\n```bash\ncodex -p "$(cat .codex/agents/issue-tracker.md)"\n```',
     INVOKE_DOCUMENTATION_RESEARCHER:
@@ -147,9 +157,14 @@ export function getSubagentInvocation(toolId: ToolId, role: SubagentRole): strin
  *
  * @param content - Content with {{INVOKE_*}} placeholders
  * @param toolId - Target tool
+ * @param isLocal - If true, use inline instructions for team-communicator (default: false)
  * @returns Content with tool-specific invocations
  */
-export function replaceInvocationPlaceholders(content: string, toolId: ToolId): string {
+export function replaceInvocationPlaceholders(
+  content: string,
+  toolId: ToolId,
+  isLocal: boolean = false
+): string {
   let result = content;
 
   // Replace each invocation placeholder
@@ -164,7 +179,12 @@ export function replaceInvocationPlaceholders(content: string, toolId: ToolId): 
 
   for (const key of keys) {
     const placeholder = `{{${key}}}`;
-    const replacement = getToolString(toolId, key);
+
+    // For team-communicator in local mode, use INLINE version
+    const replacementKey =
+      isLocal && key === 'INVOKE_TEAM_COMMUNICATOR' ? 'INLINE_TEAM_COMMUNICATOR' : key;
+
+    const replacement = getToolString(toolId, replacementKey);
     result = result.replace(new RegExp(placeholder, 'g'), replacement);
   }
 

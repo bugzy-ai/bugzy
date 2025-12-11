@@ -77,7 +77,8 @@ export async function generateCommands(subagents: Record<string, string>, tool: 
       const taskDef = buildTaskDefinition(slug, projectSubAgents);
 
       // Replace {{INVOKE_*}} placeholders with tool-specific invocation strings
-      const processedContent = replaceInvocationPlaceholders(taskDef.content, tool);
+      // For local CLI, use inline instructions for team-communicator
+      const processedContent = replaceInvocationPlaceholders(taskDef.content, tool, true);
 
       // Format as markdown with or without frontmatter based on tool
       const content = formatCommandMarkdown(taskDef.frontmatter, processedContent, toolProfile.commandFrontmatter);
@@ -96,7 +97,7 @@ export async function generateCommands(subagents: Record<string, string>, tool: 
       const fallbackContent = `# ${template.name}\n\n${template.description}\n\n**Note**: This task requires additional subagents to be configured.`;
       const frontmatter = template.frontmatter;
 
-      const processedContent = replaceInvocationPlaceholders(fallbackContent, tool);
+      const processedContent = replaceInvocationPlaceholders(fallbackContent, tool, true);
       const content = formatCommandMarkdown(frontmatter, processedContent, toolProfile.commandFrontmatter);
       const fileName = `${outputSlug}${toolProfile.commandExtension}`;
       const filePath = path.join(commandsDir, fileName);
