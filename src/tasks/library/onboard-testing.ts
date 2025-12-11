@@ -26,15 +26,12 @@ export const onboardTestingTask: ComposedTaskTemplate = {
       content: `## Overview
 
 This command orchestrates the complete test coverage workflow in a single execution:
-1. **Phase 1**: Assess existing artifacts (skip phases if artifacts exist)
-2. **Phase 2**: Explore application (if no project context)
-3. **Phase 3**: Generate lightweight test plan (if no test plan or doesn't cover focus)
-4. **Phase 4**: Generate and verify test cases (create + fix until passing)
-5. **Phase 5**: Triage failures and fix test issues
-6. **Phase 6**: Log product bugs
-7. **Phase 7**: Final report
-
-The workflow is **fully automatic** - the agent decides what to skip based on existing context.`,
+1. **Phase 1**: Read project context and explore application
+2. **Phase 2**: Generate lightweight test plan
+3. **Phase 3**: Generate and verify test cases (create + fix until passing)
+4. **Phase 4**: Triage failures and fix test issues
+5. **Phase 5**: Log product bugs
+6. **Phase 6**: Final report`,
     },
     // Step 2: Security Notice (from library)
     'security-notice',
@@ -44,9 +41,8 @@ The workflow is **fully automatic** - the agent decides what to skip based on ex
       title: 'Arguments',
       content: `Focus area: $ARGUMENTS`,
     },
-    // Phase 1: Setup and Assessment
+    // Phase 1: Setup
     'read-knowledge-base',
-    'check-existing-artifacts',
 
     // Phase 2: Clarification and Exploration
     'assess-requirements',
@@ -56,6 +52,11 @@ The workflow is **fully automatic** - the agent decides what to skip based on ex
     'quick-exploration',
     'moderate-exploration',
     'deep-exploration',
+
+    // Execute exploration via test-runner
+    'create-exploration-test-case',
+    'run-exploration',
+    'process-exploration-results',
 
     // Phase 3: Test Plan Generation
     'generate-test-plan',

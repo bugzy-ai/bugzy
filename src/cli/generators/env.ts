@@ -8,16 +8,18 @@ import * as path from 'path';
 
 /**
  * Generate .env.example file with required secrets
+ * Also creates .env if it doesn't exist (so users can fill it in directly)
  * @param mcpServers - List of MCP server names needed
  */
 export async function generateEnvExample(mcpServers: string[]): Promise<void> {
   const cwd = process.cwd();
   const envExamplePath = path.join(cwd, '.env.example');
+  const envPath = path.join(cwd, '.env');
 
   const header = `# ============================================
 # Bugzy OSS - Environment Variables
 # ============================================
-# Copy this file to .env and fill in your values
+# Fill in your values below
 # Never commit .env to version control!
 
 # --------------------------------------------
@@ -25,7 +27,18 @@ export async function generateEnvExample(mcpServers: string[]): Promise<void> {
 # --------------------------------------------
 `;
 
-  const footer = ``;
+  const testDataSecretsSection = `
+# --------------------------------------------
+# Test Data Secrets
+# --------------------------------------------
+# Add passwords and sensitive test credentials here
+# Non-secret test data (URLs, emails) goes in .env.testdata
+
+# Example test user passwords:
+# TEST_OWNER_PASSWORD=
+# TEST_ADMIN_PASSWORD=
+# TEST_API_KEY=
+`;
 
   // Build MCP secrets section
   let mcpSection = '';
@@ -37,8 +50,15 @@ export async function generateEnvExample(mcpServers: string[]): Promise<void> {
     }
   }
 
-  const content = header + mcpSection + footer;
+  const content = header + mcpSection + testDataSecretsSection;
+
+  // Always update .env.example (reference template)
   fs.writeFileSync(envExamplePath, content, 'utf-8');
+
+  // Create .env if it doesn't exist (so users can fill it in directly)
+  if (!fs.existsSync(envPath)) {
+    fs.writeFileSync(envPath, content, 'utf-8');
+  }
 }
 
 /**

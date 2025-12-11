@@ -261,15 +261,14 @@ async function firstTimeSetup(cliSubagents?: Record<string, string>): Promise<vo
   console.log(chalk.gray('   • Testing conventions\n'));
 
   console.log(chalk.yellow('Next steps:'));
-  console.log(chalk.white('1. cp .env.example .env'));
-  console.log(chalk.white('2. Edit .env and add your API tokens'));
+  console.log(chalk.white('1. Edit .env and add your API tokens'));
   if (subagents['test-runner']) {
-    console.log(chalk.white('3. npx playwright install (install browser binaries)'));
-    console.log(chalk.white('4. Edit .bugzy/runtime/project-context.md'));
-    console.log(chalk.white('5. Run:'), chalk.cyan('bugzy'));
-  } else {
+    console.log(chalk.white('2. npx playwright install (install browser binaries)'));
     console.log(chalk.white('3. Edit .bugzy/runtime/project-context.md'));
-    console.log(chalk.white('4. Run:'), chalk.cyan('bugzy'));
+    console.log(chalk.white('4. Run:'), chalk.cyan('bugzy'), chalk.gray('(loads .env, then launches claude/codex/cursor)'));
+  } else {
+    console.log(chalk.white('2. Edit .bugzy/runtime/project-context.md'));
+    console.log(chalk.white('3. Run:'), chalk.cyan('bugzy'), chalk.gray('(loads .env, then launches claude/codex/cursor)'));
   }
   console.log();
 }
@@ -336,6 +335,10 @@ async function reconfigureProject(): Promise<void> {
       if (subagent.isRequired && subagent.integrations.length === 1) {
         newSubagents[subagent.role] = subagent.integrations[0].id;
         console.log(chalk.gray(`✓ ${subagent.name}: ${subagent.integrations[0].name} (required)`));
+      } else if (subagent.role === 'team-communicator' && currentIntegration === 'local') {
+        // Auto-keep team-communicator with 'local' for CLI usage
+        newSubagents[subagent.role] = 'local';
+        console.log(chalk.gray(`✓ ${subagent.name}: Local (Terminal) (auto-configured for CLI)`));
       } else {
         // Currently configured - offer to keep, change, or remove
         const choices = [
@@ -375,23 +378,30 @@ async function reconfigureProject(): Promise<void> {
       // Not currently configured - offer to add (if optional)
       if (!subagent.isRequired) {
         const choices = [
-          ...subagent.integrations.map(i => ({
-            name: i.name,
-            value: i.id
-          })),
-          { name: 'None (skip)', value: null }
+          { name: 'Keep None (skip)', value: 'keep' },
+          { name: 'Change to different integration', value: 'change' },
         ];
 
-        const { integration } = await inquirer.prompt([{
+        const { action } = await inquirer.prompt([{
           type: 'list',
-          name: 'integration',
-          message: `Add ${subagent.name}? (currently: not configured)`,
+          name: 'action',
+          message: `${subagent.name} (currently: not configured)`,
           choices
         }]);
 
-        if (integration) {
+        if (action === 'change') {
+          const { integration } = await inquirer.prompt([{
+            type: 'list',
+            name: 'integration',
+            message: `Select integration for ${subagent.name}:`,
+            choices: subagent.integrations.map(i => ({
+              name: i.name,
+              value: i.id
+            }))
+          }]);
           newSubagents[subagent.role] = integration;
         }
+        // If 'keep', don't add to newSubagents (stays unconfigured)
       } else {
         // Required but not configured - must configure
         if (subagent.integrations.length === 1) {
@@ -483,9 +493,9 @@ async function regenerateAll(subagents: Record<string, string>, tool: ToolId = D
   }
 
   // Generate .env.example
-  spinner = ora('Creating environment template').start();
+  spinner = ora('Creating environment files').start();
   await generateEnvExample(mcpServers);
-  spinner.succeed(chalk.green('Created .env.example'));
+  spinner.succeed(chalk.green('Created .env and .env.example'));
 }
 
 /**

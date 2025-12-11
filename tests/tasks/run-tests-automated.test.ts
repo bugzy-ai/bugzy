@@ -89,7 +89,7 @@ describe('run-tests task (automated execution)', () => {
   it('should include test-debugger-fixer instructions when configured', () => {
     const result = buildAndProcessTask('run-tests', minimalSubAgents);
 
-    expect(result.content).toContain('test-debugger-fixer subagent');
+    expect(result.content).toContain('subagent_type: "test-debugger-fixer"');
     expect(result.content).toContain('fix test issues');
     expect(result.content).toContain('[TEST ISSUE]');
   });
@@ -106,14 +106,14 @@ describe('run-tests task (automated execution)', () => {
     const result = buildAndProcessTask('run-tests', fullSubAgents);
 
     expect(result.content).toContain('Log Product Bugs');
-    expect(result.content).toContain('issue-tracker subagent');
+    expect(result.content).toContain('subagent_type: "issue-tracker"');
   });
 
   it('should include team communication instructions when configured', () => {
     const result = buildAndProcessTask('run-tests', fullSubAgents);
 
     expect(result.content).toContain('Team Communication');
-    expect(result.content).toContain('team-communicator subagent');
+    expect(result.content).toContain('subagent_type: "team-communicator"');
   });
 
   it('should NOT include blocker/dependency logic for automated tests', () => {

@@ -52,7 +52,7 @@ describe('getAgentConfiguration - INVOKE placeholder replacement', () => {
     const content = config.slashCommands['run-tests'].content;
 
     // Should contain Claude Code invocation string
-    expect(content).toContain('Use the test-debugger-fixer subagent');
+    expect(content).toContain('subagent_type: "test-debugger-fixer"');
 
     // Should NOT contain raw placeholder
     expect(content).not.toContain('{{INVOKE_TEST_DEBUGGER_FIXER}}');
@@ -90,10 +90,10 @@ describe('getAgentConfiguration - INVOKE placeholder replacement', () => {
     const content = config.slashCommands['verify-changes'].content;
 
     // Should contain Claude Code invocation strings (not raw placeholders)
-    expect(content).toContain('Use the test-debugger-fixer subagent');
-    expect(content).toContain('Use the issue-tracker subagent');
-    expect(content).toContain('Use the team-communicator subagent');
-    expect(content).toContain('Use the documentation-researcher subagent');
+    expect(content).toContain('subagent_type: "test-debugger-fixer"');
+    expect(content).toContain('subagent_type: "issue-tracker"');
+    expect(content).toContain('subagent_type: "team-communicator"');
+    expect(content).toContain('subagent_type: "documentation-researcher"');
   });
 
   it('generate-test-cases should replace INVOKE_TEST_CODE_GENERATOR', async () => {
@@ -103,7 +103,7 @@ describe('getAgentConfiguration - INVOKE placeholder replacement', () => {
     const content = config.slashCommands['generate-test-cases'].content;
 
     // Should contain Claude Code invocation string
-    expect(content).toContain('Use the test-code-generator subagent');
+    expect(content).toContain('subagent_type: "test-code-generator"');
 
     // Should NOT contain raw placeholder
     expect(content).not.toContain('{{INVOKE_TEST_CODE_GENERATOR}}');

@@ -56,17 +56,24 @@ const ROLE_TO_KEY: Record<SubagentRole, ToolStringKey> = {
 export const TOOL_STRINGS: Record<ToolId, Record<ToolStringKey, string>> = {
   'claude-code': {
     INVOKE_TEST_RUNNER:
-      'Use the test-runner subagent to execute the tests',
+      '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "test-runner"` to delegate test execution.\n' +
+      'The test-runner agent will handle all browser automation. DO NOT execute Playwright MCP tools directly.\n' +
+      'Include the test case path and any specific instructions in the prompt.',
     INVOKE_TEST_DEBUGGER_FIXER:
-      'Use the test-debugger-fixer subagent to debug and fix the failing test',
+      '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "test-debugger-fixer"` to delegate debugging.\n' +
+      'The agent will analyze failures and fix test code. Include error details and test path in the prompt.',
     INVOKE_TEST_CODE_GENERATOR:
-      'Use the test-code-generator subagent to generate automated test code',
+      '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "test-code-generator"` to delegate code generation.\n' +
+      'The agent will create Playwright tests and Page Objects. Include test case files in the prompt.',
     INVOKE_TEAM_COMMUNICATOR:
-      'Use the team-communicator subagent to notify the team',
+      '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "team-communicator"` to send team notifications.\n' +
+      'The agent will post to Slack/Teams/Email. Include message content and context in the prompt.',
     INVOKE_ISSUE_TRACKER:
-      'Use the issue-tracker subagent to create or update issues',
+      '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "issue-tracker"` to create/update issues.\n' +
+      'The agent will interact with Jira. Include bug details and classification in the prompt.',
     INVOKE_DOCUMENTATION_RESEARCHER:
-      'Use the documentation-researcher subagent to search and gather documentation',
+      '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "documentation-researcher"` to search docs.\n' +
+      'The agent will search Notion/Confluence. Include search query and context in the prompt.',
   },
 
   'cursor': {

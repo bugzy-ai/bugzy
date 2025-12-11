@@ -266,8 +266,9 @@ describe('Multi-Tool Generation Tests', () => {
       const filePath = path.join(testDir, '.claude', 'commands', 'run-tests.md');
       const content = fs.readFileSync(filePath, 'utf-8');
 
-      // Claude Code pattern: natural language
-      expect(content).toMatch(/Use (the )?test-debugger-fixer agent/i);
+      // Claude Code pattern: explicit Task tool invocation
+      expect(content).toContain('DELEGATE TO SUBAGENT');
+      expect(content).toContain('subagent_type: "test-debugger-fixer"');
 
       // Should NOT contain CLI patterns
       expect(content).not.toContain('cursor-agent -p');

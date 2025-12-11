@@ -6,32 +6,39 @@ export const extractEnvVariablesStep: TaskStep = {
   category: 'generation',
   content: `## Extract Environment Variables
 
-Parse test plan and test cases for TEST_* variable references and update .env.testdata.
+Parse test plan and test cases for TEST_* variable references.
+
+**CRITICAL - Secret Detection:**
+Before adding ANY variable to .env.testdata, check if it's a secret:
+- Contains PASSWORD, SECRET, TOKEN, KEY, CREDENTIALS, API_KEY in the name -> **DO NOT ADD to .env.testdata**
+- Secrets go in .env only, referenced by variable name in test cases
 
 **Process:**
-1. Scan test plan for environment variable references (TEST_*)
-2. Scan test case files for \${TEST_*} patterns
-3. Create/update \`.env.testdata\` with discovered variables
+1. Scan for TEST_* variable references in test plan and test cases
+2. For each variable found:
+   - If name contains PASSWORD/SECRET/TOKEN/KEY -> Skip (it's a secret, goes in .env only)
+   - Otherwise -> Add to .env.testdata with actual value
+3. Preserve existing variables in .env.testdata
 
-**Common Variables:**
+**Example .env.testdata (non-secrets only):**
 \`\`\`bash
-# Base configuration
+# URLs and endpoints
 TEST_BASE_URL=https://example.com
 TEST_API_URL=https://api.example.com
 
-# User credentials (non-secret test data)
+# Non-sensitive user data (emails, names)
 TEST_OWNER_EMAIL=owner@test.com
 TEST_USER_EMAIL=user@test.com
-
-# Test data
+TEST_CHECKOUT_FIRST_NAME=Test
 TEST_DEFAULT_TIMEOUT=30000
 \`\`\`
 
-**Update .env.testdata:**
-- Add new variables with actual test values (not secrets)
-- Preserve existing variables
-- Add comments for new sections
+**Example .env (secrets only - NEVER commit):**
+\`\`\`bash
+TEST_USER_PASSWORD=actual_password_here
+TEST_API_KEY=secret_key_here
+\`\`\`
 
-**Note:** Secret values (passwords, API keys) should NOT be in .env.testdata. They go in .env only.`,
+**Rule**: Any variable with PASSWORD, SECRET, TOKEN, or KEY in the name is a secret.`,
   tags: ['generation', 'environment'],
 };

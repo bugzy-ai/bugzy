@@ -142,27 +142,27 @@ describe('Specific Task Validation', () => {
   describe('generate-test-cases', () => {
     test('includes test-code-generator invocation when configured', () => {
       const task = buildAndProcessTask(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
-      expect(task.content).toContain('test-code-generator subagent');
+      expect(task.content).toContain('subagent_type: "test-code-generator"');
     });
 
     test('includes documentation gathering when docs configured', () => {
       const task = buildAndProcessTask(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
       if (hasSubagent(FULL_SUBAGENTS_CONFIG, 'documentation-researcher')) {
-        expect(task.content).toContain('documentation-researcher subagent');
+        expect(task.content).toContain('subagent_type: "documentation-researcher"');
       }
     });
 
     test('excludes documentation gathering when docs not configured', () => {
       const task = buildAndProcessTask(TASK_SLUGS.GENERATE_TEST_CASES, PARTIAL_SUBAGENTS_CONFIG);
       // When not configured, the content block was not injected
-      expect(task.content).not.toContain('documentation-researcher subagent');
+      expect(task.content).not.toContain('subagent_type: "documentation-researcher"');
     });
 
     test('includes team communication when configured', () => {
       if (hasSubagent(PARTIAL_SUBAGENTS_CONFIG, 'team-communicator')) {
         const task = buildAndProcessTask(TASK_SLUGS.GENERATE_TEST_CASES, PARTIAL_SUBAGENTS_CONFIG);
-        expect(task.content).toContain('team-communicator subagent');
+        expect(task.content).toContain('subagent_type: "team-communicator"');
       }
     });
   });

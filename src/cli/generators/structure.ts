@@ -146,6 +146,16 @@ async function createRuntimeFiles(): Promise<void> {
       fs.writeFileSync(testExecutionStrategyPath, content, 'utf-8');
     }
   }
+
+  // Create .env.testdata from template
+  const envTestdataPath = path.join(cwd, '.env.testdata');
+  if (!fs.existsSync(envTestdataPath)) {
+    const templatePath = path.join(templatesDir, '.env.testdata');
+    if (fs.existsSync(templatePath)) {
+      const content = fs.readFileSync(templatePath, 'utf-8');
+      fs.writeFileSync(envTestdataPath, content, 'utf-8');
+    }
+  }
 }
 
 /**
