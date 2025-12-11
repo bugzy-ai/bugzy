@@ -1,15 +1,20 @@
-/**
- * Clarification Protocol - Shared Template
- * Provides standardized instructions for detecting ambiguity, assessing severity, and seeking clarification
- * Used across all agent library tasks for consistent clarification handling
- */
+import type { TaskStep } from '../types';
 
-export const CLARIFICATION_INSTRUCTIONS = `
-## Clarification Protocol
+/**
+ * Clarification Protocol - Consolidated step
+ * Provides standardized instructions for detecting ambiguity, assessing severity, and seeking clarification.
+ * Used across all agent library tasks for consistent clarification handling.
+ */
+export const clarificationProtocolStep: TaskStep = {
+  id: 'clarification-protocol',
+  title: 'Clarification Protocol',
+  category: 'clarification',
+  invokesSubagents: ['team-communicator'],
+  content: `## Clarification Protocol
 
 Before proceeding with test creation or execution, ensure requirements are clear and testable. Use this protocol to detect ambiguity, assess its severity, and determine the appropriate action.
 
-### Step {{STEP_NUMBER}}.0: Check for Pending Clarification
+### Check for Pending Clarification
 
 Before starting, check if this task is resuming from a blocked clarification:
 
@@ -25,7 +30,7 @@ Before starting, check if this task is resuming from a blocked clarification:
 
 3. **If no clarification in $ARGUMENTS:** Proceed normally with ambiguity detection below.
 
-### Step {{STEP_NUMBER}}.1: Detect Ambiguity
+### Detect Ambiguity
 
 Scan for ambiguity signals:
 
@@ -45,18 +50,18 @@ Scan for ambiguity signals:
 - [ ] Consistent with existing system patterns?
 - [ ] Can write test assertions without assumptions?
 
-### Step {{STEP_NUMBER}}.2: Assess Severity
+### Assess Severity
 
 If ambiguity is detected, assess its severity:
 
 | Severity | Characteristics | Examples | Action |
 |----------|----------------|----------|--------|
-| 🔴 **CRITICAL** | Expected behavior undefined/contradictory; test outcome unpredictable; core functionality unclear; success criteria missing; multiple interpretations = different strategies | "Fix the issue" (what issue?), "Improve performance" (which metrics?), "Fix sorting in todo list" (by date? priority? completion status?) | **STOP** - Seek clarification before proceeding |
-| 🟠 **HIGH** | Core underspecified but direction clear; affects majority of scenarios; vague success criteria; assumptions risky | "Fix ordering" (sequence OR visibility?), "Add validation" (what? messages?), "Update dashboard" (which widgets?) | **STOP** - Seek clarification before proceeding |
-| 🟡 **MEDIUM** | Specific details missing; general requirements clear; affects subset of cases; reasonable low-risk assumptions possible; wrong assumption = test updates not strategy overhaul | Missing field labels, unclear error message text, undefined timeouts, button placement not specified, date formats unclear | **PROCEED** - (1) Moderate exploration, (2) Document assumptions: "Assuming X because Y", (3) Proceed with creation/execution, (4) Async clarification (team-communicator), (5) Mark [ASSUMED: description] |
-| 🟢 **LOW** | Minor edge cases; documentation gaps don't affect execution; optional/cosmetic elements; minimal impact | Tooltip text, optional field validation, icon choice, placeholder text, tab order | **PROCEED** - (1) Mark [TO BE CLARIFIED: description], (2) Proceed, (3) Mention in report "Minor Details", (4) No blocking/async clarification |
+| **CRITICAL** | Expected behavior undefined/contradictory; test outcome unpredictable; core functionality unclear; success criteria missing; multiple interpretations = different strategies | "Fix the issue" (what issue?), "Improve performance" (which metrics?), "Fix sorting in todo list" (by date? priority? completion status?) | **STOP** - Seek clarification before proceeding |
+| **HIGH** | Core underspecified but direction clear; affects majority of scenarios; vague success criteria; assumptions risky | "Fix ordering" (sequence OR visibility?), "Add validation" (what? messages?), "Update dashboard" (which widgets?) | **STOP** - Seek clarification before proceeding |
+| **MEDIUM** | Specific details missing; general requirements clear; affects subset of cases; reasonable low-risk assumptions possible; wrong assumption = test updates not strategy overhaul | Missing field labels, unclear error message text, undefined timeouts, button placement not specified, date formats unclear | **PROCEED** - (1) Moderate exploration, (2) Document assumptions: "Assuming X because Y", (3) Proceed with creation/execution, (4) Async clarification (team-communicator), (5) Mark [ASSUMED: description] |
+| **LOW** | Minor edge cases; documentation gaps don't affect execution; optional/cosmetic elements; minimal impact | Tooltip text, optional field validation, icon choice, placeholder text, tab order | **PROCEED** - (1) Mark [TO BE CLARIFIED: description], (2) Proceed, (3) Mention in report "Minor Details", (4) No blocking/async clarification |
 
-### Step {{STEP_NUMBER}}.3: Check Memory for Similar Clarifications
+### Check Memory for Similar Clarifications
 
 Before asking, check if similar question was answered:
 
@@ -71,7 +76,7 @@ Before asking, check if similar question was answered:
 
 **Example:** Query "todo sorting priority" → Found 2025-01-15: "Should completed todos appear in main list?" → Answer: "No, move to separate archive view" → Directly applicable → Use, no re-ask needed
 
-### Step {{STEP_NUMBER}}.4: Formulate Clarification Questions
+### Formulate Clarification Questions
 
 If clarification needed (CRITICAL/HIGH severity), formulate specific, concrete questions:
 
@@ -93,9 +98,9 @@ Question: Should todos be sorted by due date (soonest first) or priority (high t
 Why Important: Different sort criteria require different test assertions. Current app shows 15 active todos + 8 completed in mixed order.
 \`\`\`
 
-### Step {{STEP_NUMBER}}.5: Communicate Clarification Request
+### Communicate Clarification Request
 
-**For Slack-Triggered Tasks:** Use team-communicator subagent:
+**For Slack-Triggered Tasks:** {{INVOKE_TEAM_COMMUNICATOR}} to ask in thread:
 \`\`\`
 Ask clarification in Slack thread:
 Context: [From ticket/description]
@@ -110,7 +115,7 @@ Clarification needed to proceed. I'll wait for response before testing.
 
 **For Manual/API Triggers:** Include in task output:
 \`\`\`markdown
-## ⚠️ Clarification Required Before Testing
+## Clarification Required Before Testing
 
 **Ambiguity:** [Description]
 **Severity:** [CRITICAL/HIGH]
@@ -125,7 +130,7 @@ Clarification needed to proceed. I'll wait for response before testing.
 **Current Observation:** [What exploration revealed - concrete examples]
 \`\`\`
 
-### Step {{STEP_NUMBER}}.5.1: Register Blocked Task (CRITICAL/HIGH only)
+### Register Blocked Task (CRITICAL/HIGH only)
 
 When asking a CRITICAL or HIGH severity question that blocks progress, register the task in the blocked queue so it can be automatically re-triggered when clarification arrives.
 
@@ -151,7 +156,7 @@ Tasks waiting for clarification responses.
 
 **Purpose**: The LLM processor reads this file and matches user responses to pending questions. When a match is found, it re-queues the task with the clarification.
 
-### Step {{STEP_NUMBER}}.6: Wait or Proceed Based on Severity
+### Wait or Proceed Based on Severity
 
 **CRITICAL/HIGH → STOP and Wait:**
 - Do NOT create tests, run tests, or make assumptions
@@ -169,7 +174,7 @@ Tasks waiting for clarification responses.
 - Mention in report but don't prioritize, no blocking
 - *Rationale: Details don't affect strategy/results significantly*
 
-### Step {{STEP_NUMBER}}.7: Document Clarification in Results
+### Document Clarification in Results
 
 When reporting test results, always include an "Ambiguities" section if clarification occurred:
 
@@ -190,7 +195,12 @@ When reporting test results, always include an "Ambiguities" section if clarific
 
 ---
 
-## Remember:
+## Remember
 
-🛑 **Block for CRITICAL/HIGH** | ✅ **Ask correctly > guess poorly** | 📝 **Document MEDIUM assumptions** | 🔍 **Check memory first** | 🎯 **Specific questions → specific answers**
-`;
+- **Block for CRITICAL/HIGH** - Never proceed with assumptions on unclear core requirements
+- **Ask correctly > guess poorly** - Specific questions lead to specific answers
+- **Document MEDIUM assumptions** - Track what you assumed and why
+- **Check memory first** - Avoid re-asking previously answered questions
+- **Specific questions → specific answers** - Vague questions get vague answers`,
+  tags: ['clarification', 'protocol', 'ambiguity'],
+};

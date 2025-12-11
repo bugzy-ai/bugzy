@@ -15,17 +15,10 @@ import { checkExistingArtifactsStep } from './setup/check-existing-artifacts';
 import { securityNoticeStep } from './setup/security-notice';
 
 // Exploration steps
-import { assessRequirementsStep } from './exploration/assess-requirements';
-import { quickExplorationStep } from './exploration/quick-exploration';
-import { moderateExplorationStep } from './exploration/moderate-exploration';
-import { deepExplorationStep } from './exploration/deep-exploration';
-import { defineFocusAreaStep } from './exploration/define-focus-area';
+import { explorationProtocolStep } from './exploration/exploration-protocol';
 
 // Clarification steps
-import { detectAmbiguityStep } from './clarification/detect-ambiguity';
-import { checkMemoryStep } from './clarification/check-memory';
-import { formulateQuestionsStep } from './clarification/formulate-questions';
-import { registerBlockedTaskStep } from './clarification/register-blocked-task';
+import { clarificationProtocolStep } from './clarification/clarification-protocol';
 
 // Execution steps
 import { runPlaywrightTestsStep } from './execution/run-playwright-tests';
@@ -68,17 +61,10 @@ export const STEP_LIBRARY: Record<string, TaskStep> = {
   'check-existing-artifacts': checkExistingArtifactsStep,
 
   // Exploration
-  'assess-requirements': assessRequirementsStep,
-  'quick-exploration': quickExplorationStep,
-  'moderate-exploration': moderateExplorationStep,
-  'deep-exploration': deepExplorationStep,
-  'define-focus-area': defineFocusAreaStep,
+  'exploration-protocol': explorationProtocolStep,
 
   // Clarification
-  'detect-ambiguity': detectAmbiguityStep,
-  'check-memory': checkMemoryStep,
-  'formulate-questions': formulateQuestionsStep,
-  'register-blocked-task': registerBlockedTaskStep,
+  'clarification-protocol': clarificationProtocolStep,
 
   // Execution
   'run-playwright-tests': runPlaywrightTestsStep,

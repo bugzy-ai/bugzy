@@ -44,14 +44,8 @@ This command orchestrates the complete test coverage workflow in a single execut
     // Phase 1: Setup
     'read-knowledge-base',
 
-    // Phase 2: Clarification and Exploration
-    'assess-requirements',
-    'define-focus-area',
-    'detect-ambiguity',
-    'formulate-questions',
-    'quick-exploration',
-    'moderate-exploration',
-    'deep-exploration',
+    // Phase 2: Exploration Protocol
+    'exploration-protocol',
 
     // Execute exploration via test-runner
     'create-exploration-test-case',

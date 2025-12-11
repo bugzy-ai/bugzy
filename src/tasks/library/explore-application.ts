@@ -40,16 +40,8 @@ export const exploreApplicationTask: ComposedTaskTemplate = {
     'read-knowledge-base',
     'load-project-context',
 
-    // Scope & Strategy
-    'assess-requirements',
-    'define-focus-area',
-    'detect-ambiguity',
-    'formulate-questions',
-
-    // Exploration (adaptive depth)
-    'quick-exploration',
-    'moderate-exploration',
-    'deep-exploration',
+    // Exploration Protocol (adaptive depth)
+    'exploration-protocol',
 
     // Execute
     'create-exploration-test-case',
@@ -58,6 +50,24 @@ export const exploreApplicationTask: ComposedTaskTemplate = {
 
     // Update
     'update-exploration-artifacts',
+    // Team Communication (conditional inline)
+    {
+      inline: true,
+      title: 'Team Communication',
+      content: `{{INVOKE_TEAM_COMMUNICATOR}} to notify the product team about exploration findings:
+
+\`\`\`
+1. Post an update about exploration completion
+2. Summarize key discoveries:
+   - UI elements and workflows identified
+   - Behaviors documented
+   - Areas needing further investigation
+3. Share exploration report location
+4. Ask for team feedback on findings
+5. Use appropriate channel and threading
+\`\`\``,
+      conditionalOnSubagent: 'team-communicator',
+    },
     'cleanup-temp-files',
     'update-knowledge-base',
   ],

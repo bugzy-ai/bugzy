@@ -88,9 +88,8 @@ The handler file contains all necessary processing logic for the detected intent
 - Response guidelines
 - Memory update instructions`,
     },
-    // Step 6-7: Clarification (for ambiguous intents)
-    'detect-ambiguity',
-    'formulate-questions',
+    // Step 6: Clarification Protocol (for ambiguous intents)
+    'clarification-protocol',
     // Step 8: Knowledge Base Update (library)
     'update-knowledge-base',
     // Step 9: Key Principles (inline)

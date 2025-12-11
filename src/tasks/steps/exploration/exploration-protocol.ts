@@ -1,15 +1,19 @@
-/**
- * Exploration Protocol - Shared Template
- * Provides adaptive exploratory testing instructions based on requirement clarity
- * Used to validate requirements and discover actual behavior before formal testing
- */
+import type { TaskStep } from '../types';
 
-export const EXPLORATION_INSTRUCTIONS = `
-## Exploratory Testing Protocol
+/**
+ * Exploration Protocol - Consolidated step
+ * Provides adaptive exploratory testing instructions based on requirement clarity.
+ * Used to validate requirements and discover actual behavior before formal testing.
+ */
+export const explorationProtocolStep: TaskStep = {
+  id: 'exploration-protocol',
+  title: 'Exploration Protocol',
+  category: 'exploration',
+  content: `## Exploratory Testing Protocol
 
 Before creating or running formal tests, perform exploratory testing to validate requirements and understand actual system behavior. The depth of exploration should adapt to the clarity of requirements.
 
-### Step {{STEP_NUMBER}}.1: Assess Requirement Clarity
+### Assess Requirement Clarity
 
 Determine exploration depth based on requirement quality:
 
@@ -24,7 +28,7 @@ Determine exploration depth based on requirement quality:
 - **Vague:** "Fix the sorting in todo list page. The items are mixed up for premium users."
 - **Unclear:** "Improve the dashboard performance. Users say it's slow."
 
-### Step {{STEP_NUMBER}}.2: Quick Exploration (1-2 min)
+### Quick Exploration (1-2 min)
 
 **When:** Requirements CLEAR
 
@@ -44,7 +48,7 @@ Determine exploration depth based on requirement quality:
 
 **Time Limit:** 1-2 minutes
 
-### Step {{STEP_NUMBER}}.3: Moderate Exploration (3-5 min)
+### Moderate Exploration (3-5 min)
 
 **When:** Requirements VAGUE or Quick Exploration revealed discrepancies
 
@@ -78,7 +82,7 @@ Determine exploration depth based on requirement quality:
 
 **Time Limit:** 3-5 minutes
 
-### Step {{STEP_NUMBER}}.4: Deep Exploration (5-10 min)
+### Deep Exploration (5-10 min)
 
 **When:** Requirements UNCLEAR or critical ambiguities found
 
@@ -136,7 +140,7 @@ Determine exploration depth based on requirement quality:
 
 **Time Limit:** 5-10 minutes
 
-### Step {{STEP_NUMBER}}.5: Link Exploration to Clarification
+### Link Exploration to Clarification
 
 **Flow:** Requirement Analysis → Exploration → Clarification
 
@@ -152,7 +156,7 @@ Determine exploration depth based on requirement quality:
   ↓ Question: "Should basic users see all 8 sort options (bug) or only 3 with consistent sequence (correct)?"
 \`\`\`
 
-### Step {{STEP_NUMBER}}.6: Document Exploration Results
+### Document Exploration Results
 
 **Template:**
 \`\`\`markdown
@@ -175,7 +179,7 @@ Determine exploration depth based on requirement quality:
 
 **Memory Storage:** Feature behavior patterns, common ambiguity types, resolution approaches
 
-### Step {{STEP_NUMBER}}.7: Integration with Test Creation
+### Integration with Test Creation
 
 **Quick Exploration → Direct Test:**
 - Feature verified → Create test matching requirement → Reference screenshot
@@ -218,7 +222,13 @@ Are requirements clear with specifics?
 
 ---
 
-## Remember:
+## Remember
 
-🔍 **Explore before assuming** | 📊 **Concrete observations > abstract interpretation** | ⏱️ **Adaptive depth: time ∝ uncertainty** | 🎯 **Exploration findings → specific clarifications** | 📝 **Always document** | 🔗 **Link exploration → ambiguity → clarification**
-`;
+- **Explore before assuming** - Validate requirements against actual behavior
+- **Concrete observations > abstract interpretation** - Document specific findings
+- **Adaptive depth: time ∝ uncertainty** - Match exploration effort to requirement clarity
+- **Exploration findings → specific clarifications** - Use observations to formulate questions
+- **Always document** - Create artifacts for future reference
+- **Link exploration → ambiguity → clarification** - Connect the workflow`,
+  tags: ['exploration', 'protocol', 'adaptive'],
+};

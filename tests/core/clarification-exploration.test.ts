@@ -10,29 +10,29 @@ import { FULL_SUBAGENTS_CONFIG } from '../fixtures/repo-configs';
 
 describe('Exploration Protocol Integration', () => {
   describe('generate-test-cases (composed)', () => {
-    test('includes exploration instructions', () => {
+    test('includes exploration protocol', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
       // Step number is auto-generated, use regex to match
-      expect(task.content).toMatch(/### Step \d+: Explore Features \(If Needed\)/);
-      expect(task.content).toContain('adaptive exploration');
-      expect(task.content).toContain('understand actual feature behavior');
+      expect(task.content).toMatch(/### Step \d+: Exploration Protocol/);
+      expect(task.content).toContain('Exploratory Testing Protocol');
+      expect(task.content).toContain('Quick Exploration');
     });
 
-    test('includes clarification instructions', () => {
+    test('includes clarification protocol', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
       // Step number is auto-generated, use regex to match
-      expect(task.content).toMatch(/### Step \d+: Clarify Ambiguities/);
-      expect(task.content).toContain('CRITICAL/HIGH ambiguities');
-      expect(task.content).toContain('STOP test case generation');
+      expect(task.content).toMatch(/### Step \d+: Clarification Protocol/);
+      expect(task.content).toContain('CRITICAL');
+      expect(task.content).toContain('STOP');
     });
 
     test('exploration comes before clarification', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
-      const explorationIndex = task.content.indexOf('Explore Features (If Needed)');
-      const clarificationIndex = task.content.indexOf('Clarify Ambiguities');
+      const explorationIndex = task.content.indexOf('Exploration Protocol');
+      const clarificationIndex = task.content.indexOf('Clarification Protocol');
 
       expect(explorationIndex).toBeLessThan(clarificationIndex);
       expect(explorationIndex).toBeGreaterThan(-1);
@@ -42,36 +42,36 @@ describe('Exploration Protocol Integration', () => {
     test('includes severity-based handling instructions', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('[ASSUMED: reason]');
-      expect(task.content).toContain('[TO BE CLARIFIED: detail]');
-      expect(task.content).toContain('MEDIUM ambiguities');
-      expect(task.content).toContain('LOW ambiguities');
+      expect(task.content).toContain('[ASSUMED:');
+      expect(task.content).toContain('[TO BE CLARIFIED:');
+      expect(task.content).toContain('MEDIUM');
+      expect(task.content).toContain('LOW');
     });
   });
 
   describe('generate-test-plan (composed)', () => {
-    test('includes exploration instructions', () => {
+    test('includes exploration protocol', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_PLAN, FULL_SUBAGENTS_CONFIG);
 
       // Step number is auto-generated, use regex to match
-      expect(task.content).toMatch(/### Step \d+: Explore Product \(If Needed\)/);
-      expect(task.content).toContain('understand actual product features');
+      expect(task.content).toMatch(/### Step \d+: Exploration Protocol/);
+      expect(task.content).toContain('Exploratory Testing Protocol');
     });
 
-    test('includes clarification instructions', () => {
+    test('includes clarification protocol', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_PLAN, FULL_SUBAGENTS_CONFIG);
 
       // Step number is auto-generated, use regex to match
-      expect(task.content).toMatch(/### Step \d+: Clarify Ambiguities/);
-      expect(task.content).toContain('STOP test plan generation');
+      expect(task.content).toMatch(/### Step \d+: Clarification Protocol/);
+      expect(task.content).toContain('STOP');
     });
 
-    test('includes example ambiguities by severity', () => {
+    test('includes severity levels in clarification', () => {
       const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_PLAN, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('Undefined core features');
-      expect(task.content).toContain('Missing field lists');
-      expect(task.content).toContain('Optional features');
+      expect(task.content).toContain('CRITICAL');
+      expect(task.content).toContain('HIGH');
+      expect(task.content).toContain('MEDIUM');
     });
   });
 
@@ -80,13 +80,13 @@ describe('Exploration Protocol Integration', () => {
       const task = buildTaskDefinition(TASK_SLUGS.EXPLORE_APPLICATION, FULL_SUBAGENTS_CONFIG);
 
       expect(task.content).toContain('Explore Application Overview');
-      expect(task.content).toContain('test-runner agent');
+      expect(task.content).toContain('test-runner');
     });
 
-    test('includes focus area strategy step', () => {
+    test('includes exploration protocol with focus areas in arguments', () => {
       const task = buildTaskDefinition(TASK_SLUGS.EXPLORE_APPLICATION, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('Define Focus Area');
+      // Focus areas are in the task arguments inline step
       expect(task.content).toContain('auth');
       expect(task.content).toContain('navigation');
       expect(task.content).toContain('search');
@@ -276,8 +276,8 @@ describe('Protocol Flow Validation', () => {
     const task = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
 
     // Use step titles without hardcoded numbers (composed tasks use auto-numbering)
-    const exploration = task.content.indexOf('Explore Features (If Needed)');
-    const clarification = task.content.indexOf('Clarify Ambiguities');
+    const exploration = task.content.indexOf('Exploration Protocol');
+    const clarification = task.content.indexOf('Clarification Protocol');
     const generation = task.content.indexOf('Generate All Manual Test Case Files');
 
     expect(exploration).toBeGreaterThan(-1);

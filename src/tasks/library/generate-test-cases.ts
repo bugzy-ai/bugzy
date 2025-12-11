@@ -5,8 +5,6 @@
 
 import type { ComposedTaskTemplate } from '../steps/types';
 import { TASK_SLUGS } from '../constants';
-import { EXPLORATION_INSTRUCTIONS } from '../templates/exploration-instructions';
-import { CLARIFICATION_INSTRUCTIONS } from '../templates/clarification-instructions';
 
 export const generateTestCasesTask: ComposedTaskTemplate = {
   slug: TASK_SLUGS.GENERATE_TEST_CASES,
@@ -84,27 +82,10 @@ Explore all available product documentation, specifically focusing on:
 \`\`\``,
       conditionalOnSubagent: 'documentation-researcher',
     },
-    // Step 7: Explore Features (inline with full exploration instructions)
-    {
-      inline: true,
-      title: 'Explore Features (If Needed)',
-      content: `If documentation is insufficient or ambiguous, perform adaptive exploration to understand actual feature behavior before creating test cases.
-
-${EXPLORATION_INSTRUCTIONS}`,
-    },
-    // Step 8: Clarify Ambiguities (inline with full clarification instructions)
-    {
-      inline: true,
-      title: 'Clarify Ambiguities',
-      content: `If exploration or documentation review reveals ambiguous requirements, use the clarification protocol to resolve them before generating test cases.
-
-${CLARIFICATION_INSTRUCTIONS}
-
-**Important Notes:**
-- **CRITICAL/HIGH ambiguities:** STOP test case generation and seek clarification
-- **MEDIUM ambiguities:** Document assumptions explicitly in test case with [ASSUMED: reason]
-- **LOW ambiguities:** Mark with [TO BE CLARIFIED: detail] in test case notes section`,
-    },
+    // Step 7: Exploration Protocol (from library)
+    'exploration-protocol',
+    // Step 8: Clarification Protocol (from library)
+    'clarification-protocol',
     // Step 9: Organize Test Scenarios (inline - task-specific)
     {
       inline: true,

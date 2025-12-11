@@ -5,8 +5,6 @@
 
 import type { ComposedTaskTemplate } from '../steps/types';
 import { TASK_SLUGS } from '../constants';
-import { EXPLORATION_INSTRUCTIONS } from '../templates/exploration-instructions';
-import { CLARIFICATION_INSTRUCTIONS } from '../templates/clarification-instructions';
 
 export const generateTestPlanTask: ComposedTaskTemplate = {
   slug: TASK_SLUGS.GENERATE_TEST_PLAN,
@@ -78,30 +76,10 @@ The agent will:
 4. Return synthesized information about all discovered documentation`,
       conditionalOnSubagent: 'documentation-researcher',
     },
-    // Step 9: Explore Product (inline with full exploration instructions)
-    {
-      inline: true,
-      title: 'Explore Product (If Needed)',
-      content: `If product description is vague or incomplete, perform adaptive exploration to understand actual product features and behavior.
-
-${EXPLORATION_INSTRUCTIONS}`,
-    },
-    // Step 10: Clarify Ambiguities (inline with full clarification instructions)
-    {
-      inline: true,
-      title: 'Clarify Ambiguities',
-      content: `If exploration or product description reveals ambiguous requirements, use the clarification protocol before generating the test plan.
-
-${CLARIFICATION_INSTRUCTIONS}
-
-**Important Notes:**
-- **CRITICAL/HIGH ambiguities:** STOP test plan generation and seek clarification
-  - Examples: Undefined core features, unclear product scope, contradictory requirements
-- **MEDIUM ambiguities:** Document assumptions in test plan with [ASSUMED: reason] and seek async clarification
-  - Examples: Missing field lists, unclear validation rules, vague user roles
-- **LOW ambiguities:** Mark with [TO BE EXPLORED: detail] in test plan for future investigation
-  - Examples: Optional features, cosmetic details, non-critical edge cases`,
-    },
+    // Step 9: Exploration Protocol (from library)
+    'exploration-protocol',
+    // Step 10: Clarification Protocol (from library)
+    'clarification-protocol',
     // Step 11: Prepare Context (inline)
     {
       inline: true,
