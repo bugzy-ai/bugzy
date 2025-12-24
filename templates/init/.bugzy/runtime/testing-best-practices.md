@@ -584,6 +584,96 @@ export default defineConfig({
 });
 ```
 
+## Test Cleanup Strategy
+
+**Design Principle**: Each test cleans up what IT creates. No pre-cleanup needed.
+
+### Why Post-Test Cleanup (Not Pre-Test)
+
+Pre-test cleanup adds complexity:
+- Extra login/logout cycles before each test
+- Longer timeouts (5 min vs 3 min)
+- Test code cluttered with cleanup steps
+- Test failures can leave cleanup incomplete
+
+Post-test cleanup via fixtures is better:
+- Runs AFTER test completes (pass or fail)
+- Automatic - no manual steps in test code
+- Cleaner test flow focused on main scenario
+- Guaranteed execution
+
+### Cleanup Fixture Pattern
+
+```typescript
+// Import from cleanup fixture instead of pages fixture
+import { test, expect } from '../../fixtures/cleanup.fixture';
+
+test('create absence', async ({
+  page,
+  loginPage,
+  navigationPage,
+  myAbsencesPage,
+  withAbsenceCleanup  // Triggers cleanup after test
+}) => {
+  // Reference fixture to satisfy TypeScript
+  void withAbsenceCleanup;
+
+  // Main test flow - no pre-cleanup needed
+  await test.step('Login as employee', async () => {
+    await loginPage.navigateToLogin();
+    await loginPage.login(email, password);
+    // ...
+  });
+
+  await test.step('Create absence with privacy="Yes"', async () => {
+    // CRITICAL: Use privacy="Yes" so admin can see and delete during cleanup
+    await myAbsencesPage.createAbsence({ privacy: 'Yes', ... });
+  });
+
+  // Cleanup runs automatically after test (pass or fail)
+});
+```
+
+### When to Use Cleanup Fixtures
+
+| Scenario | Use Cleanup Fixture? |
+|----------|---------------------|
+| Test creates data (absences, users, etc.) | Yes - use `cleanup.fixture.ts` |
+| Read-only test (verify UI, check dropdown options) | No - use `pages.fixture.ts` |
+| Test modifies then deletes own data | Optional - cleanup acts as safety net |
+
+### Creating Custom Cleanup Fixtures
+
+```typescript
+// tests/fixtures/cleanup.fixture.ts
+export const test = pagesTest.extend<CleanupFixtures>({
+  withAbsenceCleanup: [
+    async ({ page }, use) => {
+      // Run the test first
+      await use();
+
+      // POST-TEST CLEANUP: Clean up what the test created
+      await cleanupTestAbsences({ page, ... });
+    },
+    { auto: false }, // Must be explicitly requested
+  ],
+});
+```
+
+Key implementation details:
+- `await use()` runs the test
+- Cleanup code runs AFTER `use()` returns
+- `{ auto: false }` means test must include fixture in parameters
+- Cleanup should handle errors gracefully (non-blocking)
+
+### Privacy Setting for Admin Cleanup
+
+**CRITICAL**: When admin cleans up absences created by employee tests:
+- Absences with `privacy="Yes"` are visible to admin
+- Absences with `privacy="No"` are hidden from admin
+
+**Rule**: Tests MUST create absences with `privacy="Yes"` to enable admin cleanup.
+
 ## Production-Ready Checklist
 
 **Configuration:**
@@ -607,6 +697,7 @@ export default defineConfig({
 - [ ] Framework validated with ONE working test before scaling
 - [ ] Smoke tests tagged with @smoke for CI/CD
 - [ ] All tests use `test.step()` for video-navigable execution (3-7 steps per test)
+- [ ] Tests that create data use cleanup fixtures (post-test cleanup, no pre-cleanup)
 
 **Test Independence Validation:**
 - [ ] Each test can run in isolation: `npx playwright test <single-test>`
@@ -624,9 +715,10 @@ export default defineConfig({
 
 ---
 
-**Remember**: The five critical pillars are:
+**Remember**: The six critical pillars are:
 1. **Two-Phase Approach** - Separate WHAT to test from HOW to automate
 2. **Test One First** - Validate framework with ONE working test before scaling
 3. **Page Object Model** - Isolate UI changes from test logic
 4. **Role-based selectors** - Resist breakage with semantic HTML
 5. **Authentication state reuse** - Maximize speed and reliability
+6. **Post-test cleanup** - Each test cleans up what IT creates via fixtures
