@@ -108,6 +108,13 @@ export const INTEGRATIONS: Record<string, SubAgentIntegration> = {
     requiredMCP: 'mcp__resend__*',
     integrationType: 'local' // Uses platform API key, no OAuth needed
   },
+  github: {
+    id: 'github',
+    name: 'GitHub',
+    provider: 'github',
+    requiredMCP: 'mcp__github__*',
+    integrationType: 'oauth'
+  },
   local: {
     id: 'local',
     name: 'Local (Terminal)',
@@ -194,6 +201,17 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     model: 'sonnet',
     color: 'yellow',
     isRequired: true, // Required for automated test execution and fixing
+    version: '1.0.0'
+  },
+  'changelog-historian': {
+    role: 'changelog-historian',
+    name: 'Changelog Historian',
+    description: 'Retrieves and analyzes code changes from GitHub PRs and commits',
+    icon: 'git-pull-request',
+    integrations: [INTEGRATIONS.github],
+    model: 'haiku',
+    color: 'gray',
+    isRequired: false,
     version: '1.0.0'
   }
 };

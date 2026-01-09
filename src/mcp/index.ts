@@ -138,7 +138,21 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
       },
     },
   },
-  // github: {
+  github: {
+    provider: 'github',
+    name: 'GitHub',
+    description: 'GitHub MCP server for PR and commit information',
+    requiresCredentials: true,
+    npmPackages: ['@bugzy-ai/github-mcp-server'],
+    config: {
+      command: 'github-mcp-server',
+      args: [],
+      env: {
+        GITHUB_TOKEN: '${GITHUB_TOKEN}',
+      },
+    },
+  },
+  // github-modelcontextprotocol: {
   //   provider: 'github',
   //   name: 'GitHub',
   //   description: 'GitHub MCP server for repository operations',

@@ -31,6 +31,9 @@ import * as IssueTrackerJiraServer from './issue-tracker/jira-server';
 import * as IssueTrackerNotion from './issue-tracker/notion';
 import * as IssueTrackerSlack from './issue-tracker/slack';
 
+// Changelog Historian templates
+import * as ChangelogHistorianGithub from './changelog-historian/github';
+
 /**
  * Template registry organized by role and integration
  */
@@ -101,6 +104,12 @@ export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
     slack: {
       frontmatter: IssueTrackerSlack.FRONTMATTER,
       content: IssueTrackerSlack.CONTENT,
+    },
+  },
+  'changelog-historian': {
+    github: {
+      frontmatter: ChangelogHistorianGithub.FRONTMATTER,
+      content: ChangelogHistorianGithub.CONTENT,
     },
   },
 };

@@ -20,7 +20,8 @@ export type SubagentRole =
   | 'test-code-generator'
   | 'team-communicator'
   | 'issue-tracker'
-  | 'documentation-researcher';
+  | 'documentation-researcher'
+  | 'changelog-historian';
 
 /**
  * Intent-based keys for tool-specific strings
@@ -33,7 +34,8 @@ export type ToolStringKey =
   | 'INVOKE_TEAM_COMMUNICATOR'
   | 'INLINE_TEAM_COMMUNICATOR'
   | 'INVOKE_ISSUE_TRACKER'
-  | 'INVOKE_DOCUMENTATION_RESEARCHER';
+  | 'INVOKE_DOCUMENTATION_RESEARCHER'
+  | 'INVOKE_CHANGELOG_HISTORIAN';
 
 /**
  * Map subagent role to tool string key
@@ -45,6 +47,7 @@ const ROLE_TO_KEY: Record<SubagentRole, ToolStringKey> = {
   'team-communicator': 'INVOKE_TEAM_COMMUNICATOR',
   'issue-tracker': 'INVOKE_ISSUE_TRACKER',
   'documentation-researcher': 'INVOKE_DOCUMENTATION_RESEARCHER',
+  'changelog-historian': 'INVOKE_CHANGELOG_HISTORIAN',
 };
 
 /**
@@ -78,6 +81,9 @@ export const TOOL_STRINGS: Record<ToolId, Record<ToolStringKey, string>> = {
     INVOKE_DOCUMENTATION_RESEARCHER:
       '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "documentation-researcher"` to search docs.\n' +
       'The agent will search Notion/Confluence. Include search query and context in the prompt.',
+    INVOKE_CHANGELOG_HISTORIAN:
+      '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "changelog-historian"` to retrieve change history.\n' +
+      'The agent will query GitHub for PRs and commits. Include repo context and date range in the prompt.',
   },
 
   'cursor': {
@@ -96,6 +102,8 @@ export const TOOL_STRINGS: Record<ToolId, Record<ToolStringKey, string>> = {
       'Run the issue-tracker agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/issue-tracker.md)" --output-format text\n```',
     INVOKE_DOCUMENTATION_RESEARCHER:
       'Run the documentation-researcher agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/documentation-researcher.md)" --output-format text\n```',
+    INVOKE_CHANGELOG_HISTORIAN:
+      'Run the changelog-historian agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/changelog-historian.md)" --output-format text\n```',
   },
 
   'codex': {
@@ -114,6 +122,8 @@ export const TOOL_STRINGS: Record<ToolId, Record<ToolStringKey, string>> = {
       'Run the issue-tracker agent:\n```bash\ncodex -p "$(cat .codex/agents/issue-tracker.md)"\n```',
     INVOKE_DOCUMENTATION_RESEARCHER:
       'Run the documentation-researcher agent:\n```bash\ncodex -p "$(cat .codex/agents/documentation-researcher.md)"\n```',
+    INVOKE_CHANGELOG_HISTORIAN:
+      'Run the changelog-historian agent:\n```bash\ncodex -p "$(cat .codex/agents/changelog-historian.md)"\n```',
   },
 };
 
@@ -175,6 +185,7 @@ export function replaceInvocationPlaceholders(
     'INVOKE_TEAM_COMMUNICATOR',
     'INVOKE_ISSUE_TRACKER',
     'INVOKE_DOCUMENTATION_RESEARCHER',
+    'INVOKE_CHANGELOG_HISTORIAN',
   ];
 
   for (const key of keys) {

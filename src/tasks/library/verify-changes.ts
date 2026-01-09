@@ -177,6 +177,35 @@ CHANGE_CONTEXT = {
 }
 \`\`\``,
     },
+    // Step 6b: Retrieve Code Change Details (conditional - changelog-historian)
+    {
+      inline: true,
+      title: 'Retrieve Code Change Details',
+      content: `{{INVOKE_CHANGELOG_HISTORIAN}} to gather comprehensive context about recent code changes:
+
+Explore version control history related to the verification scope.
+
+Specifically gather:
+- Recent changes merged to the target branch
+- Change authors and contributors
+- Scope and impact of each change
+- Change descriptions and rationale
+- Related issues or tickets
+- Files and components affected
+
+The agent will:
+1. Check its memory for previously discovered repository context
+2. Explore version control for relevant changes
+3. Build comprehensive understanding of the change history
+4. Return synthesized change information
+
+Use this information to:
+- Identify which changes may have caused test failures
+- Understand the scope and risk of the changes
+- Enhance the verification report with change attribution
+- Provide better context for manual verification checklist`,
+      conditionalOnSubagent: 'changelog-historian',
+    },
     // Step 7: Determine Test Scope (inline)
     {
       inline: true,
@@ -472,6 +501,6 @@ A successful verification includes:
   ],
 
   requiredSubagents: ['test-runner', 'test-debugger-fixer'],
-  optionalSubagents: ['documentation-researcher', 'issue-tracker', 'team-communicator'],
+  optionalSubagents: ['documentation-researcher', 'issue-tracker', 'team-communicator', 'changelog-historian'],
   dependentTasks: [],
 };
