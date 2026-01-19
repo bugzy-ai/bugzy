@@ -65,6 +65,13 @@ export const INTEGRATIONS: Record<string, SubAgentIntegration> = {
     requiredMCP: 'mcp__jira-server__*',
     integrationType: 'custom'
   },
+  'azure-devops': {
+    id: 'azure-devops',
+    name: 'Azure DevOps',
+    provider: 'azure-devops',
+    requiredMCP: 'mcp__azure-devops__*',
+    integrationType: 'oauth' // Uses Nango with API key auth for PAT
+  },
   notion: {
     id: 'notion',
     name: 'Notion',
@@ -161,6 +168,7 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
       // INTEGRATIONS.linear,
       // INTEGRATIONS.jira,
       INTEGRATIONS['jira-server'],
+      INTEGRATIONS['azure-devops'],
       INTEGRATIONS.notion,
       INTEGRATIONS.slack
     ],

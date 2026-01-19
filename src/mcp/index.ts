@@ -152,6 +152,21 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
       },
     },
   },
+  'azure-devops': {
+    provider: 'azure-devops',
+    name: 'Azure DevOps',
+    description: 'Azure DevOps MCP server for Work Item Tracking (project specified per-request)',
+    requiresCredentials: true,
+    npmPackages: ['@bugzy-ai/azure-devops-mcp-server'],
+    config: {
+      command: 'azure-devops-mcp-server',
+      args: [],
+      env: {
+        AZURE_DEVOPS_ORG_URL: '${AZURE_DEVOPS_ORG_URL}',
+        AZURE_DEVOPS_PAT: '${AZURE_DEVOPS_PAT}',
+      },
+    },
+  },
   // github-modelcontextprotocol: {
   //   provider: 'github',
   //   name: 'GitHub',

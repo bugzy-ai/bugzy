@@ -28,6 +28,7 @@ import * as DocumentationResearcherConfluence from './documentation-researcher/c
 import * as IssueTrackerLinear from './issue-tracker/linear';
 import * as IssueTrackerJira from './issue-tracker/jira';
 import * as IssueTrackerJiraServer from './issue-tracker/jira-server';
+import * as IssueTrackerAzureDevOps from './issue-tracker/azure-devops';
 import * as IssueTrackerNotion from './issue-tracker/notion';
 import * as IssueTrackerSlack from './issue-tracker/slack';
 
@@ -96,6 +97,10 @@ export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
     'jira-server': {
       frontmatter: IssueTrackerJiraServer.FRONTMATTER,
       content: IssueTrackerJiraServer.CONTENT,
+    },
+    'azure-devops': {
+      frontmatter: IssueTrackerAzureDevOps.FRONTMATTER,
+      content: IssueTrackerAzureDevOps.CONTENT,
     },
     notion: {
       frontmatter: IssueTrackerNotion.FRONTMATTER,
