@@ -6,18 +6,21 @@ import { loadConfig, saveConfig } from '../../src/cli/utils/config';
 describe('config utilities', () => {
   const testDir = path.join(__dirname, '../temp-test-config');
   const configPath = path.join(testDir, '.bugzy/config.json');
+  const originalCwd = process.cwd();
 
   beforeEach(() => {
     if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true });
+      fs.rmSync(testDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
     }
     fs.mkdirSync(path.join(testDir, '.bugzy'), { recursive: true });
     process.chdir(testDir);
   });
 
   afterEach(() => {
+    // Change back to original directory before cleanup
+    process.chdir(originalCwd);
     if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true });
+      fs.rmSync(testDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
     }
   });
 

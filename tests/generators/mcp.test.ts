@@ -7,11 +7,12 @@ import { buildMCPConfig } from '../../src/mcp';
 describe('generateMCPConfig', () => {
   const testDir = path.join(__dirname, '../temp-test-mcp');
   const mcpConfigPath = path.join(testDir, '.mcp.json');
+  const originalCwd = process.cwd();
 
   beforeEach(() => {
     // Create test directory
     if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true });
+      fs.rmSync(testDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
     }
     fs.mkdirSync(testDir, { recursive: true });
 
@@ -20,9 +21,11 @@ describe('generateMCPConfig', () => {
   });
 
   afterEach(() => {
+    // Change back to original directory before cleanup
+    process.chdir(originalCwd);
     // Clean up
     if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true });
+      fs.rmSync(testDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
     }
   });
 

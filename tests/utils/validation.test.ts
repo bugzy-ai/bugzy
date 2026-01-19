@@ -5,18 +5,21 @@ import { validateProjectStructure, validateSecrets } from '../../src/cli/utils/v
 
 describe('validation utilities', () => {
   const testDir = path.join(__dirname, '../temp-test-validation');
+  const originalCwd = process.cwd();
 
   beforeEach(() => {
     if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true });
+      fs.rmSync(testDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
     }
     fs.mkdirSync(testDir, { recursive: true });
     process.chdir(testDir);
   });
 
   afterEach(() => {
+    // Change back to original directory before cleanup
+    process.chdir(originalCwd);
     if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true });
+      fs.rmSync(testDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
     }
   });
 
