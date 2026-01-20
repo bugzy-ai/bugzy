@@ -9,6 +9,7 @@ import { TASK_TEMPLATES } from '../../tasks';
 import { buildTaskDefinition, type ProjectSubAgent } from '../../core/task-builder';
 import { ToolId, getToolProfile, DEFAULT_TOOL } from '../../core/tool-profile';
 import { replaceInvocationPlaceholders } from '../../core/tool-strings';
+import { serializeMarkdownWithFrontmatter } from '../utils/yaml';
 
 /**
  * Command filter for local vs cloud environments
@@ -136,20 +137,6 @@ function formatCommandMarkdown(frontmatter: Record<string, any>, content: string
   }
 
   // For tools like Claude Code and Codex that use frontmatter
-  const lines: string[] = ['---'];
-
-  // Format frontmatter
-  for (const [key, value] of Object.entries(frontmatter)) {
-    if (value !== undefined && value !== null) {
-      // Quote string values
-      const formattedValue = typeof value === 'string' ? `"${value}"` : value;
-      lines.push(`${key}: ${formattedValue}`);
-    }
-  }
-
-  lines.push('---');
-  lines.push('');
-  lines.push(content);
-
-  return lines.join('\n');
+  // Use gray-matter for proper YAML serialization (handles quotes, newlines, XML tags)
+  return serializeMarkdownWithFrontmatter(frontmatter, content);
 }

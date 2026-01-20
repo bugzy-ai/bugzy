@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { buildSubagentConfig } from '../../subagents';
 import { ToolId, getToolProfile, DEFAULT_TOOL } from '../../core/tool-profile';
+import { serializeMarkdownWithFrontmatter } from '../utils/yaml';
 
 /**
  * Generate subagent configuration files
@@ -67,25 +68,19 @@ function formatAgentMarkdown(frontmatter: Record<string, any>, content: string, 
   }
 
   // For tools like Claude Code that use frontmatter
-  const lines: string[] = ['---'];
-
-  // Format frontmatter
+  // Convert arrays to comma-separated strings for YAML frontmatter
+  const processedFrontmatter: Record<string, any> = {};
   for (const [key, value] of Object.entries(frontmatter)) {
     if (value !== undefined && value !== null) {
-      // Handle arrays (e.g., tools)
       if (Array.isArray(value)) {
-        lines.push(`${key}: ${value.join(', ')}`);
+        // Convert arrays to comma-separated strings (e.g., tools: Read, Write)
+        processedFrontmatter[key] = value.join(', ');
       } else {
-        // Quote string values
-        const formattedValue = typeof value === 'string' ? `"${value}"` : value;
-        lines.push(`${key}: ${formattedValue}`);
+        processedFrontmatter[key] = value;
       }
     }
   }
 
-  lines.push('---');
-  lines.push('');
-  lines.push(content);
-
-  return lines.join('\n');
+  // Use gray-matter for proper YAML serialization (handles quotes, newlines, XML tags)
+  return serializeMarkdownWithFrontmatter(processedFrontmatter, content);
 }
