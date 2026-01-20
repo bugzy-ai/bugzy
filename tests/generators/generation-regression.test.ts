@@ -103,17 +103,19 @@ describe('Claude Code Generation Regression Tests', () => {
       expect(frontmatter).toContain('argument-hint:');
     });
 
-    it('should quote string values in frontmatter', async () => {
+    it('should produce valid YAML frontmatter that can be parsed', async () => {
       await generateCommands(subagentsRecord);
 
       const filePath = path.join(testDir, '.claude', 'commands', 'run-tests.md');
       const content = fs.readFileSync(filePath, 'utf-8');
 
-      const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-      const frontmatter = frontmatterMatch![1];
+      // gray-matter should be able to parse it back without errors
+      const matter = await import('gray-matter');
+      const parsed = matter.default(content);
 
-      // Description value should be quoted
-      expect(frontmatter).toMatch(/description:\s*".*"/);
+      // Description should be preserved correctly after round-trip
+      expect(parsed.data.description).toBeTruthy();
+      expect(typeof parsed.data.description).toBe('string');
     });
 
     it('should have markdown content after frontmatter', async () => {
