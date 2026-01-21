@@ -148,5 +148,5 @@ The handler file contains all necessary processing logic for the detected intent
 
   requiredSubagents: ['team-communicator'],
   optionalSubagents: [],
-  dependentTasks: [],
+  dependentTasks: ['verify-changes'],
 };
