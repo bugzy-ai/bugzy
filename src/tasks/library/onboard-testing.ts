@@ -42,6 +42,7 @@ This command orchestrates the complete test coverage workflow in a single execut
       content: `Focus area: $ARGUMENTS`,
     },
     // Phase 1: Setup
+    'load-project-context',
     'read-knowledge-base',
 
     // Phase 2: Exploration Protocol

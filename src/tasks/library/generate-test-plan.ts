@@ -31,10 +31,10 @@ export const generateTestPlanTask: ComposedTaskTemplate = {
       title: 'Arguments',
       content: `Product description: $ARGUMENTS`,
     },
-    // Step 4: Knowledge Base Read (library)
-    'read-knowledge-base',
-    // Step 5: Load Project Context (library)
+    // Step 4: Load Project Context (library)
     'load-project-context',
+    // Step 5: Knowledge Base Read (library)
+    'read-knowledge-base',
     // Step 6: Process Description (inline)
     {
       inline: true,

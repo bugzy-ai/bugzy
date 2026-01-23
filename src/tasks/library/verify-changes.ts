@@ -44,7 +44,9 @@ This task performs comprehensive change verification with:
 
 The input format determines the trigger source and context extraction strategy.`,
     },
-    // Step 4: Knowledge Base Read (library)
+    // Step 4: Load Project Context (library)
+    'load-project-context',
+    // Step 5: Knowledge Base Read (library)
     'read-knowledge-base',
     // Step 5: Detect Trigger Source (inline)
     {

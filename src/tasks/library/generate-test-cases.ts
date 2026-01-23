@@ -42,7 +42,9 @@ Extract the following from arguments:
 - **type**: Test type (exploratory, functional, regression, smoke) - defaults to functional
 - **focus**: Optional specific feature or section to focus on`,
     },
-    // Step 4: Knowledge Base Read (library)
+    // Step 4: Load Project Context (library)
+    'load-project-context',
+    // Step 5: Knowledge Base Read (library)
     'read-knowledge-base',
     // Step 5: Gather Context (inline)
     {

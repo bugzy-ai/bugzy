@@ -37,8 +37,8 @@ export const exploreApplicationTask: ComposedTaskTemplate = {
 - **system**: target system (optional for multi-system setups)`,
     },
     // Setup
-    'read-knowledge-base',
     'load-project-context',
+    'read-knowledge-base',
 
     // Exploration Protocol (adaptive depth)
     'exploration-protocol',

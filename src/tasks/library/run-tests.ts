@@ -41,7 +41,9 @@ Extract the following from arguments:
   - Specific file: "tests/specs/login.spec.ts"
   - All tests: "all" or "" → runs entire test suite`,
     },
-    // Step 4: Knowledge Base Read (library)
+    // Step 4: Load Project Context (library)
+    'load-project-context',
+    // Step 5: Knowledge Base Read (library)
     'read-knowledge-base',
     // Step 5: Test Execution Strategy (library)
     'read-test-strategy',

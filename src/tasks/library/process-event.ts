@@ -33,7 +33,9 @@ Process various types of events using intelligent pattern matching and historica
       title: 'Arguments',
       content: `Arguments: $ARGUMENTS`,
     },
-    // Step 4: Knowledge Base Read (library)
+    // Step 4: Load Project Context (library)
+    'load-project-context',
+    // Step 5: Knowledge Base Read (library)
     'read-knowledge-base',
     // Step 5: Understand Event Context (inline)
     {

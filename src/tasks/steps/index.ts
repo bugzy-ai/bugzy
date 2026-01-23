@@ -11,7 +11,6 @@ import type { TaskStep, StepCategory } from './types';
 import { readKnowledgeBaseStep } from './setup/read-knowledge-base';
 import { readTestStrategyStep } from './setup/read-test-strategy';
 import { loadProjectContextStep } from './setup/load-project-context';
-import { checkExistingArtifactsStep } from './setup/check-existing-artifacts';
 import { securityNoticeStep } from './setup/security-notice';
 
 // Exploration steps
@@ -58,7 +57,6 @@ export const STEP_LIBRARY: Record<string, TaskStep> = {
   'read-knowledge-base': readKnowledgeBaseStep,
   'read-test-strategy': readTestStrategyStep,
   'load-project-context': loadProjectContextStep,
-  'check-existing-artifacts': checkExistingArtifactsStep,
 
   // Exploration
   'exploration-protocol': explorationProtocolStep,

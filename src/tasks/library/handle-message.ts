@@ -37,7 +37,9 @@ Process team responses from Slack threads and handle multi-turn conversations wi
       title: 'Arguments',
       content: `Team message/thread context: $ARGUMENTS`,
     },
-    // Step 4: Knowledge Base Read (library)
+    // Step 4: Load Project Context (library)
+    'load-project-context',
+    // Step 5: Knowledge Base Read (library)
     'read-knowledge-base',
     // Step 5: Detect Intent (inline - task-specific)
     {
