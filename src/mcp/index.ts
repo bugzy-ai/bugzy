@@ -63,6 +63,7 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
         // Bot credentials (platform-level, from Bugzy's Azure Bot registration)
         TEAMS_BOT_APP_ID: '${TEAMS_BOT_APP_ID}',
         TEAMS_BOT_APP_PASSWORD: '${TEAMS_BOT_APP_PASSWORD}',
+        TEAMS_BOT_TENANT_ID: '${TEAMS_BOT_TENANT_ID}',
         // Conversation context (per-project, from stored conversation reference)
         TEAMS_SERVICE_URL: '${TEAMS_SERVICE_URL}',
         TEAMS_CONVERSATION_ID: '${TEAMS_CONVERSATION_ID}',
