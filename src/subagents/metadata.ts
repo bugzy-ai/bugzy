@@ -166,7 +166,7 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     icon: 'bot',
     integrations: [
       // INTEGRATIONS.linear,
-      // INTEGRATIONS.jira,
+      INTEGRATIONS.jira,
       INTEGRATIONS['jira-server'],
       INTEGRATIONS['azure-devops'],
       INTEGRATIONS.notion,

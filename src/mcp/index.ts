@@ -199,21 +199,21 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
   //     },
   //   },
   // },
-  // jira: {
-  //   provider: 'jira',
-  //   name: 'Jira',
-  //   description: 'Jira MCP server for issue tracking',
-  //   requiresCredentials: true,
-  //   config: {
-  //     command: 'npx',
-  //     args: ['-y', '@modelcontextprotocol/server-jira'],
-  //     env: {
-  //       JIRA_URL: '${JIRA_URL}',
-  //       JIRA_EMAIL: '${JIRA_EMAIL}',
-  //       JIRA_API_TOKEN: '${JIRA_API_TOKEN}',
-  //     },
-  //   },
-  // },
+  jira: {
+    provider: 'jira',
+    name: 'Jira Cloud',
+    description: 'Jira Cloud MCP server for issue tracking (REST API v3)',
+    requiresCredentials: true,
+    npmPackages: ['@bugzy-ai/jira-cloud-mcp-server'],
+    config: {
+      command: 'jira-cloud-mcp-server',
+      args: [],
+      env: {
+        JIRA_CLOUD_TOKEN: '${JIRA_CLOUD_TOKEN}',
+        JIRA_CLOUD_ID: '${JIRA_CLOUD_ID}',
+      },
+    },
+  },
   // confluence: {
   //   provider: 'confluence',
   //   name: 'Confluence',
