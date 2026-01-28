@@ -183,6 +183,7 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     icon: 'file-search',
     integrations: [
       INTEGRATIONS.notion,
+      INTEGRATIONS.jira,
       // INTEGRATIONS.confluence
     ],
     model: 'sonnet',

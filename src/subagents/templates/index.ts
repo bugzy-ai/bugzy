@@ -23,6 +23,7 @@ import * as TeamCommunicatorEmail from './team-communicator/email';
 // Documentation Researcher templates
 import * as DocumentationResearcherNotion from './documentation-researcher/notion';
 import * as DocumentationResearcherConfluence from './documentation-researcher/confluence';
+import * as DocumentationResearcherJira from './documentation-researcher/jira';
 
 // Issue Tracker templates
 import * as IssueTrackerLinear from './issue-tracker/linear';
@@ -83,6 +84,10 @@ export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
     confluence: {
       frontmatter: DocumentationResearcherConfluence.FRONTMATTER,
       content: DocumentationResearcherConfluence.CONTENT,
+    },
+    jira: {
+      frontmatter: DocumentationResearcherJira.FRONTMATTER,
+      content: DocumentationResearcherJira.CONTENT,
     },
   },
   'issue-tracker': {
