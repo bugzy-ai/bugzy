@@ -77,7 +77,7 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
     requiresCredentials: false,
     npmPackages: ['@playwright/mcp'],
     config: {
-      command: 'mcp-server-playwright',
+      command: 'playwright-mcp',
       args: [
         '--browser',
         'chromium',
