@@ -230,7 +230,7 @@ describe('Multi-Tool Generation Tests', () => {
         const separatorIndex = args.indexOf('--');
         expect(separatorIndex).toBeGreaterThan(0);
         // Command should be right after --
-        expect(args[separatorIndex + 1]).toBe('mcp-server-playwright');
+        expect(args[separatorIndex + 1]).toBe('playwright-mcp');
         // Args should follow the command (not use --args flag)
         expect(args).not.toContain('--args');
         expect(args).toContain('--browser');

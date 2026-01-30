@@ -1,6 +1,6 @@
 {
   "name": "@bugzy-ai/bugzy",
-  "version": "1.11.1",
+  "version": "1.11.2",
   "description": "Open-source AI agent configuration for QA automation with Claude Code",
   "publishConfig": {
     "access": "public"
