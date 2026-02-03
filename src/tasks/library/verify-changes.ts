@@ -269,6 +269,42 @@ Generate summary of test selection based on description analysis:
 - **Execution strategy**: [smart selection | full suite | smoke tests | user-specified]
 \`\`\``,
     },
+    // Step 7b: Create Tests for Coverage Gaps (conditional - test-code-generator)
+    {
+      inline: true,
+      title: 'Create Tests for Coverage Gaps',
+      content: `If the test scope analysis found that existing tests do NOT cover the changed feature:
+
+### Identify Coverage Gaps
+
+Compare:
+- **Changed feature**: What the Jira issue / PR describes
+- **Existing tests**: What test specs already exist in tests/specs/
+
+If there are NO automated tests covering the new/changed feature:
+
+### Create Manual Test Cases
+
+Create or update test case files in \`./test-cases/\` for the new feature:
+- One file per test scenario (e.g., \`test-cases/TC-XXX-checkout-improved.md\`)
+- Include: objective, preconditions, test steps, expected results
+- Mark \`automated: true\` for scenarios that should be automated
+
+### Generate Playwright Specs
+
+{{INVOKE_TEST_CODE_GENERATOR}} to create automated test specs:
+- Read the manual test cases you just created
+- Explore the feature in the browser to discover selectors and flows
+- Create Page Objects in \`./tests/pages/\` if needed
+- Create test specs in \`./tests/specs/\` matching the test cases
+- Run each new test to verify it passes
+- Update the manual test case with \`automated_test\` reference
+
+### If Tests Already Cover the Feature
+
+Skip this step — proceed directly to running existing tests.`,
+      conditionalOnSubagent: 'test-code-generator',
+    },
     // Step 8-11: Test Execution (library steps)
     'run-playwright-tests',
     'parse-test-results',
@@ -374,6 +410,23 @@ All user-facing changes are fully covered by automated tests.
 ### Overall Recommendation
 [Safe to merge | Review bugs before merging | Do not merge]
 \`\`\``,
+    },
+    // Step 14b: Post Results to Slack (conditional on team-communicator)
+    {
+      inline: true,
+      title: 'Post Results to Team Channel',
+      content: `**IMPORTANT — Do this NOW before proceeding to any other step.**
+
+{{INVOKE_TEAM_COMMUNICATOR}} to post the verification results summary to the team Slack channel.
+
+Include in the message:
+- What was verified (issue ID and feature name)
+- Test results (total / passed / failed)
+- New tests created (list file names)
+- Manual verification items count
+- Overall recommendation (safe to merge / review / block)
+- Any blocking issues or critical findings`,
+      conditionalOnSubagent: 'team-communicator',
     },
     // Step 15: Documentation Research (conditional inline)
     {
@@ -503,6 +556,6 @@ A successful verification includes:
   ],
 
   requiredSubagents: ['test-runner', 'test-debugger-fixer'],
-  optionalSubagents: ['documentation-researcher', 'issue-tracker', 'team-communicator', 'changelog-historian'],
+  optionalSubagents: ['documentation-researcher', 'issue-tracker', 'team-communicator', 'changelog-historian', 'test-code-generator'],
   dependentTasks: [],
 };
