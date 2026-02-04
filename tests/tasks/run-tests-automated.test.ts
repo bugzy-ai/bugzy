@@ -56,7 +56,7 @@ describe('run-tests task (automated execution)', () => {
   it('should include Playwright command execution instructions', () => {
     const result = buildTaskDefinition('run-tests', minimalSubAgents);
 
-    expect(result.content).toContain('npx playwright test');
+    expect(result.content).toContain('npm test');
     expect(result.content).toContain('Bugzy reporter');
   });
 
