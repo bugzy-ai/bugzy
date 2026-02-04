@@ -10,24 +10,22 @@ Run automated Playwright tests and capture results.
 
 **Build Playwright Command** based on selector:
 
+The playwright.config.ts automatically loads environment variables from .env.testdata and .env files.
+Use npm scripts to run tests - no manual env export needed.
+
 **For file pattern or specific file**:
 \`\`\`bash
-npx playwright test [selector]
+npm test -- [selector]
 \`\`\`
 
 **For tag**:
 \`\`\`bash
-npx playwright test --grep "[tag]"
+npm test -- --grep "[tag]"
 \`\`\`
 
 **For all tests**:
 \`\`\`bash
-npx playwright test
-\`\`\`
-
-**Execute Tests via Bash:**
-\`\`\`bash
-npx playwright test [selector]
+npm test
 \`\`\`
 
 Wait for execution to complete. This may take several minutes depending on test count.
