@@ -44,6 +44,10 @@ This command orchestrates the complete test coverage workflow in a single execut
     // Phase 1: Setup
     'load-project-context',
     'read-knowledge-base',
+    {
+      stepId: 'gather-documentation',
+      conditionalOnSubagent: 'documentation-researcher',
+    },
 
     // Phase 2: Exploration Protocol
     'exploration-protocol',

@@ -428,38 +428,9 @@ Include in the message:
 - Any blocking issues or critical findings`,
       conditionalOnSubagent: 'team-communicator',
     },
-    // Step 15: Documentation Research (conditional inline)
+    // Step 15: Documentation Research (conditional library step)
     {
-      inline: true,
-      title: 'Understanding the Change (Documentation Research)',
-      content: `{{INVOKE_DOCUMENTATION_RESEARCHER}} to gather comprehensive context about the changed features:
-
-Explore project documentation related to the changes.
-
-Specifically gather:
-- Product specifications for affected features
-- User stories and acceptance criteria
-- Technical architecture documentation
-- API endpoints and contracts
-- User roles and permissions relevant to the change
-- Business rules and validations
-- UI/UX specifications
-- Known limitations or constraints
-- Related bug reports or known issues
-- Existing test documentation for this area
-
-The agent will:
-1. Check its memory for previously discovered documentation
-2. Explore workspace for relevant pages and databases
-3. Build comprehensive understanding of the affected features
-4. Return synthesized information to inform testing strategy
-
-Use this information to:
-- Better understand the change context
-- Identify comprehensive test scenarios
-- Recognize integration points and dependencies
-- Spot potential edge cases or risk areas
-- Enhance manual verification checklist generation`,
+      stepId: 'gather-documentation',
       conditionalOnSubagent: 'documentation-researcher',
     },
     // Step 16: Report Results (inline)

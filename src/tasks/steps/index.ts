@@ -12,6 +12,7 @@ import { readKnowledgeBaseStep } from './setup/read-knowledge-base';
 import { readTestStrategyStep } from './setup/read-test-strategy';
 import { loadProjectContextStep } from './setup/load-project-context';
 import { securityNoticeStep } from './setup/security-notice';
+import { gatherDocumentationStep } from './setup/gather-documentation';
 
 // Exploration steps
 import { explorationProtocolStep } from './exploration/exploration-protocol';
@@ -57,6 +58,7 @@ export const STEP_LIBRARY: Record<string, TaskStep> = {
   'read-knowledge-base': readKnowledgeBaseStep,
   'read-test-strategy': readTestStrategyStep,
   'load-project-context': loadProjectContextStep,
+  'gather-documentation': gatherDocumentationStep,
 
   // Exploration
   'exploration-protocol': explorationProtocolStep,

@@ -47,33 +47,9 @@ export const generateTestPlanTask: ComposedTaskTemplate = {
       title: 'Initialize Environment Variables Tracking',
       content: `Create a list to track all TEST_ prefixed environment variables discovered throughout the process.`,
     },
-    // Step 8: Documentation Researcher (conditional inline)
+    // Step 8: Documentation Researcher (conditional library step)
     {
-      inline: true,
-      title: 'Gather Comprehensive Project Documentation',
-      content: `{{INVOKE_DOCUMENTATION_RESEARCHER}} to explore and gather all available project information and other documentation sources. This ensures the test plan is based on complete and current information.
-
-\`\`\`
-Explore all available project documentation related to: $ARGUMENTS
-
-Specifically gather:
-- Product specifications and requirements
-- User stories and acceptance criteria
-- Technical architecture documentation
-- API documentation and endpoints
-- User roles and permissions
-- Business rules and validations
-- UI/UX specifications
-- Known limitations or constraints
-- Existing test documentation
-- Bug reports or known issues
-\`\`\`
-
-The agent will:
-1. Check its memory for previously discovered documentation
-2. Explore workspace for relevant pages and databases
-3. Build a comprehensive understanding of the product
-4. Return synthesized information about all discovered documentation`,
+      stepId: 'gather-documentation',
       conditionalOnSubagent: 'documentation-researcher',
     },
     // Step 9: Exploration Protocol (from library)

@@ -66,22 +66,9 @@ Read the test plan from \`test-plan.md\` to understand:
 - Identify existing Page Objects in \`./tests/pages/\`
 - Avoid creating overlapping test cases or duplicate automation`,
     },
-    // Step 6: Documentation Researcher (conditional inline)
+    // Step 6: Documentation Researcher (conditional library step)
     {
-      inline: true,
-      title: 'Gather Product Documentation',
-      content: `{{INVOKE_DOCUMENTATION_RESEARCHER}} to gather comprehensive product documentation:
-
-\`\`\`
-Explore all available product documentation, specifically focusing on:
-- UI elements and workflows
-- User interactions and navigation paths
-- Form fields and validation rules
-- Error messages and edge cases
-- Authentication and authorization flows
-- Business rules and constraints
-- API endpoints for test data setup
-\`\`\``,
+      stepId: 'gather-documentation',
       conditionalOnSubagent: 'documentation-researcher',
     },
     // Step 7: Exploration Protocol (from library)

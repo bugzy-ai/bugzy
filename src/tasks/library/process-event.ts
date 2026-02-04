@@ -173,6 +173,7 @@ Based on the event source, load the handler from \`.bugzy/runtime/handlers/\`:
 
 **Step 1: Detect Event Source from Payload:**
 - \`com.jira-server.*\` event type prefix -> \`.bugzy/runtime/handlers/jira.md\`
+- \`com.recall.*\` event type prefix -> \`.bugzy/runtime/handlers/recall.md\`
 - \`github.*\` or GitHub webhook structure -> \`.bugzy/runtime/handlers/github.md\`
 - \`linear.*\` or Linear webhook -> \`.bugzy/runtime/handlers/linear.md\`
 - Other sources -> Check for matching handler file by source name
@@ -240,19 +241,9 @@ Based on event type and content, generate 3-5 specific search queries:
 - Find relevant documentation
 - Check for known issues`,
     },
-    // Step 9: Documentation Research (conditional inline)
+    // Step 9: Documentation Research (conditional library step)
     {
-      inline: true,
-      title: 'Use Documentation Researcher',
-      content: `#### 3.3 Use Documentation Researcher if Needed
-
-{{INVOKE_DOCUMENTATION_RESEARCHER}} to find information about unknown features or components:
-
-For events mentioning unknown features or components, ask the agent to explore project documentation and return:
-- Feature specifications
-- Related test cases
-- Known issues or limitations
-- Component dependencies`,
+      stepId: 'gather-documentation',
       conditionalOnSubagent: 'documentation-researcher',
     },
     // Step 10: Task Planning (inline)
@@ -431,5 +422,5 @@ Create files if they don't exist:
 
   requiredSubagents: ['team-communicator'],
   optionalSubagents: ['documentation-researcher', 'issue-tracker'],
-  dependentTasks: ['verify-changes'],
+  dependentTasks: ['verify-changes', 'generate-test-cases', 'run-tests'],
 };
