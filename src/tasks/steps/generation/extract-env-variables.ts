@@ -17,7 +17,8 @@ Before adding ANY variable to .env.testdata, check if it's a secret:
 1. Scan for TEST_* variable references in test plan and test cases
 2. For each variable found:
    - If name contains PASSWORD/SECRET/TOKEN/KEY -> Skip (it's a secret, goes in .env only)
-   - Otherwise -> Add to .env.testdata with actual value
+   - If actual value is known -> Add to .env.testdata with value
+   - If actual value is unknown -> Add to .env.testdata with empty value and \`# TODO: team to configure\` comment
 3. Preserve existing variables in .env.testdata
 
 **Example .env.testdata (non-secrets only):**

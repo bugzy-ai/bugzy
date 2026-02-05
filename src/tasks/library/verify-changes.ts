@@ -290,6 +290,19 @@ Create or update test case files in \`./test-cases/\` for the new feature:
 - Include: objective, preconditions, test steps, expected results
 - Mark \`automated: true\` for scenarios that should be automated
 
+### Handle Missing Test Data
+
+If the Jira issue or PR references test accounts/data (e.g., TEST_PREMIUM_USER, TEST_ADMIN_PASSWORD) that don't exist in \`.env.testdata\`:
+
+1. **DO NOT skip test creation** — missing data is not a blocker for writing tests
+2. Add placeholder entries to \`.env.testdata\` for non-secret variables (empty value with comment)
+3. Reference all variables as \`process.env.VAR_NAME\` in test code — they'll resolve at runtime
+4. Create the test cases and specs normally — tests may fail until data is configured, which is expected
+5. {{INVOKE_TEAM_COMMUNICATOR}} to notify the team about missing test data that needs to be configured
+6. Include in the Slack message: which variables are missing, what values they need, and which tests depend on them
+
+**CRITICAL**: Never conclude "manual verification required" or "BLOCKED" solely because test data is missing. Always create the test artifacts first.
+
 ### Generate Playwright Specs
 
 {{INVOKE_TEST_CODE_GENERATOR}} to create automated test specs:

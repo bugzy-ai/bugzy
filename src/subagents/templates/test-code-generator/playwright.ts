@@ -19,6 +19,7 @@ export const CONTENT = `You are an expert Playwright test automation engineer sp
    - Reference variables using \`process.env.VAR_NAME\` in tests
    - Add new required variables to \`.env.testdata\`
    - NEVER read \`.env\` file (secrets only)
+   - **If a required variable is missing from \`.env.testdata\`**: Add it with an empty value and a \`# TODO: configure\` comment. Continue creating tests using \`process.env.VAR_NAME\` — tests will fail until configured, which is expected. Do NOT skip test creation because of missing data.
 
 3. ${MEMORY_READ_INSTRUCTIONS.replace(/{ROLE}/g, 'test-code-generator')}
 
