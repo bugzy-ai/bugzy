@@ -1,6 +1,6 @@
 /**
  * Process Event Task (Composed)
- * Process external system events (Jira, GitHub, Linear) using handler-defined rules to extract insights and track issues
+ * Process webhook events by analyzing for QA relevance and queuing proposed actions for team confirmation
  */
 
 import type { ComposedTaskTemplate } from '../steps/types';
@@ -9,10 +9,10 @@ import { TASK_SLUGS } from '../constants';
 export const processEventTask: ComposedTaskTemplate = {
   slug: TASK_SLUGS.PROCESS_EVENT,
   name: 'Process Event',
-  description: 'Process external system events (Jira, GitHub, Linear) using handler-defined rules to extract insights and track issues',
+  description: 'Process webhook events by analyzing for QA relevance and queuing proposed actions for team confirmation',
 
   frontmatter: {
-    description: 'Process external system events (Jira, GitHub, Linear) using handler-defined rules to extract insights and track issues',
+    description: 'Process webhook events by analyzing for QA relevance and queuing proposed actions for team confirmation',
     'argument-hint': '[event payload or description]',
   },
 
@@ -23,7 +23,9 @@ export const processEventTask: ComposedTaskTemplate = {
       title: 'Process Event Overview',
       content: `# Process Event Command
 
-Process various types of events using intelligent pattern matching and historical context to maintain and evolve the testing system.`,
+Process webhook events from integrated systems by analyzing event content, determining appropriate QA actions, and queuing them for team confirmation.
+
+**This task does NOT execute actions directly.** It proposes actions via the blocked-task-queue and notifies the team for confirmation. Only knowledge base updates and event history logging are performed directly.`,
     },
     // Step 2: Security Notice (library)
     'security-notice',
@@ -46,7 +48,7 @@ Process various types of events using intelligent pattern matching and historica
 - **Source Control**: GitHub, GitLab
 - **Communication Tools**: Slack
 
-**Event structure and semantics vary by source.** Do not interpret events based on generic assumptions. Instead, load the appropriate handler file for system-specific processing rules.
+**Event structure and semantics vary by source.** Use the inline event-action reference patterns and historical context to determine actions.
 
 #### Event Context to Extract:
 - **What happened**: The core event (test failed, PR merged, etc.)
@@ -167,42 +169,30 @@ Read \`.bugzy/runtime/memory/event-history.md\` to:
 - List \`./test-cases/\` for existing tests
 - Check \`.bugzy/runtime/knowledge-base.md\` for past insights
 
-#### 2.4 Load System-Specific Handler (REQUIRED)
+#### 2.4 Event-Action Reference Patterns
 
-Based on the event source, load the handler from \`.bugzy/runtime/handlers/\`:
+Use these as reference patterns for common events. The webhook routing system already handles events with specific default tasks (e.g., deployment_status → /run-tests). Process-event receives events that need analysis.
 
-**Step 1: Detect Event Source from Payload:**
-- \`com.jira-server.*\` event type prefix -> \`.bugzy/runtime/handlers/jira.md\`
-- \`com.recall.*\` event type prefix -> \`.bugzy/runtime/handlers/recall.md\`
-- \`github.*\` or GitHub webhook structure -> \`.bugzy/runtime/handlers/github.md\`
-- \`linear.*\` or Linear webhook -> \`.bugzy/runtime/handlers/linear.md\`
-- Other sources -> Check for matching handler file by source name
+**Jira Events:**
+- **Status → "Ready to Test" / "In Testing" / "Ready for QA"**: Propose \`/verify-changes\` with issue context
+- **Resolution: "Not a Bug" / "Won't Fix" / "User Error"**: Update knowledge base directly with the learning (no queue needed)
+- **Bug created with relevant labels**: Propose \`/generate-test-cases\` to update related test coverage, confirm with team
+- **Backlog → To Do**: No QA action needed, log to event history only
 
-**Step 2: Load and Read the Handler File:**
-The handler file contains system-specific instructions for:
-- Event payload structure and field meanings
-- Which triggers (status changes, resolutions) require specific actions
-- How to interpret different event types
-- When to invoke \`/verify-changes\`
-- How to update the knowledge base
+**GitHub Events:**
+- **PR merged (routed to process-event)**: Propose \`/verify-changes\` for the merged changes
+- **Issue closed as "won't fix"**: Update knowledge base directly with the learning
+- **Issue created/updated**: Analyze for QA relevance, propose actions if applicable
 
-**Step 3: Follow Handler Instructions:**
-The handler file is authoritative for this event source. Follow its instructions for:
-- Interpreting the event payload
-- Determining what actions to take
-- Formatting responses and updates
+**Recall.ai Events (Meeting Transcripts):**
+- **QA-relevant content found**: Propose appropriate follow-up tasks (e.g., \`/generate-test-cases\`, \`/verify-changes\`)
+- **No QA content** (HR meeting, offsite planning, etc.): Skip — log to event history only
 
-**Step 4: If No Handler Exists:**
-Do NOT guess or apply generic logic. Instead:
-1. Inform the user that no handler exists for this event source
-2. Ask how this event type should be processed
-3. Suggest creating a handler file at \`.bugzy/runtime/handlers/{source}.md\`
+**Other Events:**
+- Analyze for QA relevance based on knowledge base and project context
+- If action needed, propose appropriate task. If not, log and skip.
 
-**Project-Specific Configuration:**
-Handlers reference \`.bugzy/runtime/project-context.md\` for project-specific rules like:
-- Which status transitions trigger verify-changes
-- Which resolutions should update the knowledge base
-- Which transitions to ignore`,
+Check \`.bugzy/runtime/project-context.md\` for project-specific context that may inform action decisions.`,
     },
     // Step 8: Intelligent Event Analysis (inline)
     {
@@ -222,17 +212,16 @@ Don't just match patterns - analyze the event within the full context:
 **Example Contextual Analysis**:
 \`\`\`
 Event: Jira issue PROJ-456 moved to "Ready for QA"
-+ Handler: jira.md says "Ready for QA" triggers /verify-changes
++ Reference Pattern: "Ready for QA" status suggests /verify-changes
 + History: This issue was previously in "In Progress" for 3 days
 + Knowledge: Related PR #123 merged yesterday
-= Decision: Invoke /verify-changes with issue context and PR reference
+= Decision: Propose /verify-changes with issue context and PR reference
 \`\`\`
 
 **Pattern Recognition with Context**:
-- An issue resolution depends on what the handler prescribes for that status
+- An issue resolution depends on the event-action reference patterns and project context
 - A duplicate event (same issue, same transition) should be skipped
 - Events from different sources about the same change should be correlated
-- Handler instructions take precedence over generic assumptions
 
 #### 3.2 Generate Semantic Queries
 Based on event type and content, generate 3-5 specific search queries:
@@ -258,7 +247,7 @@ Generate tasks based on event analysis, using examples from memory as reference.
 Analyze the event in context of ALL available information to decide what actions to take:
 
 **Consider the Full Context**:
-- What does the handler prescribe for this event type?
+- What do the event-action reference patterns suggest for this event type?
 - How does this relate to current knowledge?
 - What's the state of related issues in external systems?
 - Is this part of a larger pattern we've been seeing?
@@ -266,17 +255,17 @@ Analyze the event in context of ALL available information to decide what actions
 
 **Contextual Decision Making**:
 The same event type can require different actions based on context:
-- If handler says this status triggers verification -> Invoke /verify-changes
+- If reference pattern suggests verification -> Propose /verify-changes (queue for confirmation)
 - If this issue was already processed (check event history) -> Skip to avoid duplicates
-- If related PR exists in knowledge base -> Include PR context in actions
+- If related PR exists in knowledge base -> Include PR context in proposed actions
 - If this is a recurring pattern from the same source -> Consider flagging for review
-- If handler has no rule for this event type -> Ask user for guidance
+- If no clear action for this event type -> Analyze context or skip
 
 **Dynamic Task Selection**:
 Based on the contextual analysis, decide which tasks make sense:
 - **extract_learning**: When the event reveals something new about the system
 - **update_test_plan**: When our understanding of what to test has changed
-- **update_test_cases**: When tests need to reflect new reality
+- **propose_generate_test_cases**: When tests need to reflect new reality (queued for confirmation)
 - **report_bug**: When we have a legitimate, impactful, reproducible issue
 - **skip_action**: When context shows no action needed (e.g., known issue, already fixed)
 
@@ -318,13 +307,64 @@ The issue-tracker agent will handle all aspects of issue tracking including dupl
     // Step 12: Execute Tasks (inline)
     {
       inline: true,
-      title: 'Execute Tasks with Memory Updates',
-      content: `### Step 5: Execute Tasks with Memory Updates
+      title: 'Queue Proposed Actions and Notify Team',
+      content: `### Step 5: Queue Proposed Actions and Notify Team
 
-#### 5.1 Execute Each Task
-Follow the standard execution logic with added context from memory.
+#### 5.1 Categorize Determined Actions
 
-#### 5.2 Update Event Processor Memory
+Separate actions into two categories:
+
+**Queued Actions** (require team confirmation):
+- \`/verify-changes\`, \`/generate-test-cases\`, \`/run-tests\`, \`/explore-application\`
+- Any task that modifies tests, runs automation, or takes significant action
+
+**Direct Actions** (execute immediately):
+- Knowledge base updates and learnings
+- Event history logging
+- Event processor memory updates
+- Skip decisions
+
+#### 5.2 Execute Direct Actions
+
+Update \`.bugzy/runtime/knowledge-base.md\` directly for learnings (e.g., "Not a Bug" resolutions).
+
+#### 5.3 Queue Action Tasks
+
+For each proposed action task, append one row to \`.bugzy/runtime/blocked-task-queue.md\`:
+
+| Task Slug | Question | Original Args |
+|-----------|----------|---------------|
+| /verify-changes | Verify PROJ-456 changes (moved to Ready for QA)? Related PR #123. | \`{"issue": "PROJ-456", "context": "Jira Ready to Test"}\` |
+
+Rules:
+1. Read file first (create if doesn't exist)
+2. Each action gets its own row
+3. **Question** must be clear and include enough context for team to decide
+4. **Original Args** must include event source, IDs, and relevant context as JSON
+
+#### 5.4 Notify Team
+
+{{INVOKE_TEAM_COMMUNICATOR}} to share the outcome:
+
+**If actions were queued:**
+- What event was processed
+- What actions are proposed (with brief reasoning)
+- These are awaiting confirmation
+
+**If no actions queued (KB-only update or skip):**
+- What event was processed
+- What was learned or why it was skipped
+- That no action is needed from the team
+
+#### 5.5 Complete Task
+
+After queuing and notifying, the task is DONE. Do NOT:
+- Execute /verify-changes, /run-tests, /generate-test-cases directly
+- Wait for team response (messaging infrastructure handles that)
+- Create or modify test files
+- Run Playwright tests
+
+#### 5.6 Update Event Processor Memory
 If new patterns discovered, append to \`.bugzy/runtime/memory/event-processor.md\`:
 \`\`\`markdown
 ### Pattern: [New Pattern Name]
@@ -334,7 +374,7 @@ If new patterns discovered, append to \`.bugzy/runtime/memory/event-processor.md
 **Example**: [This event]
 \`\`\`
 
-#### 5.3 Update Event History
+#### 5.7 Update Event History
 Append to \`.bugzy/runtime/memory/event-history.md\`:
 \`\`\`markdown
 ## [Timestamp] - Event #[ID]
@@ -407,7 +447,8 @@ Create files if they don't exist:
 - Adjust responses based on business priorities and risk
 
 ### Smart Task Generation
-- Only take actions prescribed by the handler or confirmed by the user
+- NEVER execute action tasks directly — all action tasks go through blocked-task-queue for team confirmation
+- Knowledge base updates and event history logging are the only direct operations
 - Document why each decision was made with full context
 - Skip redundant actions (e.g., duplicate events, already-processed issues)
 - Escalate appropriately based on pattern recognition
