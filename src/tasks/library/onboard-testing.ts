@@ -30,8 +30,11 @@ This command orchestrates the complete test coverage workflow in a single execut
 2. **Phase 2**: Generate lightweight test plan
 3. **Phase 3**: Generate and verify test cases (create + fix until passing)
 4. **Phase 4**: Triage failures and fix test issues
-5. **Phase 5**: Log product bugs
-6. **Phase 6**: Final report`,
+5. **Phase 5**: Log product bugs to issue tracker
+6. **Phase 6**: Notify team via Slack/Teams with results summary
+7. **Phase 7**: Generate final report
+
+**IMPORTANT**: All phases must be completed. Do NOT skip Phase 5 (bug logging) or Phase 6 (team notification) — these are required deliverables.`,
     },
     // Step 2: Security Notice (from library)
     'security-notice',
