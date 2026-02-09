@@ -25,6 +25,8 @@ Before proceeding, read the curated knowledge base to inform your work:
    - Build on existing understanding
    - Maintain consistency with established practices
 
+3. **Relay to subagents**: Subagents do NOT read the knowledge base directly. When delegating work, you MUST include relevant KB patterns in your delegation message — especially testing patterns (timing, selectors, assertion approaches) that affect test reliability.
+
 **Note:** The knowledge base may not exist yet or may be empty. If it doesn't exist or is empty, proceed without this context and help build it as you work.`,
   tags: ['setup', 'context'],
 };

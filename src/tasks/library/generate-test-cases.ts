@@ -175,6 +175,9 @@ Before invoking the agent, identify the test cases for the current area:
 - Existing automated tests: ./tests/specs/
 - Existing Page Objects: ./tests/pages/
 
+**Knowledge Base Patterns (MUST APPLY):**
+Include ALL relevant testing patterns from the knowledge base that apply to this area. For example, if the KB documents timing behaviors (animation delays, loading states), selector gotchas, or recommended assertion approaches — list them here explicitly and instruct the agent to use the specific patterns described (e.g., specific assertion methods with specific timeouts). The test-code-generator does not have access to the knowledge base, so you MUST relay the exact patterns and recommended code approaches.
+
 **The agent should:**
 1. Read the manual test case files for this area
 2. Check existing Page Object infrastructure for this area
@@ -183,6 +186,7 @@ Before invoking the agent, identify the test cases for the current area:
 5. For each test case marked \`automated: true\`:
    - Create automated Playwright test in ./tests/specs/
    - Update the manual test case file to reference the automated test path
+   - Apply ALL knowledge base patterns listed above (timing, selectors, assertions)
 6. Run and iterate on each test until it passes or fails with a product bug
 7. Update .env.testdata with any new variables
 
