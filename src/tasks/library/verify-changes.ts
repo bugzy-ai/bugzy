@@ -111,7 +111,9 @@ Store the detected trigger for use in output routing:
 - Set variable: \`TRIGGER_SOURCE\` = [GITHUB_PR | SLACK_MESSAGE | CI_CD | MANUAL]
 - This determines output formatting and delivery channel`,
     },
-    // Step 6: Extract Context (inline)
+    // Step 6: Clarification Protocol (library)
+    'clarification-protocol',
+    // Step 7: Extract Context (inline)
     {
       inline: true,
       title: 'Extract Context Based on Trigger',

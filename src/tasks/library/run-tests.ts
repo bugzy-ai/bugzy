@@ -47,7 +47,9 @@ Extract the following from arguments:
     'read-knowledge-base',
     // Step 5: Test Execution Strategy (library)
     'read-test-strategy',
-    // Step 6: Identify Tests (inline - task-specific)
+    // Step 6: Clarification Protocol (library)
+    'clarification-protocol',
+    // Step 7: Identify Tests (inline - task-specific)
     {
       inline: true,
       title: 'Identify Automated Tests to Run',

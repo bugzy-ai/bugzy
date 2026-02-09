@@ -28,6 +28,16 @@ Determine exploration depth based on requirement quality:
 - **Vague:** "Fix the sorting in todo list page. The items are mixed up for premium users."
 - **Unclear:** "Improve the dashboard performance. Users say it's slow."
 
+### Maturity Adjustment
+
+If the Clarification Protocol determined project maturity, adjust exploration depth:
+
+- **New project**: Default one level deeper than requirement clarity suggests (Clear → Moderate, Vague → Deep)
+- **Growing project**: Use requirement clarity as-is (standard protocol)
+- **Mature project**: Trust knowledge base — can stay at suggested depth or go one level shallower if KB covers the feature
+
+**Always verify features exist before testing them.** If exploration reveals that a referenced page or feature does not exist in the application, this is CRITICAL severity — escalate via the Clarification Protocol regardless of maturity level. Do NOT silently adapt or work around the missing feature.
+
 ### Quick Exploration (1-2 min)
 
 **When:** Requirements CLEAR

@@ -30,6 +30,33 @@ Before starting, check if this task is resuming from a blocked clarification:
 
 3. **If no clarification in $ARGUMENTS:** Proceed normally with ambiguity detection below.
 
+### Assess Project Maturity
+
+Before detecting ambiguity, assess how well you know this project. Maturity determines how aggressively you should ask questions — new projects require more questions, mature projects can rely on accumulated knowledge.
+
+**Measure maturity from runtime artifacts:**
+
+| Signal | New | Growing | Mature |
+|--------|-----|---------|--------|
+| \`knowledge-base.md\` | < 80 lines (template) | 80-300 lines | 300+ lines |
+| \`memory/\` files | 0 files | 1-3 files | 4+ files, >5KB each |
+| Test cases in \`test-cases/\` | 0 | 1-6 | 7+ |
+| Exploration reports | 0 | 1 | 2+ |
+
+**Steps:**
+1. Read \`.bugzy/runtime/knowledge-base.md\` and count lines
+2. List \`.bugzy/runtime/memory/\` directory and count files
+3. List \`test-cases/\` directory and count \`.md\` files (exclude README)
+4. Count exploration reports in \`exploration-reports/\`
+5. Classify: If majority of signals = New → **New**; majority Mature → **Mature**; otherwise → **Growing**
+
+**Maturity adjusts your question threshold:**
+- **New**: Ask for CRITICAL + HIGH + MEDIUM severity (gather information aggressively)
+- **Growing**: Ask for CRITICAL + HIGH severity (standard protocol)
+- **Mature**: Ask for CRITICAL only (handle HIGH with documented assumptions)
+
+**CRITICAL severity ALWAYS triggers a question, regardless of maturity level.**
+
 ### Detect Ambiguity
 
 Scan for ambiguity signals:
@@ -56,8 +83,8 @@ If ambiguity is detected, assess its severity:
 
 | Severity | Characteristics | Examples | Action |
 |----------|----------------|----------|--------|
-| **CRITICAL** | Expected behavior undefined/contradictory; test outcome unpredictable; core functionality unclear; success criteria missing; multiple interpretations = different strategies | "Fix the issue" (what issue?), "Improve performance" (which metrics?), "Fix sorting in todo list" (by date? priority? completion status?) | **STOP** - Seek clarification before proceeding |
-| **HIGH** | Core underspecified but direction clear; affects majority of scenarios; vague success criteria; assumptions risky | "Fix ordering" (sequence OR visibility?), "Add validation" (what? messages?), "Update dashboard" (which widgets?) | **STOP** - Seek clarification before proceeding |
+| **CRITICAL** | Expected behavior undefined/contradictory; test outcome unpredictable; core functionality unclear; success criteria missing; multiple interpretations = different strategies; **referenced page/feature does not exist in the application** | "Fix the issue" (what issue?), "Improve performance" (which metrics?), "Fix sorting in todo list" (by date? priority? completion status?), "Test the Settings page" (no Settings page exists), "Verify the checkout flow" (no checkout page found) | **STOP** - You MUST ask via team-communicator before proceeding |
+| **HIGH** | Core underspecified but direction clear; affects majority of scenarios; vague success criteria; assumptions risky | "Fix ordering" (sequence OR visibility?), "Add validation" (what? messages?), "Update dashboard" (which widgets?) | **STOP** - You MUST ask via team-communicator before proceeding |
 | **MEDIUM** | Specific details missing; general requirements clear; affects subset of cases; reasonable low-risk assumptions possible; wrong assumption = test updates not strategy overhaul | Missing field labels, unclear error message text, undefined timeouts, button placement not specified, date formats unclear | **PROCEED** - (1) Moderate exploration, (2) Document assumptions: "Assuming X because Y", (3) Proceed with creation/execution, (4) Async clarification (team-communicator), (5) Mark [ASSUMED: description] |
 | **LOW** | Minor edge cases; documentation gaps don't affect execution; optional/cosmetic elements; minimal impact | Tooltip text, optional field validation, icon choice, placeholder text, tab order | **PROCEED** - (1) Mark [TO BE CLARIFIED: description], (2) Proceed, (3) Mention in report "Minor Details", (4) No blocking/async clarification |
 
@@ -158,18 +185,26 @@ Tasks waiting for clarification responses.
 
 ### Wait or Proceed Based on Severity
 
-**CRITICAL/HIGH → STOP and Wait:**
-- Do NOT create tests, run tests, or make assumptions
-- Wait for clarification, resume after answer
+**Use your maturity assessment to adjust thresholds:**
+- **New project**: STOP for CRITICAL + HIGH + MEDIUM
+- **Growing project**: STOP for CRITICAL + HIGH (default)
+- **Mature project**: STOP for CRITICAL only; handle HIGH with documented assumptions
+
+**When severity meets your STOP threshold:**
+- You MUST call team-communicator (Slack) to ask the question — do NOT just mention it in your text output
+- Do NOT create tests, run tests, or make assumptions about the unclear aspect
+- Do NOT silently adapt by working around the issue (e.g., running other tests instead)
+- Do NOT invent your own success criteria when none are provided
+- Register the blocked task and wait for clarification
 - *Rationale: Wrong assumptions = incorrect tests, false results, wasted time*
 
-**MEDIUM → Proceed with Documented Assumptions:**
+**When severity is below your STOP threshold → Proceed with Documented Assumptions:**
 - Perform moderate exploration, document assumptions, proceed with creation/execution
 - Ask clarification async (team-communicator), mark results "based on assumptions"
 - Update tests after clarification received
 - *Rationale: Waiting blocks progress; documented assumptions allow forward movement with later corrections*
 
-**LOW → Proceed and Mark:**
+**LOW → Always Proceed and Mark:**
 - Proceed with creation/execution, mark gaps [TO BE CLARIFIED] or [ASSUMED]
 - Mention in report but don't prioritize, no blocking
 - *Rationale: Details don't affect strategy/results significantly*
@@ -197,10 +232,11 @@ When reporting test results, always include an "Ambiguities" section if clarific
 
 ## Remember
 
-- **Block for CRITICAL/HIGH** - Never proceed with assumptions on unclear core requirements
+- **STOP means STOP** - When you hit a STOP threshold, you MUST call team-communicator to ask via Slack. Do NOT silently adapt, skip, or work around the issue
+- **Non-existent features = CRITICAL** - If a page, component, or feature referenced in the task does not exist, this is always CRITICAL severity — ask what was meant
 - **Ask correctly > guess poorly** - Specific questions lead to specific answers
-- **Document MEDIUM assumptions** - Track what you assumed and why
+- **Never invent success criteria** - If the task says "improve" or "fix" without metrics, ask what "done" looks like
 - **Check memory first** - Avoid re-asking previously answered questions
-- **Specific questions → specific answers** - Vague questions get vague answers`,
+- **Maturity adjusts threshold, not judgment** - Even in mature projects, CRITICAL always triggers a question`,
   tags: ['clarification', 'protocol', 'ambiguity'],
 };
