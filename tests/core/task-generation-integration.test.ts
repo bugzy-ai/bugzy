@@ -195,9 +195,10 @@ describe('Specific Task Validation', () => {
       expect(task.content.toLowerCase()).toMatch(/test|execute|playwright|run/);
     });
 
-    test('derives playwright MCP requirement', () => {
+    test('does not derive playwright MCP requirement (uses CLI instead)', () => {
       const task = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
-      expect(task.requiredMCPs).toContain('playwright');
+      // Playwright no longer uses MCP - it uses playwright-cli
+      expect(task.requiredMCPs).not.toContain('playwright');
     });
 
     test('includes test-debugger-fixer when configured', () => {

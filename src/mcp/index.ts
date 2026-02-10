@@ -70,31 +70,6 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
       },
     },
   },
-  playwright: {
-    provider: 'playwright',
-    name: 'Playwright',
-    description: 'Playwright MCP server for browser automation',
-    requiresCredentials: false,
-    npmPackages: ['@playwright/mcp'],
-    config: {
-      command: 'playwright-mcp',
-      args: [
-        '--browser',
-        'chromium',
-        '--secrets',
-        '.env',
-        '--no-sandbox',
-        '--viewport-size',
-        '1280x720'
-      ]
-    },
-    containerExtensions: {
-      args: ['--headless'],
-      env: {
-        PLAYWRIGHT_BROWSERS_PATH: '/opt/ms-playwright'
-      }
-    }
-  },
   notion: {
     provider: 'notion',
     name: 'Notion',

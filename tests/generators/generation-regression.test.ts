@@ -185,12 +185,12 @@ describe('Claude Code Generation Regression Tests', () => {
     });
 
     it('should include configured MCP servers', async () => {
-      await generateMCPConfig(['playwright', 'slack']);
+      await generateMCPConfig(['notion', 'slack']);
 
       const content = fs.readFileSync(path.join(testDir, '.mcp.json'), 'utf-8');
       const config = JSON.parse(content);
 
-      expect(config.mcpServers).toHaveProperty('playwright');
+      expect(config.mcpServers).toHaveProperty('notion');
       expect(config.mcpServers).toHaveProperty('slack');
     });
 
@@ -210,18 +210,18 @@ describe('Claude Code Generation Regression Tests', () => {
     });
 
     it('should include command and args for MCP servers', async () => {
-      await generateMCPConfig(['playwright']);
+      await generateMCPConfig(['slack']);
 
       const content = fs.readFileSync(path.join(testDir, '.mcp.json'), 'utf-8');
       const config = JSON.parse(content);
 
-      expect(config.mcpServers.playwright).toHaveProperty('command');
-      expect(config.mcpServers.playwright).toHaveProperty('args');
-      expect(Array.isArray(config.mcpServers.playwright.args)).toBe(true);
+      expect(config.mcpServers.slack).toHaveProperty('command');
+      expect(config.mcpServers.slack).toHaveProperty('args');
+      expect(Array.isArray(config.mcpServers.slack.args)).toBe(true);
     });
 
     it('should format JSON with 2-space indentation', async () => {
-      await generateMCPConfig(['playwright']);
+      await generateMCPConfig(['slack']);
 
       const content = fs.readFileSync(path.join(testDir, '.mcp.json'), 'utf-8');
 
@@ -300,14 +300,14 @@ describe('Claude Code Generation Regression Tests', () => {
     });
 
     it('should support both local and container targets', () => {
-      const localConfig = buildMCPConfig(['playwright'], 'local');
-      const containerConfig = buildMCPConfig(['playwright'], 'container');
+      const localConfig = buildMCPConfig(['slack'], 'local');
+      const containerConfig = buildMCPConfig(['slack'], 'container');
 
-      // Local should not have headless arg
-      expect(localConfig.mcpServers.playwright.args).not.toContain('--headless');
-
-      // Container should have headless arg
-      expect(containerConfig.mcpServers.playwright.args).toContain('--headless');
+      // Both local and container should produce valid configs for slack
+      expect(localConfig.mcpServers.slack).toBeDefined();
+      expect(containerConfig.mcpServers.slack).toBeDefined();
+      expect(localConfig.mcpServers.slack.command).toBe('slack-mcp-server');
+      expect(containerConfig.mcpServers.slack.command).toBe('slack-mcp-server');
     });
   });
 });

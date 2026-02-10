@@ -107,12 +107,12 @@ describe('test-debugger-fixer subagent', () => {
     expect(template.CONTENT).toContain('manifest.json');
   });
 
-  it('should include Playwright MCP usage instructions', async () => {
+  it('should include playwright-cli usage instructions', async () => {
     const template = await import('../../src/subagents/templates/test-debugger-fixer/playwright');
 
     const content = template.CONTENT;
 
-    expect(content).toContain('Playwright MCP');
+    expect(content).toContain('playwright-cli');
     expect(content).toContain('Open browser');
     expect(content).toContain('Inspect elements');
   });

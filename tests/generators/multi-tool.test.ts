@@ -54,7 +54,7 @@ describe('Multi-Tool Generation Tests', () => {
       });
 
       it('should create .cursor/mcp.json', async () => {
-        await generateMCPConfig(['playwright', 'slack'], 'cursor');
+        await generateMCPConfig(['slack', 'notion'], 'cursor');
         expect(fs.existsSync(path.join(testDir, '.cursor', 'mcp.json'))).toBe(true);
       });
     });
@@ -111,14 +111,14 @@ describe('Multi-Tool Generation Tests', () => {
 
     describe('MCP Configuration', () => {
       it('should generate JSON format like Claude Code', async () => {
-        await generateMCPConfig(['playwright', 'slack'], 'cursor');
+        await generateMCPConfig(['slack', 'notion'], 'cursor');
 
         const content = fs.readFileSync(path.join(testDir, '.cursor', 'mcp.json'), 'utf-8');
         const config = JSON.parse(content);
 
         expect(config).toHaveProperty('mcpServers');
-        expect(config.mcpServers).toHaveProperty('playwright');
         expect(config.mcpServers).toHaveProperty('slack');
+        expect(config.mcpServers).toHaveProperty('notion');
       });
     });
   });
@@ -136,7 +136,7 @@ describe('Multi-Tool Generation Tests', () => {
       });
 
       it('should NOT create MCP config file (uses CLI commands instead)', async () => {
-        await generateMCPConfig(['playwright', 'slack'], 'codex');
+        await generateMCPConfig(['slack', 'notion'], 'codex');
         // Codex uses `codex mcp add` CLI commands, not file generation
         expect(fs.existsSync(path.join(testDir, '.codex', 'config.toml'))).toBe(false);
         expect(fs.existsSync(path.join(testDir, '.bugzy', 'setup-codex-mcp.sh'))).toBe(false);
@@ -199,11 +199,11 @@ describe('Multi-Tool Generation Tests', () => {
 
     describe('MCP Configuration (CLI Commands)', () => {
       it('should build codex mcp add command with server name and -- separator', () => {
-        const { args } = buildCodexMCPCommand('playwright');
+        const { args } = buildCodexMCPCommand('slack');
 
         expect(args).toContain('mcp');
         expect(args).toContain('add');
-        expect(args).toContain('bugzy-playwright');
+        expect(args).toContain('bugzy-slack');
         // Should use -- separator before command (not --stdio)
         expect(args).toContain('--');
         expect(args).not.toContain('--stdio');
@@ -224,16 +224,15 @@ describe('Multi-Tool Generation Tests', () => {
       });
 
       it('should include command args after -- separator', () => {
-        const { args } = buildCodexMCPCommand('playwright');
+        const { args } = buildCodexMCPCommand('notion');
 
         // Should have -- separator followed by command and args
         const separatorIndex = args.indexOf('--');
         expect(separatorIndex).toBeGreaterThan(0);
         // Command should be right after --
-        expect(args[separatorIndex + 1]).toBe('playwright-mcp');
+        expect(args[separatorIndex + 1]).toBe('notion-mcp-server');
         // Args should follow the command (not use --args flag)
         expect(args).not.toContain('--args');
-        expect(args).toContain('--browser');
       });
 
       it('should throw error for unknown server', () => {

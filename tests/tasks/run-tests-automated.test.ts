@@ -137,9 +137,10 @@ describe('run-tests task (automated execution)', () => {
     expect(result.frontmatter.description).toBeDefined();
   });
 
-  it('should derive playwright MCP from both required subagents', () => {
+  it('should not derive playwright MCP (uses CLI instead)', () => {
     const result = buildTaskDefinition('run-tests', minimalSubAgents);
 
-    expect(result.requiredMCPs).toContain('playwright');
+    // Playwright no longer uses MCP - it uses playwright-cli
+    expect(result.requiredMCPs).not.toContain('playwright');
   });
 });

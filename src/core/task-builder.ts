@@ -249,14 +249,16 @@ export function buildComposedTaskDefinition(
     }
   }
 
-  // Derive required MCPs from subagent integrations
+  // Derive required MCPs from subagent integrations (only if integration has requiredMCP)
   const requiredMCPs = new Set<string>();
   for (const role of requiredSubAgentRoles) {
     const configured = projectSubAgents.find((sa) => sa.role === role);
     if (configured) {
       const integrationMeta = getIntegration(configured.integration);
-      const mcpProvider = integrationMeta?.provider || configured.integration;
-      requiredMCPs.add(mcpProvider);
+      if (integrationMeta?.requiredMCP) {
+        const mcpProvider = integrationMeta.provider || configured.integration;
+        requiredMCPs.add(mcpProvider);
+      }
     }
   }
 

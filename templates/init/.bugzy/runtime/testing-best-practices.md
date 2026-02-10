@@ -35,7 +35,7 @@
 **CRITICAL**: Always validate your framework with ONE working test before scaling.
 
 ```
-1. Explore app for selectors (use Playwright MCP or codegen)
+1. Explore app for selectors (use playwright-cli or codegen)
 2. Create Page Objects with verified selectors
 3. Write ONE critical path test (e.g., login)
 4. Run the test: npx playwright test <test-file>

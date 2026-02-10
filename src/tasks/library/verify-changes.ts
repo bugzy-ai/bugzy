@@ -111,6 +111,40 @@ Store the detected trigger for use in output routing:
 - Set variable: \`TRIGGER_SOURCE\` = [GITHUB_PR | SLACK_MESSAGE | CI_CD | MANUAL]
 - This determines output formatting and delivery channel`,
     },
+    // Step 5c: Coverage Gap vs. Ambiguity (inline)
+    {
+      inline: true,
+      title: 'Coverage Gap vs. Ambiguity',
+      content: `### Coverage Gap vs. Ambiguity
+
+When the trigger indicates a feature has been implemented and is ready for testing (Jira "Ready to Test", PR merged, CI/CD pipeline):
+
+**Missing test coverage for the referenced feature is a COVERAGE GAP, not an ambiguity.**
+
+- The developer/team is asserting the feature exists and is ready for testing
+- "Not yet explored" or "out of scope" in the test plan means the QA team hasn't tested it yet — it does NOT mean the feature doesn't exist
+- Do NOT classify as CRITICAL based on stale documentation or knowledge base gaps
+- If project-context.md or the Jira issue references the feature, assume it exists until browser exploration proves otherwise
+- Coverage gaps are handled in the "Create Tests for Coverage Gaps" step below — do NOT block here
+
+### If You Browse the App and Cannot Find the Referenced Feature
+
+Apply the Clarification Protocol's **"Execution Obstacle vs. Requirement Ambiguity"** principle:
+
+This is an **execution obstacle**, NOT a requirement ambiguity — because the authoritative trigger source (Jira issue, PR, team request) asserts the feature exists. Common causes for not finding it:
+- **Missing role/tier**: You're logged in as a basic user but the feature requires admin/premium access
+- **Missing test data**: Required test accounts or data haven't been configured in \`.env.testdata\`
+- **Feature flags**: The feature is behind a flag not enabled in the test environment
+- **Environment config**: The feature requires specific environment variables or deployment settings
+
+**Action: PROCEED to "Create Tests for Coverage Gaps".** Do NOT BLOCK.
+- Create test cases and specs that reference the feature as described in the trigger
+- Add placeholder env vars to \`.env.testdata\` for any missing credentials
+- Notify the team (via team-communicator) about the access obstacle and what needs to be configured
+- Tests may fail until the obstacle is resolved — this is expected and acceptable
+
+**Only classify as CRITICAL (and BLOCK) if NO authoritative trigger source claims the feature exists** — e.g., a vague manual request with no Jira/PR backing.`,
+    },
     // Step 6: Clarification Protocol (library)
     'clarification-protocol',
     // Step 7: Extract Context (inline)

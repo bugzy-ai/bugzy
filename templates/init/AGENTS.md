@@ -145,7 +145,7 @@ Key information includes: QA workflow, story status management, bug reporting gu
 - Each test run generates:
   - `summary.json`: Structured test result with video filename reference
   - `steps.json`: Step-by-step execution with timestamps and video synchronization
-- Video recording via Playwright MCP --save-video flag
+- Video recording via playwright-cli --save-video flag
 - Videos remain in `.playwright-mcp/` folder - external service uploads to GCS
 
 **General Rules**:

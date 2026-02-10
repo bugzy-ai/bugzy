@@ -83,10 +83,55 @@ If ambiguity is detected, assess its severity:
 
 | Severity | Characteristics | Examples | Action |
 |----------|----------------|----------|--------|
-| **CRITICAL** | Expected behavior undefined/contradictory; test outcome unpredictable; core functionality unclear; success criteria missing; multiple interpretations = different strategies; **referenced page/feature does not exist in the application** | "Fix the issue" (what issue?), "Improve performance" (which metrics?), "Fix sorting in todo list" (by date? priority? completion status?), "Test the Settings page" (no Settings page exists), "Verify the checkout flow" (no checkout page found) | **STOP** - You MUST ask via team-communicator before proceeding |
+| **CRITICAL** | Expected behavior undefined/contradictory; test outcome unpredictable; core functionality unclear; success criteria missing; multiple interpretations = different strategies; **referenced page/feature confirmed absent after browser verification AND no authoritative trigger source (Jira, PR, team request) asserts the feature exists** | "Fix the issue" (what issue?), "Improve performance" (which metrics?), "Fix sorting in todo list" (by date? priority? completion status?), "Test the Settings page" (browsed app — no Settings page exists, and no Jira/PR claims it was built) | **STOP** - You MUST ask via team-communicator before proceeding |
 | **HIGH** | Core underspecified but direction clear; affects majority of scenarios; vague success criteria; assumptions risky | "Fix ordering" (sequence OR visibility?), "Add validation" (what? messages?), "Update dashboard" (which widgets?) | **STOP** - You MUST ask via team-communicator before proceeding |
 | **MEDIUM** | Specific details missing; general requirements clear; affects subset of cases; reasonable low-risk assumptions possible; wrong assumption = test updates not strategy overhaul | Missing field labels, unclear error message text, undefined timeouts, button placement not specified, date formats unclear | **PROCEED** - (1) Moderate exploration, (2) Document assumptions: "Assuming X because Y", (3) Proceed with creation/execution, (4) Async clarification (team-communicator), (5) Mark [ASSUMED: description] |
 | **LOW** | Minor edge cases; documentation gaps don't affect execution; optional/cosmetic elements; minimal impact | Tooltip text, optional field validation, icon choice, placeholder text, tab order | **PROCEED** - (1) Mark [TO BE CLARIFIED: description], (2) Proceed, (3) Mention in report "Minor Details", (4) No blocking/async clarification |
+
+### Execution Obstacle vs. Requirement Ambiguity
+
+Before classifying something as CRITICAL, distinguish between these two fundamentally different situations:
+
+**Requirement Ambiguity** = *What* to test is unclear → severity assessment applies normally
+- No authoritative source describes the feature
+- The task description is vague or contradictory
+- You cannot determine what "correct" behavior looks like
+- → Apply severity table above. CRITICAL/HIGH → BLOCK.
+
+**Execution Obstacle** = *What* to test is clear, but *how* to access/verify has obstacles → NEVER BLOCK
+- An authoritative trigger source (Jira issue, PR, team message) asserts the feature exists
+- You browsed the app but couldn't find/access the feature
+- The obstacle is likely: wrong user role/tier, missing test data, feature flags, environment config
+- → PROCEED with artifact creation (test cases, test specs). Notify team about the obstacle.
+
+**The key test:** Does an authoritative trigger source (Jira, PR, team request) assert the feature exists?
+- **YES** → It's an execution obstacle. The feature exists but you can't access it. Proceed: create test artifacts, add placeholder env vars, notify team about access issues.
+- **NO** → It may genuinely not exist. Apply CRITICAL severity, ask what was meant.
+
+| Scenario | Trigger Says | Browser Shows | Classification | Action |
+|----------|-------------|---------------|----------------|--------|
+| Jira says "test premium dashboard", you log in as test_user and don't see it | Feature exists | Can't access | **Execution obstacle** | Create tests, notify team re: missing premium credentials |
+| PR says "verify new settings page", you browse and find no settings page | Feature exists | Can't find | **Execution obstacle** | Create tests, notify team re: possible feature flag/env issue |
+| Manual request "test the settings page", no Jira/PR, you browse and find no settings page | No source claims it | Can't find | **Requirement ambiguity (CRITICAL)** | BLOCK, ask what was meant |
+| Jira says "fix sorting", but doesn't specify sort criteria | Feature exists | Feature exists | **Requirement ambiguity (HIGH)** | BLOCK, ask which sort criteria |
+
+**Partial Feature Existence — URL found but requested functionality absent:**
+
+A common edge case: a page/route loads successfully, but the SPECIFIC FUNCTIONALITY you were asked to test doesn't exist on it.
+
+**Rule:** Evaluate whether the REQUESTED FUNCTIONALITY exists, not just whether a URL resolves.
+
+| Page Exists | Requested Features Exist | Authoritative Trigger | Classification |
+|-------------|--------------------------|----------------------|----------------|
+| Yes | Yes | Any | Proceed normally |
+| Yes | No | Yes (Jira/PR says features built) | Execution obstacle — features behind flag/env |
+| Yes | No | No (manual request only) | **Requirement ambiguity (CRITICAL)** — ask what's expected |
+| No | N/A | Yes | Execution obstacle — page not deployed yet |
+| No | N/A | No | **Requirement ambiguity (CRITICAL)** — ask what was meant |
+
+**Example:** Prompt says "Test the checkout payment form with credit card 4111..." You browse to /checkout and find an information form (first name, last name, postal code) but NO payment form, NO shipping options, NO Place Order button. No Jira/PR claims these features exist. → **CRITICAL requirement ambiguity.** Ask: "I found a checkout information form at /checkout but no payment form or shipping options. Can you clarify what checkout features you'd like tested?"
+
+**Key insight:** Finding a URL is not the same as finding the requested functionality. Do NOT classify this as an "execution obstacle" just because the page loads.
 
 ### Check Memory for Similar Clarifications
 
@@ -233,7 +278,7 @@ When reporting test results, always include an "Ambiguities" section if clarific
 ## Remember
 
 - **STOP means STOP** - When you hit a STOP threshold, you MUST call team-communicator to ask via Slack. Do NOT silently adapt, skip, or work around the issue
-- **Non-existent features = CRITICAL** - If a page, component, or feature referenced in the task does not exist, this is always CRITICAL severity — ask what was meant
+- **Non-existent features — check context first** - If a page/feature doesn't exist in the browser, check whether an authoritative trigger (Jira, PR, team request) asserts it exists. If YES → execution obstacle (proceed with artifact creation, notify team). If NO authoritative source claims it exists → CRITICAL severity, ask what was meant
 - **Ask correctly > guess poorly** - Specific questions lead to specific answers
 - **Never invent success criteria** - If the task says "improve" or "fix" without metrics, ask what "done" looks like
 - **Check memory first** - Avoid re-asking previously answered questions

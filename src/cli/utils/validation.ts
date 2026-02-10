@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { loadConfig, getToolFromConfig } from './config';
 import { getToolProfile, DEFAULT_TOOL } from '../../core/tool-profile';
+import { getIntegration } from '../../subagents/metadata';
 
 /**
  * Validate that project structure exists and is correct
@@ -108,6 +109,7 @@ export async function checkToolAvailable(command: string): Promise<boolean> {
 
 /**
  * Get required MCP servers from subagent configuration
+ * Only includes integrations that have a requiredMCP defined
  * @param subagents - Subagent role -> integration mapping
  * @returns List of required MCP server names
  */
@@ -115,9 +117,10 @@ export function getRequiredMCPs(subagents: Record<string, string>): string[] {
   const mcps = new Set<string>();
 
   for (const [_role, integration] of Object.entries(subagents)) {
-    // Map integrations to MCP servers
-    // Usually the integration name matches the MCP name
-    mcps.add(integration);
+    const integrationMeta = getIntegration(integration);
+    if (integrationMeta?.requiredMCP) {
+      mcps.add(integration);
+    }
   }
 
   return Array.from(mcps);

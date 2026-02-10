@@ -97,7 +97,7 @@ export const INTEGRATIONS: Record<string, SubAgentIntegration> = {
     id: 'playwright',
     name: 'Playwright',
     provider: 'playwright',
-    requiredMCP: 'mcp__playwright__*',
+    // No requiredMCP — uses playwright-cli (CLI tool), not MCP server
     isLocal: true, // Playwright runs locally, no external connector needed
     integrationType: 'local'
   },

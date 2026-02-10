@@ -115,15 +115,15 @@ describe('getAgentConfiguration', () => {
   });
 
   describe('MCP Configuration Generation', () => {
-    test('generates MCP config for minimal subagents', async () => {
+    test('generates MCP config for minimal subagents (playwright uses CLI, not MCP)', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
       const config = await getAgentConfiguration([taskDef], MINIMAL_SUBAGENTS_CONFIG);
 
       expect(config.mcpConfig).toBeDefined();
       expect(config.mcpConfig.mcpServers).toBeDefined();
 
-      // Minimal config with playwright should have playwright MCP
-      expect(config.mcpConfig.mcpServers.playwright).toBeDefined();
+      // Playwright no longer uses MCP - it uses playwright-cli
+      expect(config.mcpConfig.mcpServers.playwright).toBeUndefined();
     });
 
     test('generates MCP config for full subagents', async () => {
@@ -133,22 +133,24 @@ describe('getAgentConfiguration', () => {
       expect(config.mcpConfig).toBeDefined();
       expect(config.mcpConfig.mcpServers).toBeDefined();
 
-      // Full config should have multiple MCP servers
+      // Full config should have MCP servers for non-playwright integrations
       const mcpServers = Object.keys(config.mcpConfig.mcpServers);
-      expect(mcpServers.length).toBeGreaterThan(1);
+      expect(mcpServers.length).toBeGreaterThanOrEqual(1);
 
-      // Should include playwright for test-runner
-      expect(config.mcpConfig.mcpServers.playwright).toBeDefined();
+      // Playwright should NOT be in MCP servers (uses CLI instead)
+      expect(config.mcpConfig.mcpServers.playwright).toBeUndefined();
     });
 
     test('MCP servers have required configuration', async () => {
-      const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
-      const config = await getAgentConfiguration([taskDef], MINIMAL_SUBAGENTS_CONFIG);
+      const taskDef = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
+      const config = await getAgentConfiguration([taskDef], FULL_SUBAGENTS_CONFIG);
 
-      const playwrightMcp = config.mcpConfig.mcpServers.playwright;
-      expect(playwrightMcp).toBeDefined();
-      expect(playwrightMcp.command).toBeDefined();
-      expect(typeof playwrightMcp.command).toBe('string');
+      // Check that configured MCP servers have proper structure
+      const mcpServers = Object.values(config.mcpConfig.mcpServers);
+      for (const server of mcpServers) {
+        expect(server.command).toBeDefined();
+        expect(typeof server.command).toBe('string');
+      }
     });
   });
 
