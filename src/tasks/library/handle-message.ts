@@ -90,7 +90,28 @@ The handler file contains all necessary processing logic for the detected intent
 - Response guidelines
 - Memory update instructions`,
     },
-    // Step 6: Clarification Protocol (for ambiguous intents)
+    // Step 6: Post Response via Team Communicator
+    {
+      inline: true,
+      title: 'Post Response to Team',
+      content: `## Post Response to the Team
+
+After processing the message through the handler and composing your response:
+
+{{INVOKE_TEAM_COMMUNICATOR}} to post the response back to the team.
+
+**Context to include in the delegation:**
+- The original message/question from the team member
+- Your composed response with all gathered data
+- Whether this should be a thread reply (if the original message was in a thread) or a new message
+- The relevant channel (from project-context.md)
+
+**Do NOT:**
+- Skip posting and just display the response as text output
+- Ask the user whether to post — the message came from the team, the response goes back to the team
+- Compose a draft without sending it`,
+    },
+    // Step 7: Clarification Protocol (for ambiguous intents)
     'clarification-protocol',
     // Step 8: Knowledge Base Update (library)
     'update-knowledge-base',
