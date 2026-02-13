@@ -24,6 +24,10 @@ The agent will:
 4. Apply appropriate fix pattern from \`./tests/CLAUDE.md\`
 5. Rerun the test
 6. The custom reporter will automatically create the next exec-N/ folder
+6b. If no custom reporter (BYOT mode — check for \`reporters/bugzy-reporter.ts\`):
+   Run the parse script to update the manifest with re-run results:
+   \`npx tsx reporters/parse-results.ts --input <re-run-output> --timestamp <current> --test-id <testCaseId>\`
+   This creates exec-N+1/ and updates the manifest.
 7. Repeat up to 3 times if needed (exec-1, exec-2, exec-3)
 8. Report success or escalate as likely product bug
 

@@ -29,12 +29,14 @@ import { logProductBugsStep } from './execution/log-product-bugs';
 import { createExplorationTestCaseStep } from './execution/create-exploration-test-case';
 import { runExplorationStep } from './execution/run-exploration';
 import { processExplorationResultsStep } from './execution/process-exploration-results';
+import { normalizeTestResultsStep } from './execution/normalize-test-results';
 
 // Generation steps
 import { generateTestPlanStep } from './generation/generate-test-plan';
 import { generateTestCasesStep } from './generation/generate-test-cases';
 import { automateTestCasesStep } from './generation/automate-test-cases';
 import { extractEnvVariablesStep } from './generation/extract-env-variables';
+import { createResultsParserStep } from './generation/create-results-parser';
 
 // Communication steps
 import { notifyTeamStep } from './communication/notify-team';
@@ -75,12 +77,14 @@ export const STEP_LIBRARY: Record<string, TaskStep> = {
   'create-exploration-test-case': createExplorationTestCaseStep,
   'run-exploration': runExplorationStep,
   'process-exploration-results': processExplorationResultsStep,
+  'normalize-test-results': normalizeTestResultsStep,
 
   // Generation
   'generate-test-plan': generateTestPlanStep,
   'generate-test-cases': generateTestCasesStep,
   'automate-test-cases': automateTestCasesStep,
   'extract-env-variables': extractEnvVariablesStep,
+  'create-results-parser': createResultsParserStep,
 
   // Communication
   'notify-team': notifyTeamStep,

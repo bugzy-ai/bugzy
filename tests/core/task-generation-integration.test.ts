@@ -36,6 +36,7 @@ describe('Task Generation - Full Subagents Config', () => {
     TASK_SLUGS.HANDLE_MESSAGE,
     TASK_SLUGS.PROCESS_EVENT,
     TASK_SLUGS.RUN_TESTS,
+    TASK_SLUGS.TRIAGE_RESULTS,
   ];
 
   ALL_TASK_SLUGS.forEach(taskSlug => {
@@ -106,6 +107,7 @@ describe('Task Generation - Partial Subagents Config', () => {
     TASK_SLUGS.HANDLE_MESSAGE,
     TASK_SLUGS.PROCESS_EVENT,
     TASK_SLUGS.RUN_TESTS,
+    TASK_SLUGS.TRIAGE_RESULTS,
   ];
 
   ALL_TASK_SLUGS.forEach(taskSlug => {

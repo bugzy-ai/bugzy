@@ -47,7 +47,8 @@ describe('buildTaskDefinition', () => {
       'run-tests',
       'handle-message',
       'process-event',
-      'verify-changes'
+      'verify-changes',
+      'triage-results'
     ];
 
     for (const slug of validSlugs) {

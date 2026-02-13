@@ -88,6 +88,7 @@ Before running tests, confirm the selection with the user if ambiguous:
     },
     // Step 7-10: Test Execution (library steps)
     'run-tests',
+    'normalize-test-results',
     'parse-test-results',
     'triage-failures',
     'fix-test-issues',
@@ -96,14 +97,7 @@ Before running tests, confirm the selection with the user if ambiguous:
       stepId: 'log-product-bugs',
       conditionalOnSubagent: 'issue-tracker',
     },
-    // Step 12: Knowledge Base Update (library)
-    'update-knowledge-base',
-    // Step 13: Team Communication (conditional - library step)
-    {
-      stepId: 'notify-team',
-      conditionalOnSubagent: 'team-communicator',
-    },
-    // Step 14: Handle Special Cases (inline - task-specific)
+    // Step 12: Handle Special Cases (inline - reference material, positioned before final action steps)
     {
       inline: true,
       title: 'Handle Special Cases',
@@ -151,6 +145,13 @@ If selected test cases have formatting issues:
 **Related Documentation**:
 - \`./tests/docs/test-execution-strategy.md\` - When and why to run specific tests
 - \`./tests/docs/testing-best-practices.md\` - How to write tests (patterns and anti-patterns)`,
+    },
+    // Step 13: Knowledge Base Update (library)
+    'update-knowledge-base',
+    // Step 14: Team Communication (conditional - library step, LAST actionable step)
+    {
+      stepId: 'notify-team',
+      conditionalOnSubagent: 'team-communicator',
     },
   ],
 

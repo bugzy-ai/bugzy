@@ -14,6 +14,7 @@ export const TASK_SLUGS = {
   PROCESS_EVENT: 'process-event',
   RUN_TESTS: 'run-tests',
   VERIFY_CHANGES: 'verify-changes',
+  TRIAGE_RESULTS: 'triage-results',
   /** @deprecated Use ONBOARD_TESTING instead */
   FULL_TEST_COVERAGE: 'onboard-testing',
 } as const;
