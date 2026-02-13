@@ -117,33 +117,13 @@ Store the detected trigger for use in output routing:
       title: 'Coverage Gap vs. Ambiguity',
       content: `### Coverage Gap vs. Ambiguity
 
-When the trigger indicates a feature has been implemented and is ready for testing (Jira "Ready to Test", PR merged, CI/CD pipeline):
+When the trigger indicates a feature is ready for testing (Jira "Ready to Test", PR merged, CI/CD):
 
-**Missing test coverage for the referenced feature is a COVERAGE GAP, not an ambiguity.**
+**Missing test coverage is a COVERAGE GAP, not an ambiguity.** The trigger asserts the feature exists. Do NOT block based on stale docs or knowledge base gaps. Coverage gaps are handled in "Create Tests for Coverage Gaps" below.
 
-- The developer/team is asserting the feature exists and is ready for testing
-- "Not yet explored" or "out of scope" in the test plan means the QA team hasn't tested it yet — it does NOT mean the feature doesn't exist
-- Do NOT classify as CRITICAL based on stale documentation or knowledge base gaps
-- If project-context.md or the Jira issue references the feature, assume it exists until browser exploration proves otherwise
-- Coverage gaps are handled in the "Create Tests for Coverage Gaps" step below — do NOT block here
+**If you can't find the referenced feature in the browser:** Apply the Clarification Protocol's execution obstacle principle. The authoritative trigger asserts it exists — this is an execution obstacle (wrong role, missing test data, feature flags, env config). PROCEED to create tests, add placeholder env vars, notify team about the access issue. Tests may fail until resolved — that's expected.
 
-### If You Browse the App and Cannot Find the Referenced Feature
-
-Apply the Clarification Protocol's **"Execution Obstacle vs. Requirement Ambiguity"** principle:
-
-This is an **execution obstacle**, NOT a requirement ambiguity — because the authoritative trigger source (Jira issue, PR, team request) asserts the feature exists. Common causes for not finding it:
-- **Missing role/tier**: You're logged in as a basic user but the feature requires admin/premium access
-- **Missing test data**: Required test accounts or data haven't been configured in \`.env.testdata\`
-- **Feature flags**: The feature is behind a flag not enabled in the test environment
-- **Environment config**: The feature requires specific environment variables or deployment settings
-
-**Action: PROCEED to "Create Tests for Coverage Gaps".** Do NOT BLOCK.
-- Create test cases and specs that reference the feature as described in the trigger
-- Add placeholder env vars to \`.env.testdata\` for any missing credentials
-- Notify the team (via team-communicator) about the access obstacle and what needs to be configured
-- Tests may fail until the obstacle is resolved — this is expected and acceptable
-
-**Only classify as CRITICAL (and BLOCK) if NO authoritative trigger source claims the feature exists** — e.g., a vague manual request with no Jira/PR backing.`,
+**Only BLOCK if NO authoritative trigger source claims the feature exists** (e.g., vague manual request with no Jira/PR backing).`,
     },
     // Step 6: Clarification Protocol (library)
     'clarification-protocol',
@@ -534,44 +514,11 @@ Post PR comment if GitHub context available.`,
     {
       inline: true,
       title: 'Handle Special Cases',
-      content: `**If no tests found for changed files:**
-- Inform user: "No automated tests found for changed files"
-- Recommend: "Run smoke test suite for basic validation"
-- Still generate manual verification checklist
+      content: `**If no tests found for changed files:** recommend smoke test suite, still generate manual verification checklist.
 
-**If all tests skipped:**
-- Explain why (dependencies, environment issues)
-- Recommend: Check test configuration and prerequisites
+**If all tests skipped:** explain why (dependencies, environment), recommend checking configuration.
 
-**If test execution fails:**
-- Report specific error (test framework not installed, env vars missing)
-- Suggest troubleshooting steps
-- Don't proceed with triage if tests didn't run
-
-## Important Notes
-
-- This task handles **all trigger sources** with a single unified workflow
-- Trigger detection is automatic based on input format
-- Output is automatically routed to the appropriate channel
-- Automated tests are executed with **full triage and automatic fixing**
-- Manual verification checklists are generated for **non-automatable scenarios**
-- Product bugs are logged with **automatic duplicate detection**
-- Test issues are fixed automatically with **verification**
-- Results include both automated and manual verification items
-
-## Success Criteria
-
-A successful verification includes:
-1. Trigger source correctly detected
-2. Context extracted completely
-3. Tests executed (or skipped with explanation)
-4. All failures triaged (product bug vs test issue)
-5. Test issues fixed automatically (when possible)
-6. Product bugs logged to issue tracker
-7. Manual verification checklist generated
-8. Results formatted for output channel
-9. Results delivered to appropriate destination
-10. Clear recommendation provided (merge / review / block)`,
+**If test execution fails:** report specific error, suggest troubleshooting, don't proceed with triage.`,
     },
   ],
 

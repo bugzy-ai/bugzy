@@ -166,28 +166,7 @@ After saving the test plan:
     {
       inline: true,
       title: 'Team Communication',
-      content: `{{INVOKE_TEAM_COMMUNICATOR}} to notify the product team about the new test plan:
-
-\`\`\`
-1. Post an update about the test plan creation
-2. Provide a brief summary of coverage areas and key features
-3. Mention any areas that need exploration or clarification
-4. Ask for team review and feedback on the test plan
-5. Include a link or reference to the test-plan.md file
-6. Use appropriate channel and threading for the update
-\`\`\`
-
-The team communication should include:
-- **Test plan scope**: Brief overview of what will be tested
-- **Coverage highlights**: Key features and user flows included
-- **Areas needing clarification**: Any uncertainties discovered during documentation research
-- **Review request**: Ask team to review and provide feedback
-- **Next steps**: Mention plan to generate test cases after review
-
-**Update team communicator memory:**
-- Record this communication in the team-communicator memory
-- Note this as a test plan creation communication
-- Track team response to this type of update`,
+      content: `{{INVOKE_TEAM_COMMUNICATOR}} to share the test plan with the team for review, highlighting coverage areas and any unresolved clarifications.`,
       conditionalOnSubagent: 'team-communicator',
     },
     // Step 18: Final Summary (inline)

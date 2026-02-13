@@ -60,12 +60,12 @@ describe('test-debugger-fixer subagent', () => {
 
     const content = template.CONTENT;
 
-    // Check for core responsibilities
-    expect(content).toContain('Best Practices Reference');
-    expect(content).toContain('Failure Analysis');
-    expect(content).toContain('Triage Decision');
-    expect(content).toContain('Debug Using Browser');
-    expect(content).toContain('Fix Test Issues');
+    // Check for core concepts (not exact section headers)
+    expect(content).toContain('testing-best-practices.md');
+    expect(content).toContain('Classify failure');
+    expect(content).toContain('product bug');
+    expect(content).toContain('test issue');
+    expect(content).toContain('playwright-cli');
   });
 
   it('should reference CLAUDE.md for fix patterns', async () => {
@@ -74,11 +74,7 @@ describe('test-debugger-fixer subagent', () => {
     const content = template.CONTENT;
 
     expect(content).toContain('./tests/CLAUDE.md');
-    expect(content).toContain('Common Fix Patterns');
-    expect(content).toContain('Selector not found');
-    expect(content).toContain('Timeout waiting');
-    expect(content).toContain('Test isolation');
-    expect(content).toContain('Flaky');
+    expect(content).toContain('fix patterns');
   });
 
   it('should reference testing best practices guide', async () => {
@@ -92,12 +88,12 @@ describe('test-debugger-fixer subagent', () => {
 
     const content = template.CONTENT;
 
-    expect(content).toContain('Read Test File');
-    expect(content).toContain('Read Failure Report');
-    expect(content).toContain('Reproduce and Debug');
-    expect(content).toContain('Classify Failure');
-    expect(content).toContain('Apply Fix');
-    expect(content).toContain('Verify Fix');
+    expect(content).toContain('Read test file');
+    expect(content).toContain('Read failure report');
+    expect(content).toContain('Debug');
+    expect(content).toContain('Classify failure');
+    expect(content).toContain('Apply fix');
+    expect(content).toContain('Verify fix');
   });
 
   it('should include JSON report handling', async () => {
@@ -113,8 +109,8 @@ describe('test-debugger-fixer subagent', () => {
     const content = template.CONTENT;
 
     expect(content).toContain('playwright-cli');
-    expect(content).toContain('Open browser');
-    expect(content).toContain('Inspect elements');
+    expect(content).toContain('open browser');
+    expect(content).toContain('inspect elements');
   });
 
   it('should distinguish between product bugs and test issues', async () => {
@@ -122,10 +118,10 @@ describe('test-debugger-fixer subagent', () => {
 
     const content = template.CONTENT;
 
-    expect(content).toContain('Product Bug Indicators');
-    expect(content).toContain('Test Issue Indicators');
-    expect(content).toContain('product-bug');
-    expect(content).toContain('test-issue');
+    expect(content).toContain('Product bug');
+    expect(content).toContain('Test issue');
+    expect(content).toContain('product bug');
+    expect(content).toContain('test issue');
   });
 
   it('should include critical rules', async () => {

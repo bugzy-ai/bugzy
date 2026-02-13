@@ -120,27 +120,12 @@ Example structure:
     {
       inline: true,
       title: 'Generate All Manual Test Case Files',
-      content: `Generate ALL manual test case markdown files in the \`./test-cases/\` directory BEFORE invoking the test-code-generator agent.
+      content: `Generate ALL manual test case markdown files in \`./test-cases/\` BEFORE invoking the test-code-generator agent.
 
-**For each test scenario from the previous step:**
-
-1. **Create test case file** in \`./test-cases/\` with format \`TC-XXX-feature-description.md\`
-2. **Include frontmatter** with:
-   - \`id:\` TC-XXX (sequential ID)
-   - \`title:\` Clear, descriptive title
-   - \`automated:\` true/false (based on automation decision)
-   - \`automated_test:\` (leave empty - will be filled by subagent when automated)
-   - \`type:\` exploratory/functional/regression/smoke
-   - \`area:\` Feature area/component
-3. **Write test case content**:
-   - **Objective**: Clear description of what is being tested
-   - **Preconditions**: Setup requirements, test data needed
-   - **Test Steps**: Numbered, human-readable steps
-   - **Expected Results**: What should happen at each step
-   - **Test Data**: Environment variables to use (e.g., \${TEST_BASE_URL}, \${TEST_OWNER_EMAIL})
-   - **Notes**: Any assumptions, clarifications needed, or special considerations
-
-**Output**: All manual test case markdown files created in \`./test-cases/\` with automation flags set`,
+Create files using \`TC-XXX-feature-description.md\` format. Follow the format of existing test cases in the directory. If no existing cases exist, include:
+- Frontmatter with test case metadata (id, title, type, area, \`automated: true/false\`, \`automated_test:\` empty)
+- Clear test steps with expected results
+- Required test data references (use env var names, not values)`,
     },
     // Step 11: Automate Test Cases (inline - detailed instructions for test-code-generator)
     {
@@ -225,76 +210,14 @@ Move to the next area and repeat until all areas are complete.
     {
       inline: true,
       title: 'Team Communication',
-      content: `{{INVOKE_TEAM_COMMUNICATOR}} to notify the product team about the new test cases and automated tests:
-
-\`\`\`
-1. Post an update about test case and automation creation
-2. Provide summary of coverage:
-   - Number of manual test cases created
-   - Number of automated tests created
-   - Features covered by automation
-   - Areas kept manual-only (and why)
-3. Highlight key automated test scenarios
-4. Share command to run automated tests (from \`./tests/CLAUDE.md\`)
-5. Ask for team review and validation
-6. Mention any areas needing exploration or clarification
-7. Use appropriate channel and threading for the update
-\`\`\`
-
-The team communication should include:
-- **Test artifacts created**: Manual test cases + automated tests count
-- **Automation coverage**: Which features are now automated
-- **Manual-only areas**: Why some tests are kept manual (rare scenarios, exploratory)
-- **Key automated scenarios**: Critical paths now covered by automation
-- **Running tests**: Command to execute automated tests
-- **Review request**: Ask team to validate scenarios and review test code
-- **Next steps**: Plans for CI/CD integration or additional test coverage
-
-**Update team communicator memory:**
-- Record this communication
-- Note test case and automation creation
-- Track team feedback on automation approach
-- Document any clarifications requested`,
+      content: `{{INVOKE_TEAM_COMMUNICATOR}} to share test case and automation results with the team, highlighting coverage areas, automation vs manual-only decisions, and any unresolved clarifications. Ask for team review.`,
       conditionalOnSubagent: 'team-communicator',
     },
     // Step 17: Final Summary (inline)
     {
       inline: true,
       title: 'Final Summary',
-      content: `Provide a comprehensive summary showing:
-
-**Manual Test Cases:**
-- Number of manual test cases created
-- List of test case files with IDs and titles
-- Automation status for each (automated: yes/no)
-
-**Automated Tests:**
-- Number of automated test scripts created
-- List of spec files with test counts
-- Page Objects created or updated
-- Fixtures and helpers added
-
-**Test Coverage:**
-- Features covered by manual tests
-- Features covered by automated tests
-- Areas kept manual-only (and why)
-
-**Next Steps:**
-- Command to run automated tests (from \`./tests/CLAUDE.md\`)
-- Instructions to run specific test file (from \`./tests/CLAUDE.md\`)
-- Note about copying .env.testdata to .env
-- Mention any exploration needed for edge cases
-
-**Important Notes:**
-- **Both Manual AND Automated**: Generate both artifacts - they serve different purposes
-- **Manual Test Cases**: Documentation, reference, can be executed manually when needed
-- **Automated Tests**: Fast, repeatable, for CI/CD and regression testing
-- **Automation Decision**: Not all test cases need automation - rare edge cases can stay manual
-- **Linking**: Manual test cases reference automated tests; automated tests reference manual test case IDs
-- **Two-Phase Workflow**: First generate all manual test cases, then automate area-by-area
-- **Ambiguity Handling**: Use exploration and clarification protocols before generating
-- **Environment Variables**: Use \`process.env.VAR_NAME\` in tests, update .env.testdata as needed
-- **Test Independence**: Each test must be runnable in isolation and in parallel`,
+      content: `Provide a summary of created artifacts: manual test cases (count, IDs), automated tests (count, spec files), page objects and supporting files, coverage by area, and command to run tests (from \`./tests/CLAUDE.md\`).`,
     },
   ],
 

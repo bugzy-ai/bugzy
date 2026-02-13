@@ -428,37 +428,6 @@ Create files if they don't exist:
     },
     // Step 14: Knowledge Base Update (library)
     'update-knowledge-base',
-    // Step 15: Important Considerations (inline)
-    {
-      inline: true,
-      title: 'Important Considerations',
-      content: `## Important Considerations
-
-### Contextual Intelligence
-- Never process events in isolation - always consider full context
-- Use knowledge base, history, and external system state to inform decisions
-- What seems like a bug might be expected behavior given the context
-- A minor event might be critical when seen as part of a pattern
-
-### Adaptive Response
-- Same event type can require different actions based on context
-- Learn from each event to improve future decision-making
-- Build understanding of system behavior over time
-- Adjust responses based on business priorities and risk
-
-### Smart Task Generation
-- NEVER execute action tasks directly — all action tasks go through blocked-task-queue for team confirmation
-- Knowledge base updates and event history logging are the only direct operations
-- Document why each decision was made with full context
-- Skip redundant actions (e.g., duplicate events, already-processed issues)
-- Escalate appropriately based on pattern recognition
-
-### Continuous Learning
-- Each event adds to our understanding of the system
-- Update patterns when new correlations are discovered
-- Refine decision rules based on outcomes
-- Build institutional memory through event history`,
-    },
   ],
 
   requiredSubagents: ['team-communicator'],

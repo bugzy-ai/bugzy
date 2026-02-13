@@ -115,58 +115,6 @@ After processing the message through the handler and composing your response:
     'clarification-protocol',
     // Step 8: Knowledge Base Update (library)
     'update-knowledge-base',
-    // Step 9: Key Principles (inline)
-    {
-      inline: true,
-      title: 'Key Principles',
-      content: `## Key Principles
-
-### Context Preservation
-- Always maintain full conversation context
-- Link responses back to original uncertainties
-- Preserve reasoning chain for future reference
-
-### Actionable Responses
-- Convert team input into concrete actions
-- Don't let clarifications sit without implementation
-- Follow through on commitments made to team
-
-### Learning Integration
-- Each interaction improves our understanding
-- Build knowledge base of team preferences
-- Refine communication approaches over time
-
-### Quality Communication
-- Acknowledge team input appropriately
-- Provide updates on actions taken
-- Ask good follow-up questions when needed`,
-    },
-    // Step 10: Important Considerations (inline)
-    {
-      inline: true,
-      title: 'Important Considerations',
-      content: `## Important Considerations
-
-### Thread Organization
-- Keep related discussions in same thread
-- Start new threads for new topics
-- Maintain clear conversation boundaries
-
-### Response Timing
-- Acknowledge important messages promptly
-- Allow time for implementation before status updates
-- Don't spam team with excessive communications
-
-### Action Prioritization
-- Address urgent clarifications first
-- Batch related updates when possible
-- Focus on high-impact changes
-
-### Memory Maintenance
-- Keep active conversations visible and current
-- Archive resolved discussions appropriately
-- Maintain searchable history of resolutions`,
-    },
   ],
 
   requiredSubagents: ['team-communicator'],
