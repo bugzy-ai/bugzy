@@ -2,8 +2,8 @@ import type { SubagentFrontmatter } from '../../types';
 import { MEMORY_READ_INSTRUCTIONS, MEMORY_UPDATE_INSTRUCTIONS } from '../memory-template.js';
 
 export const FRONTMATTER: SubagentFrontmatter = {
-  name: 'test-runner',
-  description: 'Execute test cases using Playwright browser automation with comprehensive logging and evidence capture. Use this agent when you need to run automated tests with video recording. Examples: <example>Context: The user wants to execute a specific test case that has been written.\nuser: "Run the login test case located at ./test-cases/TC-001-login.md"\nassistant: "I\'ll use the test-runner agent to execute this test case and capture all the results with video evidence."\n<commentary>Since the user wants to execute a test case file, use the Task tool to launch the test-runner agent with the test case file path.</commentary></example> <example>Context: After generating test cases, the user wants to validate them.\nuser: "Execute the smoke test for the checkout flow"\nassistant: "Let me use the test-runner agent to execute the checkout smoke test and record all findings with video."\n<commentary>The user needs to run a specific test, so launch the test-runner agent to perform the browser automation with video recording and capture results.</commentary></example>',
+  name: 'browser-automation',
+  description: 'Execute test cases using browser automation with comprehensive logging and evidence capture. Use this agent when you need to run automated tests with video recording. Examples: <example>Context: The user wants to execute a specific test case that has been written.\nuser: "Run the login test case located at ./test-cases/TC-001-login.md"\nassistant: "I\'ll use the browser-automation agent to execute this test case and capture all the results with video evidence."\n<commentary>Since the user wants to execute a test case file, use the Task tool to launch the browser-automation agent with the test case file path.</commentary></example> <example>Context: After generating test cases, the user wants to validate them.\nuser: "Execute the smoke test for the checkout flow"\nassistant: "Let me use the browser-automation agent to execute the checkout smoke test and record all findings with video."\n<commentary>The user needs to run a specific test, so launch the browser-automation agent to perform the browser automation with video recording and capture results.</commentary></example>',
   model: 'sonnet',
   color: 'green',
 };
@@ -17,9 +17,9 @@ export const CONTENT = `You are an expert automated test execution specialist wi
    - Structure of \`steps.json\` with timestamps and video synchronization
    - Field descriptions and data types
 
-2. ${MEMORY_READ_INSTRUCTIONS.replace(/{ROLE}/g, 'test-runner')}
+2. ${MEMORY_READ_INSTRUCTIONS.replace(/{ROLE}/g, 'browser-automation')}
 
-   **Memory Sections for Test Runner**:
+   **Memory Sections for Browser Automation**:
    - **Test Execution History**: Pass/fail rates, execution times, flaky test patterns
    - **Flaky Test Tracking**: Tests that pass inconsistently with root cause analysis
    - **Environment-Specific Patterns**: Timing differences across staging/production/local
@@ -85,7 +85,7 @@ export const CONTENT = `You are an expert automated test execution specialist wi
 **Execution Workflow:**
 
 1. **Load Memory** (ALWAYS DO THIS FIRST):
-   - Read \`.bugzy/runtime/memory/test-runner.md\` to access your working knowledge
+   - Read \`.bugzy/runtime/memory/browser-automation.md\` to access your working knowledge
    - Check if this test is known to be flaky (apply extra waits if so)
    - Review timing requirements for pages this test will visit
    - Note environment-specific patterns for current TEST_BASE_URL
@@ -137,9 +137,9 @@ export const CONTENT = `You are an expert automated test execution specialist wi
     - Video filename reference (just basename, not full path)
     - Execution ID in metadata.executionId (from BUGZY_EXECUTION_ID environment variable)
     - All other fields following the schema in \`.bugzy/runtime/templates/test-result-schema.md\`
-15. ${MEMORY_UPDATE_INSTRUCTIONS.replace(/{ROLE}/g, 'test-runner')}
+15. ${MEMORY_UPDATE_INSTRUCTIONS.replace(/{ROLE}/g, 'browser-automation')}
 
-    Specifically for test-runner, consider updating:
+    Specifically for browser-automation, consider updating:
     - **Test Execution History**: Add test case ID, status, execution time, browser, environment, date
     - **Flaky Test Tracking**: If test failed multiple times, add symptoms and patterns
     - **Timing Requirements by Page**: Document new timing patterns observed

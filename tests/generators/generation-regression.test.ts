@@ -134,7 +134,7 @@ describe('Claude Code Generation Regression Tests', () => {
     it('should generate agent files with YAML frontmatter', async () => {
       await generateAgents(subagentsRecord);
 
-      const filePath = path.join(testDir, '.claude', 'agents', 'test-runner.md');
+      const filePath = path.join(testDir, '.claude', 'agents', 'browser-automation.md');
       const content = fs.readFileSync(filePath, 'utf-8');
 
       // Must start with ---
@@ -148,7 +148,7 @@ describe('Claude Code Generation Regression Tests', () => {
     it('should include name and description in agent frontmatter', async () => {
       await generateAgents(subagentsRecord);
 
-      const filePath = path.join(testDir, '.claude', 'agents', 'test-runner.md');
+      const filePath = path.join(testDir, '.claude', 'agents', 'browser-automation.md');
       const content = fs.readFileSync(filePath, 'utf-8');
 
       const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
@@ -162,13 +162,13 @@ describe('Claude Code Generation Regression Tests', () => {
     it('should include model and color when specified', async () => {
       await generateAgents(subagentsRecord);
 
-      const filePath = path.join(testDir, '.claude', 'agents', 'test-runner.md');
+      const filePath = path.join(testDir, '.claude', 'agents', 'browser-automation.md');
       const content = fs.readFileSync(filePath, 'utf-8');
 
       const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
       const frontmatter = frontmatterMatch![1];
 
-      // test-runner has model and color in metadata
+      // browser-automation has model and color in metadata
       expect(frontmatter).toMatch(/model:/);
     });
   });
@@ -330,7 +330,7 @@ describe('Subagent Invocation Patterns (Claude Code)', () => {
 
     try {
       const subagentsRecord: Record<string, string> = {
-        'test-runner': 'playwright',
+        'browser-automation': 'playwright',
         'test-debugger-fixer': 'playwright',
         'team-communicator': 'slack',
         'issue-tracker': 'notion',

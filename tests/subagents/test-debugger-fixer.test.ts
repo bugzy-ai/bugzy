@@ -68,17 +68,17 @@ describe('test-debugger-fixer subagent', () => {
     expect(content).toContain('Fix Test Issues');
   });
 
-  it('should include fix types for common test issues', async () => {
+  it('should reference CLAUDE.md for fix patterns', async () => {
     const template = await import('../../src/subagents/templates/test-debugger-fixer/playwright');
 
     const content = template.CONTENT;
 
-    expect(content).toContain('Brittle Selectors');
-    expect(content).toContain('Missing Wait Conditions');
-    expect(content).toContain('Race Conditions');
-    expect(content).toContain('Wrong Assertions');
-    expect(content).toContain('Test Isolation Issues');
-    expect(content).toContain('Flaky Tests');
+    expect(content).toContain('./tests/CLAUDE.md');
+    expect(content).toContain('Common Fix Patterns');
+    expect(content).toContain('Selector not found');
+    expect(content).toContain('Timeout waiting');
+    expect(content).toContain('Test isolation');
+    expect(content).toContain('Flaky');
   });
 
   it('should reference testing best practices guide', async () => {
@@ -128,13 +128,13 @@ describe('test-debugger-fixer subagent', () => {
     expect(content).toContain('test-issue');
   });
 
-  it('should include anti-patterns to avoid', async () => {
+  it('should include critical rules', async () => {
     const template = await import('../../src/subagents/templates/test-debugger-fixer/playwright');
 
     const content = template.CONTENT;
 
-    expect(content).toContain('Anti-Patterns to Avoid');
-    expect(content).toContain('DO NOT');
-    expect(content).toContain('waitForTimeout');
+    expect(content).toContain('Critical Rules');
+    expect(content).toContain('NEVER');
+    expect(content).toContain('ALWAYS');
   });
 });

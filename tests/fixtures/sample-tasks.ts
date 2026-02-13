@@ -5,14 +5,14 @@ export const sampleTask: TaskTemplate = {
   frontmatter: {
     title: 'Test Task',
     description: 'A test task for unit testing',
-    requiredSubAgents: ['test-runner'],
+    requiredSubAgents: ['browser-automation'],
     optionalSubAgents: ['team-communicator']
   },
   promptTemplate: (subagents) => `# Test Task Prompt
 
 This is a test task.
 
-${subagents['test-runner']?.block || ''}
+${subagents['browser-automation']?.block || ''}
 ${subagents['team-communicator']?.block || ''}
 
 Execute the test task.`
@@ -23,11 +23,11 @@ export const sampleTaskWithoutOptional: TaskTemplate = {
   frontmatter: {
     title: 'Simple Task',
     description: 'A simple task without optional subagents',
-    requiredSubAgents: ['test-runner']
+    requiredSubAgents: ['browser-automation']
   },
   promptTemplate: (subagents) => `# Simple Task
 
-${subagents['test-runner']?.block || ''}
+${subagents['browser-automation']?.block || ''}
 
 Execute the simple task.`
 };

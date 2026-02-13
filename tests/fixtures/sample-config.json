@@ -6,6 +6,6 @@
   "subagents": {
     "team-communicator": "slack",
     "documentation-researcher": "notion",
-    "test-runner": "playwright"
+    "browser-automation": "playwright"
   }
 }

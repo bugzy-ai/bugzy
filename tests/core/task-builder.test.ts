@@ -36,7 +36,7 @@ describe('buildTaskDefinition', () => {
   it('should include required subagent roles', () => {
     const result = buildTaskDefinition('run-tests', sampleSubAgents);
 
-    expect(result.requiredSubAgentRoles).toContain('test-runner');
+    expect(result.requiredSubAgentRoles).toContain('browser-automation');
   });
 
   it('should work for all valid task slugs', () => {

@@ -202,7 +202,7 @@ The team communication should include:
     },
   ],
 
-  requiredSubagents: ['test-runner'],
+  requiredSubagents: ['browser-automation'],
   optionalSubagents: ['documentation-researcher', 'team-communicator'],
   dependentTasks: [],
 };

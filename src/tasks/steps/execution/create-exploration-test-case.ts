@@ -6,7 +6,7 @@ export const createExplorationTestCaseStep: TaskStep = {
   category: 'execution',
   content: `## Create Exploration Test Case
 
-Generate a temporary exploration test case for the test-runner.
+Generate a temporary exploration test case for the browser-automation agent.
 
 **Create file:** \`./test-cases/EXPLORATION-TEMP.md\`
 

@@ -29,7 +29,7 @@ describe('config utilities', () => {
       const sampleConfig = {
         version: '1.0.0',
         project: { name: 'test-project' },
-        subagents: { 'test-runner': 'playwright' }
+        subagents: { 'browser-automation': 'playwright' }
       };
 
       fs.writeFileSync(configPath, JSON.stringify(sampleConfig, null, 2));
@@ -48,7 +48,7 @@ describe('config utilities', () => {
         version: '1.0.0',
         tool: 'cursor',
         project: { name: 'test-project' },
-        subagents: { 'test-runner': 'playwright' }
+        subagents: { 'browser-automation': 'playwright' }
       };
 
       fs.writeFileSync(configPath, JSON.stringify(sampleConfig, null, 2));
@@ -75,7 +75,7 @@ describe('config utilities', () => {
       const config = {
         version: '1.0.0',
         project: { name: 'test-project' },
-        subagents: { 'test-runner': 'playwright' }
+        subagents: { 'browser-automation': 'playwright' }
       };
 
       await saveConfig(config);
@@ -112,7 +112,7 @@ describe('config utilities', () => {
       const updatedConfig = {
         version: '1.0.0',
         project: { name: 'updated' },
-        subagents: { 'test-runner': 'playwright' }
+        subagents: { 'browser-automation': 'playwright' }
       };
 
       await saveConfig(updatedConfig);

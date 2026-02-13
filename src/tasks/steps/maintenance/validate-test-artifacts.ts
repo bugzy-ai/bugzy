@@ -15,30 +15,29 @@ After test generation completes, verify all artifacts meet quality standards:
 - Contains human-readable steps and expected results
 - References environment variables for test data
 
-**2. Automated Tests (in \`./tests/specs/\`):**
+**2. Automated Tests** (in directory specified by \`./tests/CLAUDE.md\`):
 - Organized by feature in subdirectories
 - Each test file references manual test case ID in comments
-- Uses Page Object Model pattern
-- Follows role-based selector priority
+- Follows conventions defined in \`./tests/CLAUDE.md\`
+- Follows selector priority from \`./tests/CLAUDE.md\`
 - Uses environment variables for test data
 - Includes proper TypeScript typing
 
-**3. Page Objects (in \`./tests/pages/\`):**
-- Extend BasePage class
-- Use semantic selectors (getByRole, getByLabel, getByText)
+**3. Page Objects** (in directory specified by \`./tests/CLAUDE.md\`):
+- Follow page object conventions from \`./tests/CLAUDE.md\`
 - Contain only actions, no assertions
 - Properly typed with TypeScript
 
-**4. Supporting Files:**
-- Fixtures created for common setup (in \`./tests/fixtures/\`)
-- Helper functions for data generation (in \`./tests/helpers/\`)
-- Component objects for reusable UI elements (in \`./tests/components/\`)
-- Types defined as needed (in \`./tests/types/\`)
+**4. Supporting Files** (in directories specified by \`./tests/CLAUDE.md\`):
+- Fixtures created for common setup
+- Helper functions for data generation
+- Component objects for reusable UI elements
+- Types defined as needed
 
 **Validation Checklist:**
 - [ ] All manual test cases have proper frontmatter
 - [ ] Automated tests reference their manual test case IDs
-- [ ] Page Objects follow the BasePage pattern
+- [ ] Test artifacts follow conventions from \`./tests/CLAUDE.md\`
 - [ ] No hardcoded test data (uses environment variables)
 - [ ] Tests are syntactically valid TypeScript`,
   tags: ['maintenance', 'validation', 'test-artifacts'],

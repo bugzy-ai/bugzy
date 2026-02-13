@@ -23,10 +23,10 @@ For each failed test:
 | Classification | Indicators | Examples |
 |---------------|------------|----------|
 | **Product Bug** | Correct test code, unexpected application behavior | Button click leads to wrong page, Form submission returns 500 error, Feature missing or broken |
-| **Test Issue** | Test code needs fixing | Selector not found but element exists, \`expect(locator).toBeVisible()\` timeout on existing element, Race condition, Wrong assertion |
+| **Test Issue** | Test code needs fixing | Selector not found but element exists, Timeout on existing element, Race condition, Wrong assertion |
 
-**Common Test Issues:**
-- Brittle selectors (CSS path instead of data-testid or role)
+**Common Test Issues** (refer to \`./tests/CLAUDE.md\` "Common Fix Patterns" for framework-specific guidance):
+- Brittle selectors (not following selector priority from CLAUDE.md)
 - Missing waits for async operations
 - Race conditions with animations
 - Incorrect expected values

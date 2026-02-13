@@ -13,7 +13,7 @@ import type { ProjectSubAgent } from '../../src/core/task-builder';
 
 // Minimal config for basic tests
 const MINIMAL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
-  { role: 'test-runner', integration: 'playwright' },
+  { role: 'browser-automation', integration: 'playwright' },
   { role: 'test-debugger-fixer', integration: 'playwright' },
 ];
 
@@ -84,13 +84,13 @@ describe('getAgentConfiguration', () => {
       });
     });
 
-    test('generates playwright test-runner prompt for minimal config', async () => {
+    test('generates playwright browser-automation prompt for minimal config', async () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, MINIMAL_SUBAGENTS_CONFIG);
       const config = await getAgentConfiguration([taskDef], MINIMAL_SUBAGENTS_CONFIG);
 
-      // Minimal config only has test-runner with playwright
-      expect(config.subagents['test-runner']).toBeDefined();
-      const subagent = config.subagents['test-runner'];
+      // Minimal config only has browser-automation with playwright
+      expect(config.subagents['browser-automation']).toBeDefined();
+      const subagent = config.subagents['browser-automation'];
 
       // Should contain playwright-specific content
       expect(subagent.content.toLowerCase()).toContain('playwright');
@@ -100,13 +100,13 @@ describe('getAgentConfiguration', () => {
       const taskDef = buildTaskDefinition(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
       const config = await getAgentConfiguration([taskDef], FULL_SUBAGENTS_CONFIG);
 
-      // Full config has: test-runner, documentation-researcher, issue-tracker, team-communicator
+      // Full config has: browser-automation, documentation-researcher, issue-tracker, team-communicator
       const roles = Object.keys(config.subagents);
       expect(roles.length).toBeGreaterThan(1);
 
       // Check specific roles exist
-      if (FULL_SUBAGENTS_CONFIG.some(sa => sa.role === 'test-runner')) {
-        expect(config.subagents['test-runner']).toBeDefined();
+      if (FULL_SUBAGENTS_CONFIG.some(sa => sa.role === 'browser-automation')) {
+        expect(config.subagents['browser-automation']).toBeDefined();
       }
       if (FULL_SUBAGENTS_CONFIG.some(sa => sa.role === 'team-communicator')) {
         expect(config.subagents['team-communicator']).toBeDefined();
@@ -172,15 +172,15 @@ describe('getAgentConfiguration', () => {
     test('integration produces expected prompt content', async () => {
       // Test with playwright
       const taskDefPlaywright = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, [
-        { role: 'test-runner', integration: 'playwright' },
+        { role: 'browser-automation', integration: 'playwright' },
         { role: 'test-debugger-fixer', integration: 'playwright' }
       ]);
       const configPlaywright = await getAgentConfiguration([taskDefPlaywright], [
-        { role: 'test-runner', integration: 'playwright' },
+        { role: 'browser-automation', integration: 'playwright' },
         { role: 'test-debugger-fixer', integration: 'playwright' }
       ]);
 
-      const playwrightSubagent = configPlaywright.subagents['test-runner'];
+      const playwrightSubagent = configPlaywright.subagents['browser-automation'];
 
       // Should be defined
       expect(playwrightSubagent).toBeDefined();
@@ -193,7 +193,7 @@ describe('getAgentConfiguration', () => {
   describe('Missing Template Handling', () => {
     test('should return undefined for non-existent template', () => {
       // Try to build config with a fake integration that doesn't have a template
-      const config = buildSubagentConfig('test-runner', 'nonexistent-tool');
+      const config = buildSubagentConfig('browser-automation', 'nonexistent-tool');
 
       expect(config).toBeUndefined();
     });
@@ -207,26 +207,26 @@ describe('getAgentConfiguration', () => {
 
     test('should skip subagents with missing templates', () => {
       const configs = buildSubagentsConfig([
-        { role: 'test-runner', integration: 'playwright' },  // valid
-        { role: 'test-runner', integration: 'fake-tool' }    // invalid - will be skipped
+        { role: 'browser-automation', integration: 'playwright' },  // valid
+        { role: 'browser-automation', integration: 'fake-tool' }    // invalid - will be skipped
       ]);
 
       // Only the valid one should be included
-      expect(configs['test-runner']).toBeDefined();
+      expect(configs['browser-automation']).toBeDefined();
       expect(Object.keys(configs).length).toBe(1);
     });
 
     test('should handle mixed valid and invalid subagent configurations', () => {
       const configs = buildSubagentsConfig([
-        { role: 'test-runner', integration: 'playwright' },        // valid
-        { role: 'test-runner', integration: 'nonexistent' },       // invalid
+        { role: 'browser-automation', integration: 'playwright' },        // valid
+        { role: 'browser-automation', integration: 'nonexistent' },       // invalid
         { role: 'team-communicator', integration: 'slack' },       // valid
         { role: 'fake-role', integration: 'fake-integration' }     // invalid
       ]);
 
-      // Should have exactly 2 valid configs (test-runner and team-communicator)
-      // Note: Only one of the test-runner configs will be kept (the valid one)
-      expect(configs['test-runner']).toBeDefined();
+      // Should have exactly 2 valid configs (browser-automation and team-communicator)
+      // Note: Only one of the browser-automation configs will be kept (the valid one)
+      expect(configs['browser-automation']).toBeDefined();
       expect(configs['team-communicator']).toBeDefined();
 
       // Should not have fake-role
@@ -244,7 +244,7 @@ describe('getAgentConfiguration', () => {
 
     test('valid templates should still load successfully', () => {
       // Verify that our test doesn't break existing functionality
-      const config = buildSubagentConfig('test-runner', 'playwright');
+      const config = buildSubagentConfig('browser-automation', 'playwright');
 
       expect(config).toBeDefined();
       expect(config?.content).toBeDefined();
@@ -256,7 +256,7 @@ describe('getAgentConfiguration', () => {
     test('agent configuration should handle missing templates gracefully', async () => {
       // Even with invalid subagents in the list, valid ones should still work
       const validSubagents: ProjectSubAgent[] = [
-        { role: 'test-runner', integration: 'playwright' },
+        { role: 'browser-automation', integration: 'playwright' },
         { role: 'test-debugger-fixer', integration: 'playwright' }
       ];
 
@@ -265,8 +265,8 @@ describe('getAgentConfiguration', () => {
 
       // Should successfully generate config with valid subagents
       expect(config).toBeDefined();
-      expect(config.subagents['test-runner']).toBeDefined();
-      expect(config.subagents['test-runner'].content).toBeTruthy();
+      expect(config.subagents['browser-automation']).toBeDefined();
+      expect(config.subagents['browser-automation'].content).toBeTruthy();
     });
   });
 });

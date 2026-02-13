@@ -27,7 +27,7 @@ export type StepCategory =
 export interface TaskStep {
   /**
    * Unique identifier for the step (kebab-case)
-   * Examples: 'read-knowledge-base', 'triage-failures', 'run-playwright-tests'
+   * Examples: 'read-knowledge-base', 'triage-failures', 'run-tests'
    */
   id: string;
 

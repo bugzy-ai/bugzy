@@ -89,10 +89,16 @@ async function createRuntimeFiles(): Promise<void> {
     fs.writeFileSync(testPlanTemplatePath, content, 'utf-8');
   }
 
+  // Create tests/docs/ directory and files
+  const testsDocsDir = path.join(cwd, 'tests/docs');
+  if (!fs.existsSync(testsDocsDir)) {
+    fs.mkdirSync(testsDocsDir, { recursive: true });
+  }
+
   // Create testing-best-practices.md from template
-  const bestPracticesPath = path.join(cwd, '.bugzy/runtime/testing-best-practices.md');
+  const bestPracticesPath = path.join(cwd, 'tests/docs/testing-best-practices.md');
   if (!fs.existsSync(bestPracticesPath)) {
-    const templatePath = path.join(templatesDir, '.bugzy/runtime/testing-best-practices.md');
+    const templatePath = path.join(templatesDir, 'tests/docs/testing-best-practices.md');
     const content = fs.readFileSync(templatePath, 'utf-8');
     fs.writeFileSync(bestPracticesPath, content, 'utf-8');
   }
@@ -138,12 +144,22 @@ async function createRuntimeFiles(): Promise<void> {
   }
 
   // Create test-execution-strategy.md from template
-  const testExecutionStrategyPath = path.join(cwd, '.bugzy/runtime/test-execution-strategy.md');
+  const testExecutionStrategyPath = path.join(cwd, 'tests/docs/test-execution-strategy.md');
   if (!fs.existsSync(testExecutionStrategyPath)) {
-    const templatePath = path.join(templatesDir, '.bugzy/runtime/test-execution-strategy.md');
+    const templatePath = path.join(templatesDir, 'tests/docs/test-execution-strategy.md');
     if (fs.existsSync(templatePath)) {
       const content = fs.readFileSync(templatePath, 'utf-8');
       fs.writeFileSync(testExecutionStrategyPath, content, 'utf-8');
+    }
+  }
+
+  // Create tests/CLAUDE.md from template
+  const testsClaudeMdPath = path.join(cwd, 'tests/CLAUDE.md');
+  if (!fs.existsSync(testsClaudeMdPath)) {
+    const templatePath = path.join(templatesDir, 'tests/CLAUDE.md');
+    if (fs.existsSync(templatePath)) {
+      const content = fs.readFileSync(templatePath, 'utf-8');
+      fs.writeFileSync(testsClaudeMdPath, content, 'utf-8');
     }
   }
 

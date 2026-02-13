@@ -53,7 +53,7 @@ Specialized memory files for domain experts will be created in `.bugzy/runtime/m
 1. `/generate-test-plan` - Generate comprehensive test plan from product documentation using the documentation-researcher agent
 2. `/explore-application` - Systematically explore the application to discover UI elements, workflows, and behaviors, updating test plan with findings
 3. `/generate-test-cases` - Create E2E browser test cases (exploratory, functional, regression, smoke) based on documentation and test plan
-4. `/run-tests` - Execute test cases using the test-runner agent
+4. `/run-tests` - Execute test cases using the browser-automation agent
 5. `/handle-message` - Process team responses and manage ongoing conversations with the product team using the team-communicator agent
 
 ### Git Workflow
@@ -91,7 +91,7 @@ Agents and commands should NOT perform git operations (commit, push). Instead:
 1. Generate test plan: `/generate-test-plan` command leverages the documentation-researcher agent to gather requirements
 2. Explore application: `/explore-application --focus [area] --depth [shallow|deep]` discovers actual UI elements and behaviors
 3. Create test cases: `/generate-test-cases --type [type] --focus [feature]` uses discovered documentation and exploration findings
-4. Execute tests: `/run-tests [test-id|type|tag|all]` runs test cases via test-runner agent
+4. Execute tests: `/run-tests [test-id|type|tag|all]` runs test cases via browser-automation agent
 5. Continuous refinement through exploration and test execution
 
 ### Testing Lifecycle Phases
@@ -140,7 +140,7 @@ Key information includes: QA workflow, story status management, bug reporting gu
 - Steps appear in both result.json (Playwright format) and steps.json (user-friendly format)
 - Tests without `test.step()` still work but won't have steps.json
 
-**Manual Test Execution** (via test-runner agent):
+**Manual Test Execution** (via browser-automation agent):
 - Manual test cases use separate format: `./test-runs/YYYYMMDD-HHMMSS/TC-XXX/`
 - Each test run generates:
   - `summary.json`: Structured test result with video filename reference

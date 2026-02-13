@@ -36,7 +36,7 @@ After triage, for tests classified as **[PRODUCT BUG]**, use the issue-tracker a
      - Trace file: [path if available]
      - Screenshots: [paths if available]
    - **Environment Details**:
-     - Browser and version (from Playwright config)
+     - Browser and version (from test framework config)
      - Test environment URL (from .env.testdata BASE_URL)
      - Timestamp of failure
    - **Severity/Priority**: Based on:

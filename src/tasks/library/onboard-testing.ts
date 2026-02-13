@@ -55,7 +55,7 @@ This command orchestrates the complete test coverage workflow in a single execut
     // Phase 2: Exploration Protocol
     'exploration-protocol',
 
-    // Execute exploration via test-runner
+    // Execute exploration via browser-automation
     'create-exploration-test-case',
     'run-exploration',
     'process-exploration-results',
@@ -69,7 +69,7 @@ This command orchestrates the complete test coverage workflow in a single execut
     'automate-test-cases',
 
     // Phase 5: Test Execution
-    'run-playwright-tests',
+    'run-tests',
     'parse-test-results',
 
     // Phase 6: Triage and Fix (NEW - was missing from full-test-coverage)
@@ -89,7 +89,7 @@ This command orchestrates the complete test coverage workflow in a single execut
     'generate-final-report',
   ],
 
-  requiredSubagents: ['test-runner', 'test-code-generator', 'test-debugger-fixer'],
+  requiredSubagents: ['browser-automation', 'test-code-generator', 'test-debugger-fixer'],
   optionalSubagents: ['documentation-researcher', 'team-communicator', 'issue-tracker'],
   dependentTasks: ['run-tests', 'generate-test-cases'],
 };

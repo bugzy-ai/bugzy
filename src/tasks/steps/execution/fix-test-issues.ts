@@ -21,7 +21,7 @@ The agent will:
 1. Read the execution details from result.json
 2. Analyze the failure (error message, trace if available)
 3. Identify the root cause (brittle selector, missing wait, race condition, etc.)
-4. Apply appropriate fix to the test code
+4. Apply appropriate fix pattern from \`./tests/CLAUDE.md\`
 5. Rerun the test
 6. The custom reporter will automatically create the next exec-N/ folder
 7. Repeat up to 3 times if needed (exec-1, exec-2, exec-3)
@@ -33,7 +33,7 @@ The agent will:
 
 **Track Fixed Tests:**
 - Maintain list of tests fixed automatically
-- Include fix description (e.g., "Updated selector from CSS to role-based")
+- Include fix description (e.g., "Applied selector fix pattern from CLAUDE.md")
 - Note verification status (test now passes)`,
   invokesSubagents: ['test-debugger-fixer'],
   tags: ['execution', 'fixing', 'automation'],

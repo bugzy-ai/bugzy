@@ -6,7 +6,7 @@ export const readTestStrategyStep: TaskStep = {
   category: 'setup',
   content: `## Read Test Execution Strategy
 
-**IMPORTANT**: Before selecting tests, read \`.bugzy/runtime/test-execution-strategy.md\` to understand:
+**IMPORTANT**: Before selecting tests, read \`./tests/docs/test-execution-strategy.md\` to understand:
 - Available test tiers (Smoke, Component, Full Regression)
 - When to use each tier (commit, PR, release, debug)
 - Default behavior (default to @smoke unless user specifies otherwise)
@@ -16,6 +16,6 @@ export const readTestStrategyStep: TaskStep = {
 
 Apply the strategy guidance when determining which tests to run.
 
-**First**, consult \`.bugzy/runtime/test-execution-strategy.md\` decision tree to determine appropriate test tier based on user's selector and context.`,
+**First**, consult \`./tests/docs/test-execution-strategy.md\` decision tree to determine appropriate test tier based on user's selector and context.`,
   tags: ['setup', 'test-execution', 'strategy'],
 };

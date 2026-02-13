@@ -1,32 +1,20 @@
 import type { TaskStep } from '../types';
 
-export const runPlaywrightTestsStep: TaskStep = {
-  id: 'run-playwright-tests',
-  title: 'Execute Playwright Tests',
+export const runTestsStep: TaskStep = {
+  id: 'run-tests',
+  title: 'Execute Automated Tests',
   category: 'execution',
-  content: `## Execute Playwright Tests
+  content: `## Execute Automated Tests
 
-Run automated Playwright tests and capture results.
+Run automated tests and capture results.
 
-**Build Playwright Command** based on selector:
+**Read \`./tests/CLAUDE.md\`** for the test execution commands specific to this project's test framework.
 
-The playwright.config.ts automatically loads environment variables from .env.testdata and .env files.
-Use npm scripts to run tests - no manual env export needed.
+Use the commands defined in \`./tests/CLAUDE.md\` to run tests based on selector:
 
-**For file pattern or specific file**:
-\`\`\`bash
-npm test -- [selector]
-\`\`\`
-
-**For tag**:
-\`\`\`bash
-npm test -- --grep "[tag]"
-\`\`\`
-
-**For all tests**:
-\`\`\`bash
-npm test
-\`\`\`
+- **For file pattern or specific file**: Use the framework's file selection command
+- **For tag**: Use the framework's tag/grep filtering command
+- **For all tests**: Use the default run-all command
 
 Wait for execution to complete. This may take several minutes depending on test count.
 
@@ -44,6 +32,6 @@ Wait for execution to complete. This may take several minutes depending on test 
    \`\`\`
 
 2. Store the timestamp for use in subsequent steps`,
-  invokesSubagents: ['test-runner'],
+  invokesSubagents: ['browser-automation'],
   tags: ['execution', 'tests'],
 };

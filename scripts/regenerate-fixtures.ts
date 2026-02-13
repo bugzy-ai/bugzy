@@ -10,7 +10,7 @@ import type { ProjectSubAgent } from '../src/types';
 
 // Full subagents config
 const FULL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
-  { role: 'test-runner', integration: 'playwright' },
+  { role: 'browser-automation', integration: 'playwright' },
   { role: 'team-communicator', integration: 'slack' },
   { role: 'documentation-researcher', integration: 'notion' },
   { role: 'issue-tracker', integration: 'linear' },
@@ -18,7 +18,7 @@ const FULL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
 
 // Partial subagents config (no docs)
 const PARTIAL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
-  { role: 'test-runner', integration: 'playwright' },
+  { role: 'browser-automation', integration: 'playwright' },
   { role: 'team-communicator', integration: 'slack' },
   { role: 'issue-tracker', integration: 'linear' },
 ];

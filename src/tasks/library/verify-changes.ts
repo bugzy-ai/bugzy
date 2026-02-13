@@ -29,7 +29,7 @@ export const verifyChangesTask: ComposedTaskTemplate = {
 ## Overview
 
 This task performs comprehensive change verification with:
-- **Automated testing**: Execute Playwright tests with automatic triage and fixing
+- **Automated testing**: Execute automated tests with automatic triage and fixing
 - **Manual verification checklists**: Generate role-specific checklists for non-automatable scenarios
 - **Multi-trigger support**: Works from manual CLI, Slack messages, GitHub PRs, and CI/CD
 - **Smart output routing**: Results formatted and delivered to the appropriate channel`,
@@ -260,11 +260,11 @@ Analyze the change description to identify affected feature areas:
 
 | Description Keywords | Inferred Test Scope | Example |
 |---------------------|-------------------|---------|
-| "login", "authentication", "sign in/up" | \`tests/specs/auth/\` | "Fix login page validation" -> Auth tests |
-| "checkout", "payment", "purchase" | \`tests/specs/checkout/\` | "Optimize checkout flow" -> Checkout tests |
-| "cart", "shopping cart", "add to cart" | \`tests/specs/cart/\` | "Update cart calculations" -> Cart tests |
+| "login", "authentication", "sign in/up" | Auth test suite | "Fix login page validation" -> Auth tests |
+| "checkout", "payment", "purchase" | Checkout test suite | "Optimize checkout flow" -> Checkout tests |
+| "cart", "shopping cart", "add to cart" | Cart test suite | "Update cart calculations" -> Cart tests |
 | "API", "endpoint", "backend" | API test suites | "Add new user API endpoint" -> User API tests |
-| "profile", "account", "settings" | \`tests/specs/profile/\` or \`tests/specs/settings/\` | "Profile page redesign" -> Profile tests |
+| "profile", "account", "settings" | Profile/settings test suite | "Profile page redesign" -> Profile tests |
 
 **Inference strategy:**
 1. **Extract feature keywords** from PR title and description
@@ -339,13 +339,13 @@ If the Jira issue or PR references test accounts/data (e.g., TEST_PREMIUM_USER, 
 
 **CRITICAL**: Never conclude "manual verification required" or "BLOCKED" solely because test data is missing. Always create the test artifacts first.
 
-### Generate Playwright Specs
+### Generate Automated Test Specs
 
 {{INVOKE_TEST_CODE_GENERATOR}} to create automated test specs:
 - Read the manual test cases you just created
 - Explore the feature in the browser to discover selectors and flows
-- Create Page Objects in \`./tests/pages/\` if needed
-- Create test specs in \`./tests/specs/\` matching the test cases
+- Create page objects in the directory specified by \`./tests/CLAUDE.md\`
+- Create test specs in the directory specified by \`./tests/CLAUDE.md\`
 - Run each new test to verify it passes
 - Update the manual test case with \`automated_test\` reference
 
@@ -355,7 +355,7 @@ Skip this step — proceed directly to running existing tests.`,
       conditionalOnSubagent: 'test-code-generator',
     },
     // Step 8-11: Test Execution (library steps)
-    'run-playwright-tests',
+    'run-tests',
     'parse-test-results',
     'triage-failures',
     'fix-test-issues',
@@ -544,7 +544,7 @@ Post PR comment if GitHub context available.`,
 - Recommend: Check test configuration and prerequisites
 
 **If test execution fails:**
-- Report specific error (Playwright not installed, env vars missing)
+- Report specific error (test framework not installed, env vars missing)
 - Suggest troubleshooting steps
 - Don't proceed with triage if tests didn't run
 
@@ -575,7 +575,7 @@ A successful verification includes:
     },
   ],
 
-  requiredSubagents: ['test-runner', 'test-debugger-fixer'],
+  requiredSubagents: ['browser-automation', 'test-debugger-fixer'],
   optionalSubagents: ['documentation-researcher', 'issue-tracker', 'team-communicator', 'changelog-historian', 'test-code-generator'],
   dependentTasks: [],
 };

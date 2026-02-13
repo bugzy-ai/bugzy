@@ -6,7 +6,7 @@
  * Frontmatter metadata for subagent templates
  */
 export interface SubagentFrontmatter {
-  /** Subagent role identifier (e.g., 'test-runner', 'team-communicator') */
+  /** Subagent role identifier (e.g., 'browser-automation', 'team-communicator') */
   name: string;
   /** Description of when and how to use this subagent */
   description: string;

@@ -73,7 +73,7 @@ Bugzy uses a **step-based composition** architecture:
 
 **Subagents** (`src/subagents/`):
 - 6 specialized AI agents:
-  - Required: test-runner, test-code-generator, test-debugger-fixer, team-communicator (with email fallback)
+  - Required: browser-automation, test-code-generator, test-debugger-fixer, team-communicator (with email fallback)
   - Optional: documentation-researcher, issue-tracker
 - Each subagent has metadata defining role, integrations, and required MCP servers
 - Templates stored as TypeScript files in `src/subagents/templates/{role}/{integration}.ts`
@@ -169,14 +169,14 @@ type TaskStep =
     { inline: true, title: 'Overview', content: '...' },
     'security-notice',           // Library step
     'read-knowledge-base',       // Library step
-    'run-playwright-tests',      // Library step
+    'run-tests',                 // Library step
     'parse-test-results',        // Library step
     {
       stepId: 'log-product-bugs',
       conditionalOnSubagent: 'issue-tracker'  // Only if configured
     }
   ],
-  requiredSubagents: ['test-runner', 'test-code-generator', 'test-debugger-fixer'],
+  requiredSubagents: ['browser-automation', 'test-code-generator', 'test-debugger-fixer'],
   optionalSubagents: ['team-communicator', 'issue-tracker']
 }
 ```
@@ -186,7 +186,7 @@ type TaskStep =
 **CRITICAL DISTINCTION:**
 
 - **Required Subagents** (4): Must ALWAYS be configured for task to work
-  - `test-runner`, `test-code-generator`, `test-debugger-fixer` - Core test automation
+  - `browser-automation`, `test-code-generator`, `test-debugger-fixer` - Core test automation
   - `team-communicator` - Falls back to email if Slack/Teams not configured
   - Listed in `requiredSubagents` array for validation
   - Their steps are always included in task execution

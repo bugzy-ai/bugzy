@@ -6,7 +6,7 @@ export const processExplorationResultsStep: TaskStep = {
   category: 'execution',
   content: `## Process Exploration Results
 
-Read and parse the test-runner output from exploration.
+Read and parse the browser-automation agent output from exploration.
 
 **Locate results:**
 \`\`\`bash

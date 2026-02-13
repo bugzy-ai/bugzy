@@ -531,10 +531,10 @@ The task will create new test case files in `./test-cases/` following the standa
 
 ### Step 5: Execute Tests Using Test-Runner
 
-Use the test-runner agent to execute both existing and newly created test cases:
+Use the browser-automation agent to execute both existing and newly created test cases:
 
 ```
-Use the test-runner agent to execute test cases for verifying the changes.
+Use the browser-automation agent to execute test cases for verifying the changes.
 
 **Test Run Configuration**:
 - test_run_folder: ./test-runs/[YYYYMMDD-HHMMSS]

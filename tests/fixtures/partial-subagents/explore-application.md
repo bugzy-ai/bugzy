@@ -15,7 +15,7 @@ argument-hint: '--focus [area] --depth [shallow|deep] --system [system-name]'
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The `.env` file access is blocked by settings.json
 
-Systematically explore the application using the test-runner agent to discover actual UI elements, workflows, and behaviors. Updates test plan and project documentation with findings.
+Systematically explore the application using the browser-automation agent to discover actual UI elements, workflows, and behaviors. Updates test plan and project documentation with findings.
 
 ## Arguments
 Arguments: $ARGUMENTS
@@ -427,8 +427,8 @@ Document all findings including:
 - Screenshots of all key areas
 ```
 
-#### 3.2 Launch Test Runner Agent
-Invoke the test-runner agent with special exploration instructions:
+#### 3.2 Launch Browser Automation Agent
+Invoke the browser-automation agent with special exploration instructions:
 
 ```
 Execute the exploration test case at ./test-cases/EXPLORATION-TEMP.md with focus on discovery and documentation.
@@ -449,7 +449,7 @@ Generate a comprehensive exploration report that can be used to update project d
 
 ### Step 4: Process Exploration Results
 
-#### 4.1 Read Test Runner Output
+#### 4.1 Read Browser Automation Output
 Read the generated test run files from `./test-runs/[timestamp]/EXPLORATION-TEMP/`:
 - `findings.md` - Main findings document
 - `test-log.md` - Detailed step execution
@@ -499,10 +499,10 @@ Create a concise summary for the user
 - If system unreachable: Retry with exponential backoff, report if persistent
 
 ### Exploration Failures
-- If test-runner fails: Capture partial results and report
+- If browser-automation fails: Capture partial results and report
 - If specific area inaccessible: Note in findings and continue
 - If browser crashes: Attempt recovery and resume
-- If test-runner stops, but does not create files, inspect what it did and if it was not enough remove the test-run and start the test-runner agent again. If it has enough info, continue with what you have.
+- If browser-automation stops, but does not create files, inspect what it did and if it was not enough remove the test-run and start the browser-automation agent again. If it has enough info, continue with what you have.
 
 ### Data Issues
 - If dynamic content prevents exploration: Note and try alternative approaches

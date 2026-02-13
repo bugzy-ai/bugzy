@@ -18,23 +18,22 @@ For each test case marked \`automated: true\`:
 - Exploration findings: ./exploration-reports/
 
 **The agent should:**
-1. Read manual test case files
-2. Explore the feature to gather selectors
-3. Create Page Objects and automated tests
-4. Run each test and iterate until passing (max 3 attempts)
-5. Update manual test case with automated_test reference
-6. Document any product bugs discovered
+1. Read \`./tests/CLAUDE.md\` for framework conventions, directory structure, and commands
+2. Read manual test case files
+3. Explore the feature to gather selectors
+4. Create page objects and automated tests following conventions from CLAUDE.md
+5. Run each test using the command from CLAUDE.md and iterate until passing (max 3 attempts)
+6. Update manual test case with automated_test reference
+7. Document any product bugs discovered
 
 **For each test:**
-- Run: \`npx playwright test [test-file]\`
+- Run using the test execution command from \`./tests/CLAUDE.md\`
 - If fails, classify as product bug or test issue
-- If test issue: Apply fix patterns and retry
+- If test issue: Apply fix patterns from CLAUDE.md and retry
 - If product bug: Document and mark test as blocked
 - Continue until test passes or is blocked"
 
-**Output Location:**
-- Page Objects: \`./tests/pages/\`
-- Test specs: \`./tests/specs/\`
+**Output Location:** As specified in \`./tests/CLAUDE.md\` Directory Structure section.
 
 **Update Manual Test Cases:**
 After automation, update the manual test case frontmatter:

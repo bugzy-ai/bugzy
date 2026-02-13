@@ -241,8 +241,8 @@ async function firstTimeSetup(cliSubagents?: Record<string, string>): Promise<vo
   await updateGitignore();
   spinner.succeed(chalk.green('Updated .gitignore'));
 
-  // Step 8: Scaffold Playwright project (if test-runner is configured)
-  if (subagents['test-runner'] && !isPlaywrightScaffolded(process.cwd())) {
+  // Step 8: Scaffold Playwright project (if browser-automation is configured)
+  if (subagents['browser-automation'] && !isPlaywrightScaffolded(process.cwd())) {
     await scaffoldPlaywrightProject({
       projectName,
       targetDir: process.cwd(),
@@ -262,7 +262,7 @@ async function firstTimeSetup(cliSubagents?: Record<string, string>): Promise<vo
 
   console.log(chalk.yellow('Next steps:'));
   console.log(chalk.white('1. Edit .env and add your API tokens'));
-  if (subagents['test-runner']) {
+  if (subagents['browser-automation']) {
     console.log(chalk.white('2. npx playwright install (install browser binaries)'));
     console.log(chalk.white('3. Edit .bugzy/runtime/project-context.md'));
     console.log(chalk.white('4. Run:'), chalk.cyan('bugzy'), chalk.gray('(loads .env, then launches claude/codex/cursor)'));

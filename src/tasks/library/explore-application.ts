@@ -21,7 +21,7 @@ export const exploreApplicationTask: ComposedTaskTemplate = {
     {
       inline: true,
       title: 'Explore Application Overview',
-      content: `Discover actual UI elements, workflows, and behaviors using the test-runner agent. Updates test plan and project documentation with findings.`,
+      content: `Discover actual UI elements, workflows, and behaviors using the browser-automation agent. Updates test plan and project documentation with findings.`,
     },
     // Step 2: Security Notice (from library)
     'security-notice',
@@ -72,7 +72,7 @@ export const exploreApplicationTask: ComposedTaskTemplate = {
     'update-knowledge-base',
   ],
 
-  requiredSubagents: ['test-runner'],
+  requiredSubagents: ['browser-automation'],
   optionalSubagents: ['team-communicator'],
   dependentTasks: [],
 };

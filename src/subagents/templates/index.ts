@@ -5,8 +5,8 @@
 
 import type { SubagentTemplate } from '../types';
 
-// Test Runner templates
-import * as TestRunnerPlaywright from './test-runner/playwright';
+// Browser Automation templates
+import * as BrowserAutomationPlaywright from './browser-automation/playwright';
 
 // Test Code Generator templates
 import * as TestCodeGeneratorPlaywright from './test-code-generator/playwright';
@@ -40,10 +40,10 @@ import * as ChangelogHistorianGithub from './changelog-historian/github';
  * Template registry organized by role and integration
  */
 export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
-  'test-runner': {
+  'browser-automation': {
     playwright: {
-      frontmatter: TestRunnerPlaywright.FRONTMATTER,
-      content: TestRunnerPlaywright.CONTENT,
+      frontmatter: BrowserAutomationPlaywright.FRONTMATTER,
+      content: BrowserAutomationPlaywright.CONTENT,
     },
   },
   'test-code-generator': {
@@ -126,7 +126,7 @@ export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
 
 /**
  * Get a template by role and integration
- * @param role - Subagent role (e.g., 'test-runner')
+ * @param role - Subagent role (e.g., 'browser-automation')
  * @param integration - Integration provider (e.g., 'playwright')
  * @returns Template or undefined if not found
  */

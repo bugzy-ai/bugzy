@@ -136,9 +136,9 @@ export const INTEGRATIONS: Record<string, SubAgentIntegration> = {
  * Sub-Agents Registry - metadata only (templates loaded from files)
  */
 export const SUBAGENTS: Record<string, SubAgentMetadata> = {
-  'test-runner': {
-    role: 'test-runner',
-    name: 'Test Runner',
+  'browser-automation': {
+    role: 'browser-automation',
+    name: 'Browser Automation',
     description: 'Execute automated browser tests (always included)',
     icon: 'play',
     integrations: [INTEGRATIONS.playwright],
@@ -193,7 +193,7 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
   'test-code-generator': {
     role: 'test-code-generator',
     name: 'Test Code Generator',
-    description: 'Generate automated Playwright test scripts and Page Objects',
+    description: 'Generate automated test scripts and page objects',
     icon: 'code',
     integrations: [INTEGRATIONS.playwright],
     model: 'sonnet',

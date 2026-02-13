@@ -75,8 +75,8 @@ describe('Task Generation - Full Subagents Config', () => {
           expect(configuredRoles).toContain(role);
         });
 
-        // If test-runner is configured, content should mention it or related terms
-        if (hasSubagent(FULL_SUBAGENTS_CONFIG, 'test-runner')) {
+        // If browser-automation is configured, content should mention it or related terms
+        if (hasSubagent(FULL_SUBAGENTS_CONFIG, 'browser-automation')) {
           expect(task.content.toLowerCase()).toMatch(/test|playwright|browser|automation/);
         }
 
@@ -112,7 +112,7 @@ describe('Task Generation - Partial Subagents Config', () => {
     describe(taskSlug, () => {
       test('generates task successfully', () => {
         // All tasks should generate successfully with PARTIAL config
-        // (PARTIAL has test-runner, test-debugger-fixer, test-code-generator, team-comm, issue-tracker)
+        // (PARTIAL has browser-automation, test-debugger-fixer, test-code-generator, team-comm, issue-tracker)
         // No tasks currently require documentation-researcher as mandatory
         expect(() => {
           buildTaskDefinition(taskSlug, PARTIAL_SUBAGENTS_CONFIG);
@@ -171,7 +171,7 @@ describe('Specific Task Validation', () => {
     test('requires team-communicator', () => {
       expect(() => {
         buildTaskDefinition(TASK_SLUGS.HANDLE_MESSAGE, [
-          { role: 'test-runner', integration: 'playwright' },
+          { role: 'browser-automation', integration: 'playwright' },
         ]);
       }).toThrow('team-communicator');
     });
@@ -184,9 +184,9 @@ describe('Specific Task Validation', () => {
   });
 
   describe('run-tests', () => {
-    test('requires test-runner and test-debugger-fixer', () => {
+    test('requires browser-automation and test-debugger-fixer', () => {
       const task = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
-      expect(task.requiredSubAgentRoles).toContain('test-runner');
+      expect(task.requiredSubAgentRoles).toContain('browser-automation');
       expect(task.requiredSubAgentRoles).toContain('test-debugger-fixer');
     });
 
@@ -215,7 +215,7 @@ describe('Specific Task Validation', () => {
     test('requires team-communicator for clarifications', () => {
       // process-event task requires team-communicator for clarifying unclear events
       const minimalConfig = [
-        { role: 'test-runner', integration: 'playwright' },
+        { role: 'browser-automation', integration: 'playwright' },
         { role: 'test-debugger-fixer', integration: 'playwright' },
         { role: 'team-communicator', integration: 'slack' },
       ];

@@ -80,7 +80,7 @@ describe('Exploration Protocol Integration', () => {
       const task = buildTaskDefinition(TASK_SLUGS.EXPLORE_APPLICATION, FULL_SUBAGENTS_CONFIG);
 
       expect(task.content).toContain('Explore Application Overview');
-      expect(task.content).toContain('test-runner');
+      expect(task.content).toContain('browser-automation');
     });
 
     test('includes exploration protocol with focus areas in arguments', () => {

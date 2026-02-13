@@ -31,7 +31,7 @@ describe('scaffoldPlaywrightProject', () => {
     const config: BugzyConfig = {
       version: '1.0.0',
       project: { name: 'test-project' },
-      subagents: { 'test-runner': 'playwright' }
+      subagents: { 'browser-automation': 'playwright' }
     };
 
     await scaffoldPlaywrightProject({
@@ -65,7 +65,7 @@ describe('scaffoldPlaywrightProject', () => {
     const config: BugzyConfig = {
       version: '1.0.0',
       project: { name: 'test-project' },
-      subagents: { 'test-runner': 'playwright' }
+      subagents: { 'browser-automation': 'playwright' }
     };
 
     await scaffoldPlaywrightProject({
@@ -88,7 +88,7 @@ describe('scaffoldPlaywrightProject', () => {
     const config: BugzyConfig = {
       version: '1.0.0',
       project: { name: 'test-project' },
-      subagents: { 'test-runner': 'playwright' }
+      subagents: { 'browser-automation': 'playwright' }
     };
 
     await scaffoldPlaywrightProject({
@@ -110,7 +110,7 @@ describe('scaffoldPlaywrightProject', () => {
     const config: BugzyConfig = {
       version: '1.0.0',
       project: { name: 'test-project' },
-      subagents: { 'test-runner': 'playwright' }
+      subagents: { 'browser-automation': 'playwright' }
     };
 
     await scaffoldPlaywrightProject({
@@ -133,7 +133,7 @@ describe('scaffoldPlaywrightProject', () => {
     const config: BugzyConfig = {
       version: '1.0.0',
       project: { name: 'test-project' },
-      subagents: { 'test-runner': 'playwright' }
+      subagents: { 'browser-automation': 'playwright' }
     };
 
     await scaffoldPlaywrightProject({
@@ -154,7 +154,7 @@ describe('scaffoldPlaywrightProject', () => {
     const config: BugzyConfig = {
       version: '1.0.0',
       project: { name: 'test-project' },
-      subagents: { 'test-runner': 'playwright' }
+      subagents: { 'browser-automation': 'playwright' }
     };
 
     await scaffoldPlaywrightProject({
@@ -175,7 +175,7 @@ describe('scaffoldPlaywrightProject', () => {
     const config: BugzyConfig = {
       version: '1.0.0',
       project: { name: 'test-project' },
-      subagents: { 'test-runner': 'playwright' }
+      subagents: { 'browser-automation': 'playwright' }
     };
 
     // Create a .gitignore file first
@@ -201,7 +201,7 @@ describe('scaffoldPlaywrightProject', () => {
     const config: BugzyConfig = {
       version: '1.0.0',
       project: { name: 'test-project' },
-      subagents: { 'test-runner': 'playwright' }
+      subagents: { 'browser-automation': 'playwright' }
     };
 
     await scaffoldPlaywrightProject({

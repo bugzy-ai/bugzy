@@ -6,7 +6,7 @@ export const runExplorationStep: TaskStep = {
   category: 'execution',
   content: `## Run Exploration
 
-{{INVOKE_TEST_RUNNER}}
+{{INVOKE_BROWSER_AUTOMATION}}
 
 Execute the exploration test case with the following focus:
 
@@ -31,6 +31,6 @@ Generate comprehensive findings report.
 - \`test-log.md\` - Detailed execution log
 - \`screenshots/\` - Visual documentation
 - \`summary.json\` - Execution summary`,
-  invokesSubagents: ['test-runner'],
+  invokesSubagents: ['browser-automation'],
   tags: ['execution', 'exploration'],
 };

@@ -2,7 +2,7 @@ import { ProjectSubAgent } from '../../src/core/task-builder';
 
 export const sampleSubAgents: ProjectSubAgent[] = [
   {
-    role: 'test-runner',
+    role: 'browser-automation',
     integration: 'playwright'
   },
   {
@@ -25,7 +25,7 @@ export const sampleSubAgents: ProjectSubAgent[] = [
 
 export const minimalSubAgents: ProjectSubAgent[] = [
   {
-    role: 'test-runner',
+    role: 'browser-automation',
     integration: 'playwright'
   },
   {

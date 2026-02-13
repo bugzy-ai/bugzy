@@ -1,6 +1,6 @@
 /**
  * Generate Test Cases Task (Composed)
- * Generate both manual test case documentation AND automated Playwright test scripts
+ * Generate both manual test case documentation AND automated test scripts
  */
 
 import type { ComposedTaskTemplate } from '../steps/types';
@@ -9,10 +9,10 @@ import { TASK_SLUGS } from '../constants';
 export const generateTestCasesTask: ComposedTaskTemplate = {
   slug: TASK_SLUGS.GENERATE_TEST_CASES,
   name: 'Generate Test Cases',
-  description: 'Generate manual test case documentation AND automated Playwright test scripts from test plan',
+  description: 'Generate manual test case documentation AND automated test scripts from test plan',
 
   frontmatter: {
-    description: 'Generate manual test case documentation AND automated Playwright test scripts from test plan',
+    description: 'Generate manual test case documentation AND automated test scripts from test plan',
     'argument-hint': '--type [exploratory|functional|regression|smoke] --focus [optional-feature]',
   },
 
@@ -21,12 +21,12 @@ export const generateTestCasesTask: ComposedTaskTemplate = {
     {
       inline: true,
       title: 'Generate Test Cases Overview',
-      content: `Generate comprehensive test artifacts including BOTH manual test case documentation AND automated Playwright test scripts.
+      content: `Generate comprehensive test artifacts including BOTH manual test case documentation AND automated test scripts. Read \`./tests/CLAUDE.md\` for framework-specific conventions, directory structure, and commands.
 
 This command generates:
 1. **Manual Test Case Documentation** (in \`./test-cases/\`) - Human-readable test cases in markdown format
-2. **Automated Playwright Tests** (in \`./tests/specs/\`) - Executable TypeScript test scripts
-3. **Page Object Models** (in \`./tests/pages/\`) - Reusable page classes for automated tests
+2. **Automated Test Scripts** (in directory from \`./tests/CLAUDE.md\`) - Executable test scripts
+3. **Page Objects** (in directory from \`./tests/CLAUDE.md\`) - Reusable page classes for automated tests
 4. **Supporting Files** (fixtures, helpers, components) - As needed for test automation`,
     },
     // Step 2: Security Notice (library)
@@ -61,9 +61,9 @@ Read the test plan from \`test-plan.md\` to understand:
 
 **1.2 Check Existing Test Cases and Tests**
 - List all files in \`./test-cases/\` to understand existing manual test coverage
-- List all files in \`./tests/specs/\` to understand existing automated tests
+- List existing automated tests in the test directory (see \`./tests/CLAUDE.md\` for structure)
 - Determine next test case ID (TC-XXX format)
-- Identify existing Page Objects in \`./tests/pages/\`
+- Identify existing page objects (see \`./tests/CLAUDE.md\` for directory)
 - Avoid creating overlapping test cases or duplicate automation`,
     },
     // Step 6: Documentation Researcher (conditional library step)
@@ -172,8 +172,8 @@ Before invoking the agent, identify the test cases for the current area:
 - Test type: {type}
 - Test plan: test-plan.md
 - Manual test cases directory: ./test-cases/
-- Existing automated tests: ./tests/specs/
-- Existing Page Objects: ./tests/pages/
+- Existing automated tests: [directory from ./tests/CLAUDE.md]
+- Existing page objects: [directory from ./tests/CLAUDE.md]
 
 **Knowledge Base Patterns (MUST APPLY):**
 Include ALL relevant testing patterns from the knowledge base that apply to this area. For example, if the KB documents timing behaviors (animation delays, loading states), selector gotchas, or recommended assertion approaches — list them here explicitly and instruct the agent to use the specific patterns described (e.g., specific assertion methods with specific timeouts). The test-code-generator does not have access to the knowledge base, so you MUST relay the exact patterns and recommended code approaches.
@@ -184,7 +184,7 @@ Include ALL relevant testing patterns from the knowledge base that apply to this
 3. Explore the feature area to understand implementation (gather selectors, URLs, flows)
 4. Build missing Page Objects and supporting code
 5. For each test case marked \`automated: true\`:
-   - Create automated Playwright test in ./tests/specs/
+   - Create automated test in the test directory (from ./tests/CLAUDE.md)
    - Update the manual test case file to reference the automated test path
    - Apply ALL knowledge base patterns listed above (timing, selectors, assertions)
 6. Run and iterate on each test until it passes or fails with a product bug
@@ -215,15 +215,7 @@ Move to the next area and repeat until all areas are complete.
     {
       inline: true,
       title: 'Create Directories if Needed',
-      content: `Ensure required directories exist:
-\`\`\`bash
-mkdir -p ./test-cases
-mkdir -p ./tests/specs
-mkdir -p ./tests/pages
-mkdir -p ./tests/components
-mkdir -p ./tests/fixtures
-mkdir -p ./tests/helpers
-\`\`\``,
+      content: `Ensure required directories exist. Create the \`./test-cases/\` directory for manual test cases, and create the test directories specified in \`./tests/CLAUDE.md\` (test specs, page objects, components, fixtures, helpers).`,
     },
     // Step 14: Extract Env Variables (library)
     'extract-env-variables',
@@ -243,7 +235,7 @@ mkdir -p ./tests/helpers
    - Features covered by automation
    - Areas kept manual-only (and why)
 3. Highlight key automated test scenarios
-4. Share command to run automated tests: npx playwright test
+4. Share command to run automated tests (from \`./tests/CLAUDE.md\`)
 5. Ask for team review and validation
 6. Mention any areas needing exploration or clarification
 7. Use appropriate channel and threading for the update
@@ -288,8 +280,8 @@ The team communication should include:
 - Areas kept manual-only (and why)
 
 **Next Steps:**
-- Command to run automated tests: \`npx playwright test\`
-- Instructions to run specific test file
+- Command to run automated tests (from \`./tests/CLAUDE.md\`)
+- Instructions to run specific test file (from \`./tests/CLAUDE.md\`)
 - Note about copying .env.testdata to .env
 - Mention any exploration needed for edge cases
 
@@ -306,7 +298,7 @@ The team communication should include:
     },
   ],
 
-  requiredSubagents: ['test-runner', 'test-code-generator'],
+  requiredSubagents: ['browser-automation', 'test-code-generator'],
   optionalSubagents: ['documentation-researcher', 'team-communicator'],
   dependentTasks: [],
 };

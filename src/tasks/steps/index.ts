@@ -21,7 +21,7 @@ import { explorationProtocolStep } from './exploration/exploration-protocol';
 import { clarificationProtocolStep } from './clarification/clarification-protocol';
 
 // Execution steps
-import { runPlaywrightTestsStep } from './execution/run-playwright-tests';
+import { runTestsStep } from './execution/run-tests';
 import { parseTestResultsStep } from './execution/parse-test-results';
 import { triageFailuresStep } from './execution/triage-failures';
 import { fixTestIssuesStep } from './execution/fix-test-issues';
@@ -67,7 +67,7 @@ export const STEP_LIBRARY: Record<string, TaskStep> = {
   'clarification-protocol': clarificationProtocolStep,
 
   // Execution
-  'run-playwright-tests': runPlaywrightTestsStep,
+  'run-tests': runTestsStep,
   'parse-test-results': parseTestResultsStep,
   'triage-failures': triageFailuresStep,
   'fix-test-issues': fixTestIssuesStep,

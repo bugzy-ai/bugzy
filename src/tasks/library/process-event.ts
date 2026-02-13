@@ -362,7 +362,7 @@ After queuing and notifying, the task is DONE. Do NOT:
 - Execute /verify-changes, /run-tests, /generate-test-cases directly
 - Wait for team response (messaging infrastructure handles that)
 - Create or modify test files
-- Run Playwright tests
+- Run automated tests
 
 #### 5.6 Update Event Processor Memory
 If new patterns discovered, append to \`.bugzy/runtime/memory/event-processor.md\`:

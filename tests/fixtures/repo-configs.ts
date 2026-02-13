@@ -20,7 +20,7 @@ export const FULL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
   { role: 'documentation-researcher', integration: 'notion' },
   { role: 'issue-tracker', integration: 'notion' },
   { role: 'team-communicator', integration: 'slack' },
-  { role: 'test-runner', integration: 'playwright' },
+  { role: 'browser-automation', integration: 'playwright' },
   { role: 'test-debugger-fixer', integration: 'playwright' },
   { role: 'test-code-generator', integration: 'playwright' },
 ];
@@ -32,17 +32,17 @@ export const FULL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
 export const PARTIAL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
   { role: 'issue-tracker', integration: 'slack' },
   { role: 'team-communicator', integration: 'slack' },
-  { role: 'test-runner', integration: 'playwright' },
+  { role: 'browser-automation', integration: 'playwright' },
   { role: 'test-debugger-fixer', integration: 'playwright' },
   { role: 'test-code-generator', integration: 'playwright' },
 ];
 
 /**
  * Minimal Subagents Configuration
- * Only test-runner, test-debugger-fixer, and test-code-generator for basic scenarios
+ * Only browser-automation, test-debugger-fixer, and test-code-generator for basic scenarios
  */
 export const MINIMAL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
-  { role: 'test-runner', integration: 'playwright' },
+  { role: 'browser-automation', integration: 'playwright' },
   { role: 'test-debugger-fixer', integration: 'playwright' },
   { role: 'test-code-generator', integration: 'playwright' },
 ];

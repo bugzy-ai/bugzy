@@ -1,6 +1,6 @@
 ---
 subcommand_name: run-tests
-description: Select and run test cases using the test-runner agent
+description: Select and run test cases using the browser-automation agent
 allowed-tools: 'Read, LS, Glob, Grep, Task'
 argument-hint: '[test-id|tag|type|all] --filter [optional-filter]'
 ---
@@ -13,7 +13,7 @@ argument-hint: '[test-id|tag|type|all] --filter [optional-filter]'
 - For secrets: Reference variable names only (TEST_OWNER_PASSWORD) - values are injected at runtime
 - The `.env` file access is blocked by settings.json
 
-Select and execute test cases using the test-runner agent based on various criteria.
+Select and execute test cases using the browser-automation agent based on various criteria.
 
 ## Arguments
 Arguments: $ARGUMENTS
@@ -194,10 +194,10 @@ IF test has dependencies:
 ```
 
 **STEP 3.3.2: Execute Test (if not skipped)**
-If test should NOT be skipped, invoke the test-runner agent:
+If test should NOT be skipped, invoke the browser-automation agent:
 
 ```
-Use the test-runner agent to execute the test case at [test-case-file-path].
+Use the browser-automation agent to execute the test case at [test-case-file-path].
 
 **CRITICAL**: Provide the test-run folder path as a parameter:
 - test_run_folder: ./test-runs/[YYYYMMDD-HHMMSS]
@@ -279,7 +279,7 @@ If test is being skipped (from Step 3.3.1):
 6. Continue to next test
 
 **STEP 3.3.4: Post-Execution Tracking**
-After test-runner agent completes (or after generating skip result):
+After browser-automation agent completes (or after generating skip result):
 
 1. **Record test outcome:**
    ```
@@ -306,7 +306,7 @@ After test-runner agent completes (or after generating skip result):
 After all test cases have been executed:
 
 #### 4.1 Collect Results
-Gather all test execution results from the test-runner agent outputs
+Gather all test execution results from the browser-automation agent outputs
 
 #### 4.2 Generate Enhanced Summary Report with Skip Analysis
 Create a comprehensive test execution summary:
@@ -675,8 +675,8 @@ If no test cases match the selection criteria:
 2. List available test cases or suggest running `/generate-test-cases` first
 3. Provide examples of valid selection criteria
 
-#### If Test Runner Agent Fails
-If the test-runner agent encounters issues:
+#### If Browser Automation Agent Fails
+If the browser-automation agent encounters issues:
 1. Report the specific error
 2. Suggest troubleshooting steps
 3. Offer to run tests individually if batch execution failed
@@ -689,7 +689,7 @@ If selected test cases have formatting issues:
 
 ### Important Notes
 
-- The test-runner agent handles all browser automation and result capture
+- The browser-automation agent handles all browser automation and result capture
 - Test execution may take significant time depending on the number and complexity of tests
 - All results are analyzed for learning opportunities and team communication
 - Critical failures trigger immediate team notification

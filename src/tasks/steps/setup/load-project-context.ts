@@ -18,7 +18,7 @@ Check for existing project context to inform your work:
   - Environment details
 
 **2. Check Test Execution Strategy**
-- Read \`.bugzy/runtime/test-execution-strategy.md\` if it exists
+- Read \`./tests/docs/test-execution-strategy.md\` if it exists
 - Understand available test tiers and when to use them
 - Note default behaviors and time/coverage trade-offs
 

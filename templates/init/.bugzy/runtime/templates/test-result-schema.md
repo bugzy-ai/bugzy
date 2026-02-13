@@ -7,7 +7,7 @@ This document defines the structure for test execution results with video record
 There are two formats depending on the execution method:
 
 1. **Automated Test Execution** - For Playwright test specs run via `/run-tests` command
-2. **Manual Test Execution** - For manual test cases executed via test-runner agent
+2. **Manual Test Execution** - For manual test cases executed via browser-automation agent
 
 ---
 
@@ -198,7 +198,7 @@ For failed tests, includes trace and screenshots:
 
 ## Manual Test Execution Format
 
-Used by: test-runner agent for markdown test cases
+Used by: browser-automation agent for markdown test cases
 
 ### File Structure
 

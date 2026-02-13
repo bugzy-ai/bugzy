@@ -88,7 +88,7 @@ describe('Multi-Tool Generation Tests', () => {
       it('should generate agent files without YAML frontmatter', async () => {
         await generateAgents(subagentsRecord, 'cursor');
 
-        const filePath = path.join(testDir, '.cursor', 'agents', 'test-runner.md');
+        const filePath = path.join(testDir, '.cursor', 'agents', 'browser-automation.md');
         const content = fs.readFileSync(filePath, 'utf-8');
 
         // Should NOT start with ---
@@ -176,7 +176,7 @@ describe('Multi-Tool Generation Tests', () => {
       it('should generate agent files without YAML frontmatter', async () => {
         await generateAgents(subagentsRecord, 'codex');
 
-        const filePath = path.join(testDir, '.codex', 'agents', 'test-runner.md');
+        const filePath = path.join(testDir, '.codex', 'agents', 'browser-automation.md');
         const content = fs.readFileSync(filePath, 'utf-8');
 
         // Should NOT start with --- (Codex agents are plain markdown for CLI invocation)
