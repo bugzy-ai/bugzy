@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(jq:*)",
+      "mcp__notion__API-post-database-query",
+      "mcp__notion__API-retrieve-a-database",
+      "Bash(mkdir:*)",
+      "Bash(playwright-cli:*)",
+      "Bash(git grep:*)",
+      "mcp__slack__slack_list_channels",
+      "mcp__slack__slack_post_rich_message",
+      "Bash(git init:*)",
+      "Bash(git --no-pager status --porcelain)",
+      "Bash(git --no-pager diff --stat HEAD)",
+      "Bash(git --no-pager log --oneline -5)",
+      "Bash(git --no-pager status)",
+      "Bash(git --no-pager diff HEAD)"
+    ],
+    "deny": [
+      "Read(.env)"
+    ],
+    "ask": []
+  },
+  "enabledMcpjsonServers": [
+    "notion",
+    "slack"
+  ]
+}

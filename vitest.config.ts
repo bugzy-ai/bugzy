@@ -6,6 +6,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     pool: 'forks', // Use forks instead of threads to support process.chdir()
+    exclude: ['node_modules', 'dist', 'templates'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

@@ -25,6 +25,142 @@ interface StepData {
 }
 
 /**
+ * Manifest execution entry
+ */
+interface ManifestExecution {
+  number: number;
+  status: string;
+  duration: number;
+  videoFile: string | null;
+  hasTrace: boolean;
+  hasScreenshots: boolean;
+  error: string | null;
+}
+
+/**
+ * Manifest test case entry
+ */
+interface ManifestTestCase {
+  id: string;
+  name: string;
+  totalExecutions: number;
+  finalStatus: string;
+  executions: ManifestExecution[];
+}
+
+/**
+ * Manifest structure for test run sessions
+ */
+interface Manifest {
+  bugzyExecutionId: string;
+  timestamp: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  stats: {
+    totalTests: number;
+    passed: number;
+    failed: number;
+    totalExecutions: number;
+  };
+  testCases: ManifestTestCase[];
+}
+
+/**
+ * Merge an existing manifest with the current run's manifest.
+ * If existing is null, returns current as-is.
+ * Deduplicates executions by number (current run wins on collision).
+ * Recalculates stats from the merged data.
+ */
+export function mergeManifests(existing: Manifest | null, current: Manifest): Manifest {
+  if (!existing) {
+    return current;
+  }
+
+  // Build map of test cases by id from existing manifest
+  const testCaseMap = new Map<string, ManifestTestCase>();
+  for (const tc of existing.testCases) {
+    testCaseMap.set(tc.id, { ...tc, executions: [...tc.executions] });
+  }
+
+  // Merge current run's test cases
+  for (const tc of current.testCases) {
+    const existingTc = testCaseMap.get(tc.id);
+    if (existingTc) {
+      // Merge executions: build a map keyed by execution number
+      const execMap = new Map<number, ManifestExecution>();
+      for (const exec of existingTc.executions) {
+        execMap.set(exec.number, exec);
+      }
+      // Current run's executions overwrite on collision
+      for (const exec of tc.executions) {
+        execMap.set(exec.number, exec);
+      }
+      // Sort by execution number
+      const mergedExecs = Array.from(execMap.values()).sort((a, b) => a.number - b.number);
+      const finalStatus = mergedExecs[mergedExecs.length - 1].status;
+
+      testCaseMap.set(tc.id, {
+        id: tc.id,
+        name: tc.name,
+        totalExecutions: mergedExecs.length,
+        finalStatus,
+        executions: mergedExecs,
+      });
+    } else {
+      // New test case from current run
+      testCaseMap.set(tc.id, { ...tc, executions: [...tc.executions] });
+    }
+  }
+
+  // Build merged test cases array
+  const mergedTestCases = Array.from(testCaseMap.values());
+
+  // Recalculate stats
+  let totalTests = 0;
+  let totalExecutions = 0;
+  let passedTests = 0;
+  let failedTests = 0;
+
+  for (const tc of mergedTestCases) {
+    totalTests++;
+    totalExecutions += tc.executions.length;
+    if (tc.finalStatus === 'passed') {
+      passedTests++;
+    } else {
+      failedTests++;
+    }
+  }
+
+  // Use earliest startTime, latest endTime
+  const startTime = new Date(existing.startTime) < new Date(current.startTime)
+    ? existing.startTime
+    : current.startTime;
+  const endTime = new Date(existing.endTime) > new Date(current.endTime)
+    ? existing.endTime
+    : current.endTime;
+
+  // Status: if any test case failed, overall is failed
+  const hasFailure = mergedTestCases.some(tc => tc.finalStatus === 'failed' || tc.finalStatus === 'timedOut');
+  const status = hasFailure ? 'failed' : current.status;
+
+  return {
+    bugzyExecutionId: current.bugzyExecutionId,
+    timestamp: existing.timestamp, // Keep original session timestamp
+    startTime,
+    endTime,
+    status,
+    stats: {
+      totalTests,
+      passed: passedTests,
+      failed: failedTests,
+      totalExecutions,
+    },
+    testCases: mergedTestCases,
+  };
+}
+
+/**
  * Bugzy Custom Playwright Reporter
  *
  * Records test executions in hierarchical structure:
@@ -393,8 +529,8 @@ class BugzyReporter implements Reporter {
       });
     }
 
-    // Generate manifest.json
-    const manifest = {
+    // Build current run's manifest
+    const currentManifest: Manifest = {
       bugzyExecutionId: this.bugzyExecutionId,
       timestamp: this.timestamp,
       startTime: this.startTime.toISOString(),
@@ -409,14 +545,37 @@ class BugzyReporter implements Reporter {
       testCases,
     };
 
+    // Read existing manifest for merge (if session is being reused)
     const manifestPath = path.join(this.testRunDir, 'manifest.json');
-    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    let existingManifest: Manifest | null = null;
+    if (fs.existsSync(manifestPath)) {
+      try {
+        existingManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+      } catch (err) {
+        console.warn(`⚠️ Could not parse existing manifest, will overwrite: ${err}`);
+      }
+    }
 
-    console.log(`\n📊 Test Run Summary:`);
+    // Merge with existing manifest data
+    const merged = mergeManifests(existingManifest, currentManifest);
+
+    // Write atomically (temp file + rename)
+    const tmpPath = manifestPath + '.tmp';
+    fs.writeFileSync(tmpPath, JSON.stringify(merged, null, 2));
+    fs.renameSync(tmpPath, manifestPath);
+
+    console.log(`\n📊 Test Run Summary (this run):`);
     console.log(`   Total tests: ${totalTests}`);
     console.log(`   Passed: ${passedTests}`);
     console.log(`   Failed: ${failedTests}`);
     console.log(`   Total executions: ${totalExecutions}`);
+
+    if (existingManifest) {
+      console.log(`\n🔗 Merged with previous session data:`);
+      console.log(`   Session total tests: ${merged.stats.totalTests}`);
+      console.log(`   Session total executions: ${merged.stats.totalExecutions}`);
+    }
+
     console.log(`   Manifest: ${manifestPath}\n`);
   }
 
