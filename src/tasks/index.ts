@@ -17,6 +17,7 @@ import { verifyChangesTask } from './library/verify-changes';
 import { onboardTestingTask } from './library/onboard-testing';
 import { exploreApplicationTask } from './library/explore-application';
 import { triageResultsTask } from './library/triage-results';
+import { exploreTestCodebaseTask } from './library/explore-test-codebase';
 
 import type { ComposedTaskTemplate } from './types';
 import { TASK_SLUGS } from './constants';
@@ -35,6 +36,7 @@ export const TASK_TEMPLATES: Record<string, ComposedTaskTemplate> = {
   [TASK_SLUGS.ONBOARD_TESTING]: onboardTestingTask,
   [TASK_SLUGS.EXPLORE_APPLICATION]: exploreApplicationTask,
   [TASK_SLUGS.TRIAGE_RESULTS]: triageResultsTask,
+  [TASK_SLUGS.EXPLORE_TEST_CODEBASE]: exploreTestCodebaseTask,
 };
 
 /**

@@ -15,6 +15,7 @@ export const TASK_SLUGS = {
   RUN_TESTS: 'run-tests',
   VERIFY_CHANGES: 'verify-changes',
   TRIAGE_RESULTS: 'triage-results',
+  EXPLORE_TEST_CODEBASE: 'explore-test-codebase',
   /** @deprecated Use ONBOARD_TESTING instead */
   FULL_TEST_COVERAGE: 'onboard-testing',
 } as const;

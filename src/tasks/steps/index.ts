@@ -16,6 +16,7 @@ import { gatherDocumentationStep } from './setup/gather-documentation';
 
 // Exploration steps
 import { explorationProtocolStep } from './exploration/exploration-protocol';
+import { analyzeTestCodebaseStep } from './exploration/analyze-test-codebase';
 
 // Clarification steps
 import { clarificationProtocolStep } from './clarification/clarification-protocol';
@@ -64,6 +65,7 @@ export const STEP_LIBRARY: Record<string, TaskStep> = {
 
   // Exploration
   'exploration-protocol': explorationProtocolStep,
+  'analyze-test-codebase': analyzeTestCodebaseStep,
 
   // Clarification
   'clarification-protocol': clarificationProtocolStep,
