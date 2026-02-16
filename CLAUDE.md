@@ -250,6 +250,65 @@ Reusable content blocks are in `src/tasks/templates/`:
 - `exploration-instructions.ts` - Used in exploration tasks
 - `verify-changes-core.ts` - Core verification workflow
 
+## Slash Command Authoring Rules
+
+Distilled from `docs/claude-code-slash-command-best-practices.md` — always-in-context reference for the step composition pipeline.
+
+### Step Authoring
+
+- `TaskStep` fields: `id` (kebab-case), `title`, `content`, `category` (required); `requiresSubagent`, `invokesSubagents`, `tags` (optional)
+- Categories: `security`, `setup`, `exploration`, `clarification`, `execution`, `generation`, `communication`, `maintenance`
+- Use `{{STEP_NUMBER}}` in content for auto-numbering; use `$ARGUMENTS` for user input
+- Never reference specific tools (Slack, Jira, email) — use `{{INVOKE_*}}` placeholders
+- `requiresSubagent` gates step inclusion; `invokesSubagents` drives MCP derivation — they serve different purposes
+- Single responsibility per step; reuse across tasks via step ID
+
+### Task Composition
+
+- `ComposedTaskTemplate` needs: `slug`, `name`, `description`, `frontmatter`, `steps[]`, `requiredSubagents`; optional: `optionalSubagents`, `dependentTasks`
+- Step types: `string` (library ID) | `{ stepId, conditionalOnSubagent }` | `{ inline: true, title, content }`
+- Use `conditionalOnSubagent` for optional functionality — never hardcode subagent presence
+- Required subagents = always present, steps always included; Optional = gated via conditional steps
+- Steps are auto-numbered — array ordering determines execution flow
+
+### Frontmatter (`TaskFrontmatter`)
+
+```
+description: string       # Required — shown in /help and discoverability
+argument-hint?: string    # Documents expected params (e.g., "<test-plan-file>")
+allowed-tools?: string    # Only for manually-authored commands
+name?: string             # Override display name
+```
+
+### Invocation Placeholders
+
+Defined in `src/core/tool-strings.ts`, replaced at generation time per tool profile (Claude Code / Cursor / Codex):
+
+```
+{{INVOKE_BROWSER_AUTOMATION}}         {{INVOKE_TEST_CODE_GENERATOR}}
+{{INVOKE_TEST_DEBUGGER_FIXER}}        {{INVOKE_TEAM_COMMUNICATOR}}
+{{INVOKE_ISSUE_TRACKER}}              {{INVOKE_DOCUMENTATION_RESEARCHER}}
+{{INVOKE_CHANGELOG_HISTORIAN}}
+```
+
+### Command Design Best Practices
+
+- **Single responsibility** — one well-defined purpose per command; make intent obvious from the name
+- **Structured instructions** — use numbered steps for workflows, separate concerns into sections, include clear success criteria
+- **Context provision** — document expected starting state, list prerequisites, reference relevant files
+- **Tool specification** — only request necessary tools in `allowed-tools`, prefer specific permissions over wildcards
+- **Argument documentation** — provide clear `argument-hint`, document expected format, show examples in description
+- **Consistent formatting** — use Markdown headings for structure, code blocks for examples, lists for steps
+- **Error handling** — include validation steps, specify what to do on failure, provide clear error messages
+
+### Anti-patterns
+
+- Referencing Slack/Teams/email directly in steps → use `{{INVOKE_TEAM_COMMUNICATOR}}`
+- Skipping `conditionalOnSubagent` for optional subagent steps → errors when subagent not configured
+- Overly broad steps → split into focused, reusable units
+- Missing `description` in frontmatter → command invisible in `/help`
+- Confusing `requiresSubagent` (gate) with `invokesSubagents` (MCP derivation)
+
 ## Type Safety
 
 Key TypeScript interfaces:
