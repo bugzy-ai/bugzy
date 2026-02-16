@@ -14,15 +14,14 @@ describe('repo-configs (config file)', () => {
 
 /**
  * Full Subagents Configuration
- * All 6 subagents including documentation-researcher and test-code-generator
+ * All subagents including documentation-researcher and test-engineer
  */
 export const FULL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
   { role: 'documentation-researcher', integration: 'notion' },
   { role: 'issue-tracker', integration: 'notion' },
   { role: 'team-communicator', integration: 'slack' },
   { role: 'browser-automation', integration: 'playwright' },
-  { role: 'test-debugger-fixer', integration: 'playwright' },
-  { role: 'test-code-generator', integration: 'playwright' },
+  { role: 'test-engineer', integration: 'default' },
 ];
 
 /**
@@ -33,18 +32,16 @@ export const PARTIAL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
   { role: 'issue-tracker', integration: 'slack' },
   { role: 'team-communicator', integration: 'slack' },
   { role: 'browser-automation', integration: 'playwright' },
-  { role: 'test-debugger-fixer', integration: 'playwright' },
-  { role: 'test-code-generator', integration: 'playwright' },
+  { role: 'test-engineer', integration: 'default' },
 ];
 
 /**
  * Minimal Subagents Configuration
- * Only browser-automation, test-debugger-fixer, and test-code-generator for basic scenarios
+ * Only browser-automation and test-engineer for basic scenarios
  */
 export const MINIMAL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
   { role: 'browser-automation', integration: 'playwright' },
-  { role: 'test-debugger-fixer', integration: 'playwright' },
-  { role: 'test-code-generator', integration: 'playwright' },
+  { role: 'test-engineer', integration: 'default' },
 ];
 
 /**

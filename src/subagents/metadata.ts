@@ -129,6 +129,13 @@ export const INTEGRATIONS: Record<string, SubAgentIntegration> = {
     // No requiredMCP - uses built-in Claude Code tools (AskUserQuestion, text output)
     isLocal: true,
     integrationType: 'local'
+  },
+  default: {
+    id: 'default',
+    name: 'Default',
+    provider: 'default',
+    isLocal: true,
+    integrationType: 'local'
   }
 };
 
@@ -190,26 +197,15 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
     color: 'cyan',
     version: '1.0.0'
   },
-  'test-code-generator': {
-    role: 'test-code-generator',
-    name: 'Test Code Generator',
-    description: 'Generate automated test scripts and page objects',
+  'test-engineer': {
+    role: 'test-engineer',
+    name: 'Test Engineer',
+    description: 'Create, update, debug, and fix automated tests',
     icon: 'code',
-    integrations: [INTEGRATIONS.playwright],
+    integrations: [INTEGRATIONS.default],
     model: 'sonnet',
     color: 'purple',
-    isRequired: true, // Required for automated test generation
-    version: '1.0.0'
-  },
-  'test-debugger-fixer': {
-    role: 'test-debugger-fixer',
-    name: 'Test Debugger & Fixer',
-    description: 'Debug and fix failing automated tests automatically',
-    icon: 'wrench',
-    integrations: [INTEGRATIONS.playwright],
-    model: 'sonnet',
-    color: 'yellow',
-    isRequired: true, // Required for automated test execution and fixing
+    isRequired: true,
     version: '1.0.0'
   },
   'changelog-historian': {

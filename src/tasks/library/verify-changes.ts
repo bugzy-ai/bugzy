@@ -285,7 +285,7 @@ Generate summary of test selection based on description analysis:
 - **Execution strategy**: [smart selection | full suite | smoke tests | user-specified]
 \`\`\``,
     },
-    // Step 7b: Create Tests for Coverage Gaps (conditional - test-code-generator)
+    // Step 7b: Create Tests for Coverage Gaps (conditional - test-engineer)
     {
       inline: true,
       title: 'Create Tests for Coverage Gaps',
@@ -321,7 +321,7 @@ If the Jira issue or PR references test accounts/data (e.g., TEST_PREMIUM_USER, 
 
 ### Generate Automated Test Specs
 
-{{INVOKE_TEST_CODE_GENERATOR}} to create automated test specs:
+{{INVOKE_TEST_ENGINEER}} to create automated test specs:
 - Read the manual test cases you just created
 - Explore the feature in the browser to discover selectors and flows
 - Create page objects in the directory specified by \`./tests/CLAUDE.md\`
@@ -332,7 +332,7 @@ If the Jira issue or PR references test accounts/data (e.g., TEST_PREMIUM_USER, 
 ### If Tests Already Cover the Feature
 
 Skip this step — proceed directly to running existing tests.`,
-      conditionalOnSubagent: 'test-code-generator',
+      conditionalOnSubagent: 'test-engineer',
     },
     // Step 8-11: Test Execution (library steps)
     'run-tests',
@@ -522,7 +522,7 @@ Post PR comment if GitHub context available.`,
     },
   ],
 
-  requiredSubagents: ['browser-automation', 'test-debugger-fixer'],
-  optionalSubagents: ['documentation-researcher', 'issue-tracker', 'team-communicator', 'changelog-historian', 'test-code-generator'],
+  requiredSubagents: ['browser-automation', 'test-engineer'],
+  optionalSubagents: ['documentation-researcher', 'issue-tracker', 'team-communicator', 'changelog-historian'],
   dependentTasks: [],
 };

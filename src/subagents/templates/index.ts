@@ -8,11 +8,8 @@ import type { SubagentTemplate } from '../types';
 // Browser Automation templates
 import * as BrowserAutomationPlaywright from './browser-automation/playwright';
 
-// Test Code Generator templates
-import * as TestCodeGeneratorPlaywright from './test-code-generator/playwright';
-
-// Test Debugger & Fixer templates
-import * as TestDebuggerFixerPlaywright from './test-debugger-fixer/playwright';
+// Test Engineer templates
+import * as TestEngineerDefault from './test-engineer/default';
 
 // Team Communicator templates
 import * as TeamCommunicatorLocal from './team-communicator/local';
@@ -46,16 +43,10 @@ export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
       content: BrowserAutomationPlaywright.CONTENT,
     },
   },
-  'test-code-generator': {
-    playwright: {
-      frontmatter: TestCodeGeneratorPlaywright.FRONTMATTER,
-      content: TestCodeGeneratorPlaywright.CONTENT,
-    },
-  },
-  'test-debugger-fixer': {
-    playwright: {
-      frontmatter: TestDebuggerFixerPlaywright.FRONTMATTER,
-      content: TestDebuggerFixerPlaywright.CONTENT,
+  'test-engineer': {
+    default: {
+      frontmatter: TestEngineerDefault.FRONTMATTER,
+      content: TestEngineerDefault.CONTENT,
     },
   },
   'team-communicator': {

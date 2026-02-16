@@ -114,7 +114,7 @@ describe('Task Generation - Partial Subagents Config', () => {
     describe(taskSlug, () => {
       test('generates task successfully', () => {
         // All tasks should generate successfully with PARTIAL config
-        // (PARTIAL has browser-automation, test-debugger-fixer, test-code-generator, team-comm, issue-tracker)
+        // (PARTIAL has browser-automation, test-engineer, test-engineer, team-comm, issue-tracker)
         // No tasks currently require documentation-researcher as mandatory
         expect(() => {
           buildTaskDefinition(taskSlug, PARTIAL_SUBAGENTS_CONFIG);
@@ -142,9 +142,9 @@ describe('Task Generation - Partial Subagents Config', () => {
 
 describe('Specific Task Validation', () => {
   describe('generate-test-cases', () => {
-    test('includes test-code-generator invocation when configured', () => {
+    test('includes test-engineer invocation when configured', () => {
       const task = buildAndProcessTask(TASK_SLUGS.GENERATE_TEST_CASES, FULL_SUBAGENTS_CONFIG);
-      expect(task.content).toContain('subagent_type: "test-code-generator"');
+      expect(task.content).toContain('subagent_type: "test-engineer"');
     });
 
     test('includes documentation gathering when docs configured', () => {
@@ -186,10 +186,10 @@ describe('Specific Task Validation', () => {
   });
 
   describe('run-tests', () => {
-    test('requires browser-automation and test-debugger-fixer', () => {
+    test('requires browser-automation and test-engineer', () => {
       const task = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
       expect(task.requiredSubAgentRoles).toContain('browser-automation');
-      expect(task.requiredSubAgentRoles).toContain('test-debugger-fixer');
+      expect(task.requiredSubAgentRoles).toContain('test-engineer');
     });
 
     test('includes test execution instructions', () => {
@@ -203,10 +203,10 @@ describe('Specific Task Validation', () => {
       expect(task.requiredMCPs).not.toContain('playwright');
     });
 
-    test('includes test-debugger-fixer when configured', () => {
+    test('includes test-engineer when configured', () => {
       const task = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
 
-      if (hasSubagent(FULL_SUBAGENTS_CONFIG, 'test-debugger-fixer')) {
+      if (hasSubagent(FULL_SUBAGENTS_CONFIG, 'test-engineer')) {
         // Should reference debugging/fixing functionality
         expect(task.content.toLowerCase()).toMatch(/debug|fix|failure|error/);
       }
@@ -218,7 +218,7 @@ describe('Specific Task Validation', () => {
       // process-event task requires team-communicator for clarifying unclear events
       const minimalConfig = [
         { role: 'browser-automation', integration: 'playwright' },
-        { role: 'test-debugger-fixer', integration: 'playwright' },
+        { role: 'test-engineer', integration: 'playwright' },
         { role: 'team-communicator', integration: 'slack' },
       ];
 
@@ -255,11 +255,11 @@ describe('Subagent Configuration Validation', () => {
     });
   });
 
-  test('test-debugger-fixer is properly integrated in run-tests', () => {
+  test('test-engineer is properly integrated in run-tests', () => {
     const task = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
 
     // Should be required
-    expect(task.requiredSubAgentRoles).toContain('test-debugger-fixer');
+    expect(task.requiredSubAgentRoles).toContain('test-engineer');
 
     // Should have content about debugging/fixing
     expect(task.content.toLowerCase()).toMatch(/debug|fix|error|failure|issue/);

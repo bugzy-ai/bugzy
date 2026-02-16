@@ -119,11 +119,11 @@ describe('Exploration Protocol Integration', () => {
       expect(task.content.toLowerCase()).toMatch(/step \d+/);
     });
 
-    test('includes test-debugger-fixer integration', () => {
+    test('includes test-engineer integration', () => {
       const task = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, FULL_SUBAGENTS_CONFIG);
 
-      // Should require test-debugger-fixer
-      expect(task.requiredSubAgentRoles).toContain('test-debugger-fixer');
+      // Should require test-engineer
+      expect(task.requiredSubAgentRoles).toContain('test-engineer');
 
       // Should reference debugging/fixing concepts
       expect(task.content.toLowerCase()).toMatch(/debug|fix|error|failure/);
@@ -171,7 +171,7 @@ describe('Exploration Protocol Integration', () => {
       const task = buildTaskDefinition(TASK_SLUGS.HANDLE_MESSAGE, FULL_SUBAGENTS_CONFIG);
 
       // Step number is auto-generated, use regex to match
-      expect(task.content).toMatch(/### Step \d+: Detect Message Intent and Load Handler/);
+      expect(task.content).toMatch(/### Step \d+: Detect Message Intent/);
       expect(task.content).toContain('intent');
     });
 
@@ -183,13 +183,13 @@ describe('Exploration Protocol Integration', () => {
       expect(task.content).toContain('`status`');
     });
 
-    test('includes handler file loading', () => {
+    test('includes consolidated handler logic inline', () => {
       const task = buildTaskDefinition(TASK_SLUGS.HANDLE_MESSAGE, FULL_SUBAGENTS_CONFIG);
 
-      expect(task.content).toContain('.bugzy/runtime/handlers/messages/{intent}.md');
-      expect(task.content).toContain('question.md');
-      expect(task.content).toContain('feedback.md');
-      expect(task.content).toContain('status.md');
+      // Handlers are now inline in the task, not loaded from files
+      expect(task.content).toContain('If intent = "feedback"');
+      expect(task.content).toContain('If intent = "question"');
+      expect(task.content).toContain('If intent = "status"');
     });
 
     test('includes fallback intent detection table', () => {

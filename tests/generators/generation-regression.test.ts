@@ -331,7 +331,7 @@ describe('Subagent Invocation Patterns (Claude Code)', () => {
     try {
       const subagentsRecord: Record<string, string> = {
         'browser-automation': 'playwright',
-        'test-debugger-fixer': 'playwright',
+        'test-engineer': 'default',
         'team-communicator': 'slack',
         'issue-tracker': 'notion',
       };
@@ -343,7 +343,7 @@ describe('Subagent Invocation Patterns (Claude Code)', () => {
 
       // Claude Code pattern: "Use the {role} agent to..."
       // Should reference agents by their role name
-      expect(content.toLowerCase()).toMatch(/test-debugger-fixer|issue-tracker|team-communicator/);
+      expect(content.toLowerCase()).toMatch(/test-engineer|issue-tracker|team-communicator/);
     } finally {
       process.chdir(originalCwd);
       if (fs.existsSync(testDir)) {

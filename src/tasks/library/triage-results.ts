@@ -45,7 +45,7 @@ This task is triggered automatically when test results are submitted to the Bugz
     'normalize-test-results',
     // Step 7: Triage Failures (existing library step)
     'triage-failures',
-    // Step 8: Fix Test Issues (library — uses test-debugger-fixer)
+    // Step 8: Fix Test Issues (library — uses test-engineer)
     'fix-test-issues',
     // Step 9: Log Product Bugs (conditional — requires issue-tracker)
     {
@@ -105,7 +105,7 @@ Output this JSON as the final result of the task.`,
     },
   ],
 
-  requiredSubagents: ['browser-automation', 'test-debugger-fixer'],
+  requiredSubagents: ['browser-automation', 'test-engineer'],
   optionalSubagents: ['issue-tracker', 'team-communicator'],
   dependentTasks: [],
 };

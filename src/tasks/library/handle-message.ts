@@ -1,10 +1,9 @@
 /**
  * Handle Message Task (Composed)
- * Handle team responses and Slack communications, maintaining context for ongoing conversations
+ * Handle team messages and communications, maintaining context for ongoing conversations
  *
- * Slack messages are processed by the LLM layer (lib/slack/llm-processor.ts)
- * which routes feedback/general chat to this task via the 'collect_feedback' action.
- * This task must be in SLACK_ALLOWED_TASKS to be Slack-callable.
+ * Messages are processed by the LLM layer which routes feedback/general chat
+ * to this task via the 'collect_feedback' action.
  */
 
 import type { ComposedTaskTemplate } from '../steps/types';
@@ -13,11 +12,11 @@ import { TASK_SLUGS } from '../constants';
 export const handleMessageTask: ComposedTaskTemplate = {
   slug: TASK_SLUGS.HANDLE_MESSAGE,
   name: 'Handle Message',
-  description: 'Handle team responses and Slack communications, maintaining context for ongoing conversations (LLM-routed)',
+  description: 'Handle team messages, maintaining context for ongoing conversations',
 
   frontmatter: {
-    description: 'Handle team responses and Slack communications, maintaining context for ongoing conversations',
-    'argument-hint': '[slack thread context or team message]',
+    description: 'Handle team messages, maintaining context for ongoing conversations',
+    'argument-hint': '[team thread context or message]',
   },
 
   steps: [
@@ -27,7 +26,7 @@ export const handleMessageTask: ComposedTaskTemplate = {
       title: 'Handle Message Overview',
       content: `# Handle Message Command
 
-Process team responses from Slack threads and handle multi-turn conversations with the product team about testing clarifications, ambiguities, and questions.`,
+Process team messages and handle multi-turn conversations with the product team about testing clarifications, ambiguities, and questions.`,
     },
     // Step 2: Security Notice (library)
     'security-notice',
@@ -41,19 +40,19 @@ Process team responses from Slack threads and handle multi-turn conversations wi
     'load-project-context',
     // Step 5: Knowledge Base Read (library)
     'read-knowledge-base',
-    // Step 5: Detect Intent (inline - task-specific)
+    // Step 6: Detect Intent (inline - simplified, no handler file loading)
     {
       inline: true,
-      title: 'Detect Message Intent and Load Handler',
-      content: `Before processing the message, identify the intent type to load the appropriate handler.
+      title: 'Detect Message Intent',
+      content: `Identify the intent type from the event payload or message patterns:
 
-#### 0.1 Extract Intent from Event Payload
+#### Extract Intent from Event Payload
 
 Check the event payload for the \`intent\` field provided by the LLM layer:
 - If \`intent\` is present, use it directly
 - Valid intent values: \`question\`, \`feedback\`, \`status\`
 
-#### 0.2 Fallback Intent Detection (if no intent provided)
+#### Fallback Intent Detection (if no intent provided)
 
 If intent is not in the payload, detect from message patterns:
 
@@ -64,39 +63,125 @@ If intent is not in the payload, detect from message patterns:
 | Question words: "what", "which", "do we have", "is there" about tests/project | \`question\` |
 | Default (none of above) | \`feedback\` |
 
-#### 0.3 Load Handler File
-
-Based on detected intent, load the handler from:
-\`.bugzy/runtime/handlers/messages/{intent}.md\`
-
-**Handler files:**
-- \`question.md\` - Questions about tests, coverage, project details
-- \`feedback.md\` - Bug reports, test observations, general information
-- \`status.md\` - Status checks on test runs, task progress
-
-#### 0.4 Follow Handler Instructions
-
-**IMPORTANT**: The handler file is authoritative for this intent type.
-
-1. Read the handler file completely
-2. Follow its processing steps in order
-3. Apply its context loading requirements
-4. Use its response guidelines
-5. Perform any memory updates it specifies
-
-The handler file contains all necessary processing logic for the detected intent type. Each handler includes:
-- Specific processing steps for that intent
-- Context loading requirements
-- Response guidelines
-- Memory update instructions`,
+Then follow the matching handler section below.`,
     },
-    // Step 6: Post Response via Team Communicator
+    // Step 7: Process by Intent (all three handlers consolidated)
+    {
+      inline: true,
+      title: 'Process Message by Intent',
+      content: `Based on the detected intent, follow the appropriate section:
+
+---
+
+## If intent = "feedback"
+
+### Step 1: Parse Feedback
+
+Extract the following from the message:
+
+| Field | Description |
+|-------|-------------|
+| **Type** | \`bug_report\`, \`test_result\`, \`observation\`, \`suggestion\`, \`general\` |
+| **Severity** | \`critical\`, \`high\`, \`medium\`, \`low\` |
+| **Component** | Affected area (e.g., "login", "checkout") |
+| **Description** | Core issue description |
+| **Expected** | What should happen (if stated) |
+| **Steps** | How to reproduce (if provided) |
+
+**Type Detection**:
+- \`bug_report\`: "bug", "broken", "doesn't work", "error", "crash"
+- \`test_result\`: "test passed", "test failed", "ran tests", "testing showed"
+- \`observation\`: "noticed", "observed", "found that", "saw that"
+- \`suggestion\`: "should", "could we", "what if", "idea"
+- \`general\`: Default for unclassified feedback
+
+### Step 2: Update Test Case Specifications
+
+**CRITICAL**: When feedback requests changes to test behavior (e.g., "change the expected result", "update the test to check for X", "the test should verify Y instead"), you MUST update the test case markdown files to reflect the requested changes.
+
+For each actionable feedback item:
+1. Identify which test case(s) are affected
+2. Read the test case markdown file
+3. Update the test steps, expected results, or assertions as requested
+4. Save the modified test case file
+
+This step updates the **specification** (markdown test case files) only. The \`sync-automation-from-feedback\` step that follows handles syncing the **implementation** (automation code) to match.
+
+### Step 3: Acknowledge and Confirm
+
+Respond confirming: feedback received, summary of what was captured, actions taken (including any test case updates), and follow-up questions if needed.
+
+---
+
+## If intent = "question"
+
+### Step 1: Classify Question Type
+
+| Type | Indicators | Primary Context Sources |
+|------|------------|------------------------|
+| **Coverage** | "what tests", "do we have", "is there a test for" | test-cases/, test-plan.md |
+| **Results** | "did tests pass", "what failed", "test results" | test-runs/ |
+| **Knowledge** | "how does", "what is", "explain" | knowledge-base.md |
+| **Plan** | "what's in scope", "test plan", "testing strategy" | test-plan.md |
+| **Process** | "how do I", "when should", "what's the workflow" | project-context.md |
+
+### Step 2: Load Relevant Context
+
+Based on question type, load the appropriate files:
+- **Coverage**: Read test-plan.md, list ./test-cases/, search for relevant keywords
+- **Results**: List ./test-runs/ (newest first), read summary.json from relevant runs
+- **Knowledge**: Read .bugzy/runtime/knowledge-base.md, search for relevant entries
+- **Plan**: Read test-plan.md, extract relevant sections
+- **Process**: Read .bugzy/runtime/project-context.md
+
+### Step 3: Formulate Answer
+
+- Be specific: quote relevant sections from source files
+- Cite sources: mention which files contain the information
+- Quantify when possible: "We have 12 test cases covering login..."
+- Acknowledge gaps if information is incomplete
+
+### Step 4: Offer Follow-up
+
+End response with offer to provide more detail and suggest related information.
+
+---
+
+## If intent = "status"
+
+### Step 1: Identify Status Scope
+
+| Scope | Indicators | Data Sources |
+|-------|------------|--------------|
+| **Latest test run** | "last run", "recent tests", "how did tests go" | Most recent test-runs/ directory |
+| **Specific test** | Test ID mentioned (TC-XXX) | test-runs/*/TC-XXX/, test-cases/TC-XXX.md |
+| **Overall** | "overall", "all tests", "pass rate" | All test-runs/ summaries |
+| **Task progress** | "is the task done", "what's happening with" | team-communicator memory |
+
+### Step 2: Gather Status Data
+
+Based on scope, read the appropriate test-runs/ directories and summary files. Calculate aggregate statistics for overall status requests.
+
+### Step 3: Format Status Report
+
+Present status clearly: lead with pass/fail summary, use bullet points, include timestamps, offer to drill down into specifics.
+
+### Step 4: Provide Context and Recommendations
+
+For failing tests: suggest review, note if new or recurring. For declining trends: highlight causes. For good results: acknowledge healthy state.`,
+    },
+    // Step 8: Sync automation from feedback (conditional on test-engineer)
+    {
+      stepId: 'sync-automation-from-feedback',
+      conditionalOnSubagent: 'test-engineer',
+    },
+    // Step 9: Post Response via Team Communicator
     {
       inline: true,
       title: 'Post Response to Team',
       content: `## Post Response to the Team
 
-After processing the message through the handler and composing your response:
+After processing the message and composing your response:
 
 {{INVOKE_TEAM_COMMUNICATOR}} to post the response back to the team.
 
@@ -111,13 +196,13 @@ After processing the message through the handler and composing your response:
 - Ask the user whether to post — the message came from the team, the response goes back to the team
 - Compose a draft without sending it`,
     },
-    // Step 7: Clarification Protocol (for ambiguous intents)
+    // Step 10: Clarification Protocol (for ambiguous intents)
     'clarification-protocol',
-    // Step 8: Knowledge Base Update (library)
+    // Step 11: Knowledge Base Update (library)
     'update-knowledge-base',
   ],
 
   requiredSubagents: ['team-communicator'],
-  optionalSubagents: [],
+  optionalSubagents: ['test-engineer'],
   dependentTasks: ['verify-changes'],
 };

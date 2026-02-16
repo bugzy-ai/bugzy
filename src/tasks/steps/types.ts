@@ -47,7 +47,7 @@ export interface TaskStep {
    *
    * Supported placeholders:
    * - {{STEP_NUMBER}} - Auto-replaced with computed step number during assembly
-   * - {{INVOKE_*}} - Subagent invocation placeholders (e.g., {{INVOKE_TEST_DEBUGGER_FIXER}})
+   * - {{INVOKE_*}} - Subagent invocation placeholders (e.g., {{INVOKE_TEST_ENGINEER}})
    * - $ARGUMENTS - Task arguments from user input
    */
   content: string;

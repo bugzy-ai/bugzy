@@ -16,8 +16,7 @@ import { ToolId } from './tool-profile';
  */
 export type SubagentRole =
   | 'browser-automation'
-  | 'test-debugger-fixer'
-  | 'test-code-generator'
+  | 'test-engineer'
   | 'team-communicator'
   | 'issue-tracker'
   | 'documentation-researcher'
@@ -29,8 +28,7 @@ export type SubagentRole =
  */
 export type ToolStringKey =
   | 'INVOKE_BROWSER_AUTOMATION'
-  | 'INVOKE_TEST_DEBUGGER_FIXER'
-  | 'INVOKE_TEST_CODE_GENERATOR'
+  | 'INVOKE_TEST_ENGINEER'
   | 'INVOKE_TEAM_COMMUNICATOR'
   | 'INLINE_TEAM_COMMUNICATOR'
   | 'INVOKE_ISSUE_TRACKER'
@@ -42,8 +40,7 @@ export type ToolStringKey =
  */
 const ROLE_TO_KEY: Record<SubagentRole, ToolStringKey> = {
   'browser-automation': 'INVOKE_BROWSER_AUTOMATION',
-  'test-debugger-fixer': 'INVOKE_TEST_DEBUGGER_FIXER',
-  'test-code-generator': 'INVOKE_TEST_CODE_GENERATOR',
+  'test-engineer': 'INVOKE_TEST_ENGINEER',
   'team-communicator': 'INVOKE_TEAM_COMMUNICATOR',
   'issue-tracker': 'INVOKE_ISSUE_TRACKER',
   'documentation-researcher': 'INVOKE_DOCUMENTATION_RESEARCHER',
@@ -63,12 +60,9 @@ export const TOOL_STRINGS: Record<ToolId, Record<ToolStringKey, string>> = {
       '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "browser-automation"` to delegate test execution.\n' +
       'The browser-automation agent will handle all browser automation. DO NOT execute Playwright MCP tools directly.\n' +
       'Include the test case path and any specific instructions in the prompt.',
-    INVOKE_TEST_DEBUGGER_FIXER:
-      '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "test-debugger-fixer"` to delegate debugging.\n' +
-      'The agent will analyze failures and fix test code. Include error details and test path in the prompt.',
-    INVOKE_TEST_CODE_GENERATOR:
-      '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "test-code-generator"` to delegate code generation.\n' +
-      'The agent will create automated tests and page objects. Include test case files in the prompt.',
+    INVOKE_TEST_ENGINEER:
+      '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "test-engineer"` to delegate test automation work.\n' +
+      'The agent handles creating, updating, and fixing automated tests. Include test case files and context in the prompt.',
     INVOKE_TEAM_COMMUNICATOR:
       '**DELEGATE TO SUBAGENT**: Use the Task tool with `subagent_type: "team-communicator"` to send team notifications.\n' +
       'The agent will post to Slack/Teams/Email. Include message content and context in the prompt.',
@@ -89,10 +83,8 @@ export const TOOL_STRINGS: Record<ToolId, Record<ToolStringKey, string>> = {
   'cursor': {
     INVOKE_BROWSER_AUTOMATION:
       'Run the browser-automation agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/browser-automation.md)" --output-format text\n```',
-    INVOKE_TEST_DEBUGGER_FIXER:
-      'Run the test-debugger-fixer agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/test-debugger-fixer.md)" --output-format text\n```',
-    INVOKE_TEST_CODE_GENERATOR:
-      'Run the test-code-generator agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/test-code-generator.md)" --output-format text\n```',
+    INVOKE_TEST_ENGINEER:
+      'Run the test-engineer agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/test-engineer.md)" --output-format text\n```',
     INVOKE_TEAM_COMMUNICATOR:
       'Run the team-communicator agent:\n```bash\ncursor-agent -p "$(cat .cursor/agents/team-communicator.md)" --output-format text\n```',
     INLINE_TEAM_COMMUNICATOR:
@@ -109,10 +101,8 @@ export const TOOL_STRINGS: Record<ToolId, Record<ToolStringKey, string>> = {
   'codex': {
     INVOKE_BROWSER_AUTOMATION:
       'Run the browser-automation agent:\n```bash\ncodex -p "$(cat .codex/agents/browser-automation.md)"\n```',
-    INVOKE_TEST_DEBUGGER_FIXER:
-      'Run the test-debugger-fixer agent:\n```bash\ncodex -p "$(cat .codex/agents/test-debugger-fixer.md)"\n```',
-    INVOKE_TEST_CODE_GENERATOR:
-      'Run the test-code-generator agent:\n```bash\ncodex -p "$(cat .codex/agents/test-code-generator.md)"\n```',
+    INVOKE_TEST_ENGINEER:
+      'Run the test-engineer agent:\n```bash\ncodex -p "$(cat .codex/agents/test-engineer.md)"\n```',
     INVOKE_TEAM_COMMUNICATOR:
       'Run the team-communicator agent:\n```bash\ncodex -p "$(cat .codex/agents/team-communicator.md)"\n```',
     INLINE_TEAM_COMMUNICATOR:
@@ -180,8 +170,7 @@ export function replaceInvocationPlaceholders(
   // Replace each invocation placeholder
   const keys: ToolStringKey[] = [
     'INVOKE_BROWSER_AUTOMATION',
-    'INVOKE_TEST_DEBUGGER_FIXER',
-    'INVOKE_TEST_CODE_GENERATOR',
+    'INVOKE_TEST_ENGINEER',
     'INVOKE_TEAM_COMMUNICATOR',
     'INVOKE_ISSUE_TRACKER',
     'INVOKE_DOCUMENTATION_RESEARCHER',

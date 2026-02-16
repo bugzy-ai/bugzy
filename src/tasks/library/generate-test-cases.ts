@@ -120,20 +120,20 @@ Example structure:
     {
       inline: true,
       title: 'Generate All Manual Test Case Files',
-      content: `Generate ALL manual test case markdown files in \`./test-cases/\` BEFORE invoking the test-code-generator agent.
+      content: `Generate ALL manual test case markdown files in \`./test-cases/\` BEFORE invoking the test-engineer agent.
 
 Create files using \`TC-XXX-feature-description.md\` format. Follow the format of existing test cases in the directory. If no existing cases exist, include:
 - Frontmatter with test case metadata (id, title, type, area, \`automated: true/false\`, \`automated_test:\` empty)
 - Clear test steps with expected results
 - Required test data references (use env var names, not values)`,
     },
-    // Step 11: Automate Test Cases (inline - detailed instructions for test-code-generator)
+    // Step 11: Automate Test Cases (inline - detailed instructions for test-engineer)
     {
       inline: true,
       title: 'Automate Test Cases Area by Area',
       content: `**IMPORTANT**: Process each feature area separately to enable incremental, focused test creation.
 
-**For each area**, invoke the test-code-generator agent:
+**For each area**, invoke the test-engineer agent:
 
 **Prepare Area Context:**
 Before invoking the agent, identify the test cases for the current area:
@@ -145,9 +145,9 @@ Before invoking the agent, identify the test cases for the current area:
 - Existing automated tests in ./tests/specs/
 - Existing Page Objects in ./tests/pages/
 
-**Invoke test-code-generator Agent:**
+**Invoke test-engineer Agent:**
 
-{{INVOKE_TEST_CODE_GENERATOR}} for the current area with the following context:
+{{INVOKE_TEST_ENGINEER}} for the current area with the following context:
 
 "Automate test cases for the [AREA_NAME] area.
 
@@ -161,7 +161,7 @@ Before invoking the agent, identify the test cases for the current area:
 - Existing page objects: [directory from ./tests/CLAUDE.md]
 
 **Knowledge Base Patterns (MUST APPLY):**
-Include ALL relevant testing patterns from the knowledge base that apply to this area. For example, if the KB documents timing behaviors (animation delays, loading states), selector gotchas, or recommended assertion approaches — list them here explicitly and instruct the agent to use the specific patterns described (e.g., specific assertion methods with specific timeouts). The test-code-generator does not have access to the knowledge base, so you MUST relay the exact patterns and recommended code approaches.
+Include ALL relevant testing patterns from the knowledge base that apply to this area. For example, if the KB documents timing behaviors (animation delays, loading states), selector gotchas, or recommended assertion approaches — list them here explicitly and instruct the agent to use the specific patterns described (e.g., specific assertion methods with specific timeouts). The test-engineer does not have access to the knowledge base, so you MUST relay the exact patterns and recommended code approaches.
 
 **The agent should:**
 1. Read the manual test case files for this area
@@ -221,7 +221,7 @@ Move to the next area and repeat until all areas are complete.
     },
   ],
 
-  requiredSubagents: ['browser-automation', 'test-code-generator'],
+  requiredSubagents: ['browser-automation', 'test-engineer'],
   optionalSubagents: ['documentation-researcher', 'team-communicator'],
   dependentTasks: [],
 };
