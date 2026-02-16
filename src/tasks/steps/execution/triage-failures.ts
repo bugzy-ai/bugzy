@@ -10,7 +10,19 @@ After analyzing test results, triage each failure to determine if it's a product
 
 **IMPORTANT: Do NOT report bugs without triaging first.**
 
-For each failed test:
+### 1. Check Failure Classification
+
+**Before triaging any failure**, read \`new_failures\` from the latest \`test-runs/*/manifest.json\`:
+
+| \`new_failures\` State | Action |
+|------------------------|--------|
+| Non-empty array | Only triage failures listed in \`new_failures\`. Do not investigate, fix, or create issues for \`known_failures\`. |
+| Empty array | No new failures to triage. Output "0 new failures to triage" and skip the rest of this step. |
+| Field missing | Fall back: triage all failed tests (backward compatibility with older reporter versions). |
+
+### 2. Triage Each Failure
+
+For each failed test (from \`new_failures\` or all failures if field is missing):
 
 1. **Read failure details** from JSON report (error message, stack trace)
 2. **Classify the failure:**
@@ -39,14 +51,22 @@ For each failed test:
 - Broken navigation flows
 - Validation not working as expected
 
-**Document Classification:**
+### 3. Document Results
+
 \`\`\`markdown
-### Failure Triage
+### Failure Triage Summary
+
+**New failures triaged: N** | **Known failures skipped: M**
 
 | Test ID | Test Name | Classification | Reason |
 |---------|-----------|---------------|--------|
 | TC-001 | Login test | TEST ISSUE | Selector brittle - uses CSS instead of role |
 | TC-002 | Checkout | PRODUCT BUG | 500 error on form submit |
+
+#### Skipped Known Failures
+| Test ID | Test Name | Last Passed Run |
+|---------|-----------|-----------------|
+| TC-003 | Search | 20260210-103045 |
 \`\`\``,
   tags: ['execution', 'triage', 'analysis'],
 };

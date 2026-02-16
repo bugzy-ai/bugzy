@@ -67,10 +67,36 @@ npx tsx reporters/parse-results.ts --input <file-or-url> [--timestamp <existing>
         }
       ]
     }
+  ],
+  "new_failures": [
+    {
+      "id": "<test case id>",
+      "name": "<test name>",
+      "error": "<error message or null>",
+      "lastPassedRun": "<timestamp of last passing run or null>"
+    }
+  ],
+  "known_failures": [
+    {
+      "id": "<test case id>",
+      "name": "<test name>",
+      "error": "<error message or null>",
+      "lastPassedRun": null
+    }
   ]
 }
 \`\`\`
-4. For each failed test, create:
+4. **Classify failures** — after building the manifest, classify each failed test as new or known:
+   - Read \`BUGZY_FAILURE_LOOKBACK\` env var (default: 5)
+   - List previous \`test-runs/*/manifest.json\` files sorted by timestamp descending (skip current run)
+   - For each failed test in the manifest:
+     - If it passed in any of the last N runs → \`new_failures\` (include the timestamp of the last passing run in \`lastPassedRun\`)
+     - If it failed in ALL of the last N runs → \`known_failures\`
+     - If the test doesn't exist in any previous run → \`new_failures\` (new test)
+     - If no previous runs exist at all (first run) → all failures go to \`new_failures\`
+   - Write the \`new_failures\` and \`known_failures\` arrays into the manifest
+
+5. For each failed test, create:
    - Directory: \`test-runs/{timestamp}/{testCaseId}/exec-1/\`
    - File: \`test-runs/{timestamp}/{testCaseId}/exec-1/result.json\` containing:
 \`\`\`json
@@ -82,8 +108,8 @@ npx tsx reporters/parse-results.ts --input <file-or-url> [--timestamp <existing>
   "testFile": "<file path if available>"
 }
 \`\`\`
-5. Print the manifest path to stdout
-6. Exit code 0 on success, non-zero on failure
+6. Print the manifest path to stdout
+7. Exit code 0 on success, non-zero on failure
 
 **Incremental mode** (\`--timestamp\` + \`--test-id\` provided):
 1. Read existing \`test-runs/{timestamp}/manifest.json\`

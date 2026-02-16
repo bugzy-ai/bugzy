@@ -49,6 +49,16 @@ interface ManifestTestCase {
 }
 
 /**
+ * Failure classification entry for new vs known failures
+ */
+interface FailureClassification {
+  id: string;
+  name: string;
+  error: string | null;
+  lastPassedRun: string | null;
+}
+
+/**
  * Manifest structure for test run sessions
  */
 interface Manifest {
@@ -64,6 +74,132 @@ interface Manifest {
     totalExecutions: number;
   };
   testCases: ManifestTestCase[];
+  new_failures?: FailureClassification[];
+  known_failures?: FailureClassification[];
+}
+
+/**
+ * Classify failures as new or known by checking previous test run manifests.
+ *
+ * A failure is "new" if the test passed in any of the last N runs.
+ * A failure is "known" if the test failed in ALL of the last N runs (or no prior data exists for that specific test).
+ * If there are no previous runs at all (first run), all failures are treated as "new".
+ *
+ * @param currentManifest - The current run's manifest
+ * @param testRunsRoot - Path to the test-runs/ directory
+ * @returns Object with newFailures and knownFailures arrays
+ */
+export function classifyFailures(
+  currentManifest: Manifest,
+  testRunsRoot: string
+): { newFailures: FailureClassification[]; knownFailures: FailureClassification[] } {
+  const lookback = parseInt(process.env.BUGZY_FAILURE_LOOKBACK || '5', 10);
+  const newFailures: FailureClassification[] = [];
+  const knownFailures: FailureClassification[] = [];
+
+  // Get failed test cases from current manifest
+  const failedTests = currentManifest.testCases.filter(
+    tc => tc.finalStatus === 'failed' || tc.finalStatus === 'timedOut'
+  );
+
+  if (failedTests.length === 0) {
+    return { newFailures, knownFailures };
+  }
+
+  // Read previous manifests
+  const previousManifests: Manifest[] = [];
+  if (fs.existsSync(testRunsRoot)) {
+    const dirs = fs.readdirSync(testRunsRoot)
+      .filter(d => {
+        try {
+          return fs.statSync(path.join(testRunsRoot, d)).isDirectory();
+        } catch {
+          return false;
+        }
+      })
+      .sort()
+      .reverse(); // Latest first
+
+    for (const dir of dirs) {
+      // Skip current run
+      if (dir === currentManifest.timestamp) continue;
+
+      if (previousManifests.length >= lookback) break;
+
+      const manifestPath = path.join(testRunsRoot, dir, 'manifest.json');
+      if (fs.existsSync(manifestPath)) {
+        try {
+          const manifest: Manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+          previousManifests.push(manifest);
+        } catch {
+          // Skip invalid manifests
+        }
+      }
+    }
+  }
+
+  // If no previous runs exist, all failures are new (first run)
+  if (previousManifests.length === 0) {
+    for (const tc of failedTests) {
+      const lastExec = tc.executions[tc.executions.length - 1];
+      newFailures.push({
+        id: tc.id,
+        name: tc.name,
+        error: lastExec?.error || null,
+        lastPassedRun: null,
+      });
+    }
+    return { newFailures, knownFailures };
+  }
+
+  // For each failed test, check if it passed in any previous run
+  for (const tc of failedTests) {
+    const lastExec = tc.executions[tc.executions.length - 1];
+    let lastPassedRun: string | null = null;
+
+    for (const prevManifest of previousManifests) {
+      const prevTc = prevManifest.testCases.find(ptc => ptc.id === tc.id);
+      if (prevTc && (prevTc.finalStatus === 'passed')) {
+        lastPassedRun = prevManifest.timestamp;
+        break;
+      }
+    }
+
+    if (lastPassedRun) {
+      // Test passed recently, so this is a new failure
+      newFailures.push({
+        id: tc.id,
+        name: tc.name,
+        error: lastExec?.error || null,
+        lastPassedRun,
+      });
+    } else {
+      // Check if test exists in any previous run at all
+      const existsInPrevious = previousManifests.some(
+        pm => pm.testCases.some(ptc => ptc.id === tc.id)
+      );
+
+      if (!existsInPrevious) {
+        // New test that doesn't exist in history - treat as new failure
+        newFailures.push({
+          id: tc.id,
+          name: tc.name,
+          error: lastExec?.error || null,
+          lastPassedRun: null,
+        });
+      } else {
+        // Failed in all previous runs - known failure
+        knownFailures.push({
+          id: tc.id,
+          name: tc.name,
+          error: lastExec?.error || null,
+          lastPassedRun: null,
+        });
+      }
+    }
+  }
+
+  return { newFailures, knownFailures };
 }
 
 /**
@@ -144,7 +280,7 @@ export function mergeManifests(existing: Manifest | null, current: Manifest): Ma
   const hasFailure = mergedTestCases.some(tc => tc.finalStatus === 'failed' || tc.finalStatus === 'timedOut');
   const status = hasFailure ? 'failed' : current.status;
 
-  return {
+  const merged: Manifest = {
     bugzyExecutionId: current.bugzyExecutionId,
     timestamp: existing.timestamp, // Keep original session timestamp
     startTime,
@@ -158,6 +294,21 @@ export function mergeManifests(existing: Manifest | null, current: Manifest): Ma
     },
     testCases: mergedTestCases,
   };
+
+  // Preserve failure classification (current run's classification wins)
+  if (current.new_failures) {
+    merged.new_failures = current.new_failures;
+  } else if (existing.new_failures) {
+    merged.new_failures = existing.new_failures;
+  }
+
+  if (current.known_failures) {
+    merged.known_failures = current.known_failures;
+  } else if (existing.known_failures) {
+    merged.known_failures = existing.known_failures;
+  }
+
+  return merged;
 }
 
 /**
@@ -558,6 +709,26 @@ class BugzyReporter implements Reporter {
 
     // Merge with existing manifest data
     const merged = mergeManifests(existingManifest, currentManifest);
+
+    // Classify failures as new vs known
+    if (merged.stats.failed > 0) {
+      try {
+        const testRunsRoot = path.join(process.cwd(), 'test-runs');
+        const { newFailures, knownFailures } = classifyFailures(merged, testRunsRoot);
+        if (newFailures.length > 0) {
+          merged.new_failures = newFailures;
+        }
+        if (knownFailures.length > 0) {
+          merged.known_failures = knownFailures;
+        }
+
+        console.log(`\n🔍 Failure Classification:`);
+        console.log(`   New failures: ${newFailures.length}`);
+        console.log(`   Known failures: ${knownFailures.length}`);
+      } catch (err) {
+        console.warn(`⚠️ Could not classify failures: ${err}`);
+      }
+    }
 
     // Write atomically (temp file + rename)
     const tmpPath = manifestPath + '.tmp';
