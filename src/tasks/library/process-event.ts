@@ -169,7 +169,29 @@ Read \`.bugzy/runtime/memory/event-history.md\` to:
 - List \`./test-cases/\` for existing tests
 - Check \`.bugzy/runtime/knowledge-base.md\` for past insights
 
-#### 2.4 Event-Action Reference Patterns
+#### 2.4 Knowledge Base: Drafted vs Real Tests (BYOT)
+
+When the project uses an external test repository, maintain two sections in \`.bugzy/runtime/knowledge-base.md\`:
+
+**Drafted Tests** (Open PRs — tests not yet merged):
+\`\`\`markdown
+### Drafted Tests
+| PR | Branch | Tests Added | Status | Date |
+|----|--------|-------------|--------|------|
+| #12 | bugzy/verify-changes-a1b2c3d4 | login.spec.ts, checkout.spec.ts | Open | 2026-02-13 |
+\`\`\`
+
+**Active Tests** (Merged — tests are part of the test suite):
+\`\`\`markdown
+### Active Tests
+| File | What it tests | Source PR | Merged |
+|------|---------------|-----------|--------|
+| login.spec.ts | Login flow with valid/invalid credentials | #12 | 2026-02-13 |
+\`\`\`
+
+Move entries from Drafted → Active Tests when PRs are merged. Remove entries when PRs are closed without merge.
+
+#### 2.5 Event-Action Reference Patterns
 
 Use these as reference patterns for common events. The webhook routing system already handles events with specific default tasks (e.g., deployment_status → /run-tests). Process-event receives events that need analysis.
 
@@ -187,6 +209,23 @@ Use these as reference patterns for common events. The webhook routing system al
 **Recall.ai Events (Meeting Transcripts):**
 - **QA-relevant content found**: Propose appropriate follow-up tasks (e.g., \`/generate-test-cases\`, \`/verify-changes\`)
 - **No QA content** (HR meeting, offsite planning, etc.): Skip — log to event history only
+
+**External Test Repo Events** (BYOT - events from the customer's external test repository):
+- **PR opened by Bugzy** (\`com.github.external_repo.pull_request\`, \`action: "opened"\`, branch starts with \`bugzy/\`):
+  Log to Knowledge Base under "Drafted Tests". No action task needed — just record the PR number, branch, and what tests were added.
+- **PR review submitted** (\`com.github.external_repo.pull_request_review\`):
+  If changes were requested → queue \`/verify-changes\` with \`{"existingPrBranch": "{head.ref}", "context": "PR review feedback: {review.body}"}\`.
+  The execution will iterate on the existing branch, push fixes, and skip PR creation.
+- **PR comment** (\`com.github.external_repo.pull_request_comment\`):
+  Read the comment. If it contains actionable feedback, queue \`/verify-changes\`
+  with \`{"existingPrBranch": "{issue.pull_request.head.ref}"}\`.
+- **PR merged** (\`com.github.external_repo.pull_request\`, \`action: "closed"\`, \`merged: true\`):
+  Update Knowledge Base: move entries from "Drafted Tests" to "Active Tests". Notify team of new test coverage.
+  The submodule pointer update happens automatically via the container (\`updateSubmoduleToLatest\`).
+- **PR closed without merge** (\`com.github.external_repo.pull_request\`, \`action: "closed"\`, \`merged: false\`):
+  Remove from Knowledge Base "Drafted Tests". Notify team that tests were rejected.
+- **Direct push to main** (\`com.github.external_repo.push\`, ref is main/master):
+  Update Knowledge Base if test files were affected. Submodule pointer update is automatic.
 
 **Other Events:**
 - Analyze for QA relevance based on knowledge base and project context
