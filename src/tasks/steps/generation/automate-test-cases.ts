@@ -8,7 +8,7 @@ export const automateTestCasesStep: TaskStep = {
 
 For each test case marked \`automated: true\`:
 
-{{INVOKE_TEST_CODE_GENERATOR}} with the following context:
+{{INVOKE_TEST_ENGINEER}} with the following context:
 
 "Automate test cases for the focus area: $ARGUMENTS
 
@@ -41,6 +41,6 @@ After automation, update the manual test case frontmatter:
 automated: true
 automated_test: tests/specs/feature/test-name.spec.ts
 \`\`\``,
-  invokesSubagents: ['test-code-generator'],
+  invokesSubagents: ['test-engineer'],
   tags: ['generation', 'automation'],
 };

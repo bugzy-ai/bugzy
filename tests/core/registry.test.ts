@@ -45,17 +45,17 @@ describe('getAgentConfiguration', () => {
 
 describe('getAgentConfiguration - INVOKE placeholder replacement', () => {
   it('should replace {{INVOKE_*}} placeholders with Claude Code strings', async () => {
-    // run-tests task contains {{INVOKE_TEST_DEBUGGER_FIXER}} in its content
+    // run-tests task contains {{INVOKE_TEST_ENGINEER}} in its content
     const taskDefinition = buildTaskDefinition('run-tests', sampleSubAgents);
     const config = await getAgentConfiguration([taskDefinition], sampleSubAgents);
 
     const content = config.slashCommands['run-tests'].content;
 
     // Should contain Claude Code invocation string
-    expect(content).toContain('subagent_type: "test-debugger-fixer"');
+    expect(content).toContain('subagent_type: "test-engineer"');
 
     // Should NOT contain raw placeholder
-    expect(content).not.toContain('{{INVOKE_TEST_DEBUGGER_FIXER}}');
+    expect(content).not.toContain('{{INVOKE_TEST_ENGINEER}}');
   });
 
   it('should not have any {{INVOKE_*}} placeholders remaining in any task', async () => {
@@ -82,7 +82,7 @@ describe('getAgentConfiguration - INVOKE placeholder replacement', () => {
 
   it('verify-changes should have all INVOKE placeholders replaced', async () => {
     // verify-changes has many placeholders:
-    // {{INVOKE_TEST_DEBUGGER_FIXER}}, {{INVOKE_ISSUE_TRACKER}},
+    // {{INVOKE_TEST_ENGINEER}}, {{INVOKE_ISSUE_TRACKER}},
     // {{INVOKE_TEAM_COMMUNICATOR}}, {{INVOKE_DOCUMENTATION_RESEARCHER}}
     const taskDefinition = buildTaskDefinition('verify-changes', FULL_SUBAGENTS_CONFIG);
     const config = await getAgentConfiguration([taskDefinition], FULL_SUBAGENTS_CONFIG);
@@ -90,22 +90,22 @@ describe('getAgentConfiguration - INVOKE placeholder replacement', () => {
     const content = config.slashCommands['verify-changes'].content;
 
     // Should contain Claude Code invocation strings (not raw placeholders)
-    expect(content).toContain('subagent_type: "test-debugger-fixer"');
+    expect(content).toContain('subagent_type: "test-engineer"');
     expect(content).toContain('subagent_type: "issue-tracker"');
     expect(content).toContain('subagent_type: "team-communicator"');
     expect(content).toContain('subagent_type: "documentation-researcher"');
   });
 
-  it('generate-test-cases should replace INVOKE_TEST_CODE_GENERATOR', async () => {
+  it('generate-test-cases should replace INVOKE_TEST_ENGINEER', async () => {
     const taskDefinition = buildTaskDefinition('generate-test-cases', FULL_SUBAGENTS_CONFIG);
     const config = await getAgentConfiguration([taskDefinition], FULL_SUBAGENTS_CONFIG);
 
     const content = config.slashCommands['generate-test-cases'].content;
 
     // Should contain Claude Code invocation string
-    expect(content).toContain('subagent_type: "test-code-generator"');
+    expect(content).toContain('subagent_type: "test-engineer"');
 
     // Should NOT contain raw placeholder
-    expect(content).not.toContain('{{INVOKE_TEST_CODE_GENERATOR}}');
+    expect(content).not.toContain('{{INVOKE_TEST_ENGINEER}}');
   });
 });

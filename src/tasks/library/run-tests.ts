@@ -137,7 +137,7 @@ If selected test cases have formatting issues:
 
 **Failure Handling**:
 - Test failures are automatically triaged (product bugs vs test issues)
-- Test issues are automatically fixed by the test-debugger-fixer subagent
+- Test issues are automatically fixed by the test-engineer subagent
 - Product bugs are logged via issue tracker after triage
 - All results are analyzed for learning opportunities and team communication
 - Critical failures trigger immediate team notification
@@ -155,7 +155,7 @@ If selected test cases have formatting issues:
     },
   ],
 
-  requiredSubagents: ['browser-automation', 'test-debugger-fixer'],
+  requiredSubagents: ['browser-automation', 'test-engineer'],
   optionalSubagents: ['issue-tracker', 'team-communicator'],
   dependentTasks: [],
 };

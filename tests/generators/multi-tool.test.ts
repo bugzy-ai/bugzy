@@ -267,7 +267,7 @@ describe('Multi-Tool Generation Tests', () => {
 
       // Claude Code pattern: explicit Task tool invocation
       expect(content).toContain('DELEGATE TO SUBAGENT');
-      expect(content).toContain('subagent_type: "test-debugger-fixer"');
+      expect(content).toContain('subagent_type: "test-engineer"');
 
       // Should NOT contain CLI patterns
       expect(content).not.toContain('cursor-agent -p');

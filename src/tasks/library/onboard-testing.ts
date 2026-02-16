@@ -89,7 +89,7 @@ This command orchestrates the complete test coverage workflow in a single execut
     'generate-final-report',
   ],
 
-  requiredSubagents: ['browser-automation', 'test-code-generator', 'test-debugger-fixer'],
+  requiredSubagents: ['browser-automation', 'test-engineer'],
   optionalSubagents: ['documentation-researcher', 'team-communicator', 'issue-tracker'],
   dependentTasks: ['run-tests', 'generate-test-cases'],
 };

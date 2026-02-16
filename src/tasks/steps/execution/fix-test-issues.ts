@@ -6,9 +6,9 @@ export const fixTestIssuesStep: TaskStep = {
   category: 'execution',
   content: `## Fix Test Issues Automatically
 
-For each test classified as **[TEST ISSUE]**, use the test-debugger-fixer agent to automatically fix the test:
+For each test classified as **[TEST ISSUE]**, use the test-engineer agent to automatically fix the test:
 
-{{INVOKE_TEST_DEBUGGER_FIXER}}
+{{INVOKE_TEST_ENGINEER}}
 
 For each failed test classified as a test issue (not a product bug), provide:
 - Test run timestamp: [from manifest.timestamp]
@@ -31,7 +31,7 @@ The agent will:
 7. Repeat up to 3 times if needed (exec-1, exec-2, exec-3)
 8. Report success or escalate as likely product bug
 
-**After test-debugger-fixer completes:**
+**After test-engineer completes:**
 - If fix succeeded: Mark test as fixed, add to "Tests Fixed" list
 - If still failing after 3 attempts: Reclassify as potential product bug
 
@@ -39,6 +39,6 @@ The agent will:
 - Maintain list of tests fixed automatically
 - Include fix description (e.g., "Applied selector fix pattern from CLAUDE.md")
 - Note verification status (test now passes)`,
-  invokesSubagents: ['test-debugger-fixer'],
+  invokesSubagents: ['test-engineer'],
   tags: ['execution', 'fixing', 'automation'],
 };

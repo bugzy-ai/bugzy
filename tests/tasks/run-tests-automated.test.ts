@@ -17,7 +17,7 @@ function buildAndProcessTask(slug: string, subagents: ProjectSubAgent[]) {
 describe('run-tests task (automated execution)', () => {
   const minimalSubAgents: ProjectSubAgent[] = [
     { role: 'browser-automation', integration: 'playwright' },
-    { role: 'test-debugger-fixer', integration: 'playwright' }
+    { role: 'test-engineer', integration: 'default' }
   ];
 
   const fullSubAgents: ProjectSubAgent[] = [
@@ -26,16 +26,16 @@ describe('run-tests task (automated execution)', () => {
     { role: 'team-communicator', integration: 'slack' }
   ];
 
-  it('should require both browser-automation and test-debugger-fixer subagents', () => {
+  it('should require both browser-automation and test-engineer subagents', () => {
     const result = buildTaskDefinition('run-tests', minimalSubAgents);
 
     expect(result.requiredSubAgentRoles).toContain('browser-automation');
-    expect(result.requiredSubAgentRoles).toContain('test-debugger-fixer');
+    expect(result.requiredSubAgentRoles).toContain('test-engineer');
   });
 
   it('should throw error if browser-automation is missing', () => {
     const missingBrowserAutomation: ProjectSubAgent[] = [
-      { role: 'test-debugger-fixer', integration: 'playwright' }
+      { role: 'test-engineer', integration: 'default' }
     ];
 
     expect(() => {
@@ -43,14 +43,14 @@ describe('run-tests task (automated execution)', () => {
     }).toThrow(/requires subagent "browser-automation"/);
   });
 
-  it('should throw error if test-debugger-fixer is missing', () => {
+  it('should throw error if test-engineer is missing', () => {
     const missingDebugger: ProjectSubAgent[] = [
       { role: 'browser-automation', integration: 'playwright' }
     ];
 
     expect(() => {
       buildTaskDefinition('run-tests', missingDebugger);
-    }).toThrow(/requires subagent "test-debugger-fixer"/);
+    }).toThrow(/requires subagent "test-engineer"/);
   });
 
   it('should include test execution instructions referencing CLAUDE.md', () => {
@@ -75,21 +75,21 @@ describe('run-tests task (automated execution)', () => {
     expect(result.content).toContain('@smoke');
   });
 
-  it('should NOT include test-debugger-fixer instructions when not configured', () => {
+  it('should NOT include test-engineer instructions when not configured', () => {
     const onlyBrowserAutomation: ProjectSubAgent[] = [
       { role: 'browser-automation', integration: 'playwright' }
     ];
 
-    // This should fail because test-debugger-fixer is required
+    // This should fail because test-engineer is required
     expect(() => {
       buildTaskDefinition('run-tests', onlyBrowserAutomation);
     }).toThrow();
   });
 
-  it('should include test-debugger-fixer instructions when configured', () => {
+  it('should include test-engineer instructions when configured', () => {
     const result = buildAndProcessTask('run-tests', minimalSubAgents);
 
-    expect(result.content).toContain('subagent_type: "test-debugger-fixer"');
+    expect(result.content).toContain('subagent_type: "test-engineer"');
     expect(result.content).toContain('fix test issues');
     expect(result.content).toContain('[TEST ISSUE]');
   });

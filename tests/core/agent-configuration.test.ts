@@ -14,7 +14,7 @@ import type { ProjectSubAgent } from '../../src/core/task-builder';
 // Minimal config for basic tests
 const MINIMAL_SUBAGENTS_CONFIG: ProjectSubAgent[] = [
   { role: 'browser-automation', integration: 'playwright' },
-  { role: 'test-debugger-fixer', integration: 'playwright' },
+  { role: 'test-engineer', integration: 'default' },
 ];
 
 describe('getAgentConfiguration', () => {
@@ -173,11 +173,11 @@ describe('getAgentConfiguration', () => {
       // Test with playwright
       const taskDefPlaywright = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, [
         { role: 'browser-automation', integration: 'playwright' },
-        { role: 'test-debugger-fixer', integration: 'playwright' }
+        { role: 'test-engineer', integration: 'default' }
       ]);
       const configPlaywright = await getAgentConfiguration([taskDefPlaywright], [
         { role: 'browser-automation', integration: 'playwright' },
-        { role: 'test-debugger-fixer', integration: 'playwright' }
+        { role: 'test-engineer', integration: 'default' }
       ]);
 
       const playwrightSubagent = configPlaywright.subagents['browser-automation'];
@@ -257,7 +257,7 @@ describe('getAgentConfiguration', () => {
       // Even with invalid subagents in the list, valid ones should still work
       const validSubagents: ProjectSubAgent[] = [
         { role: 'browser-automation', integration: 'playwright' },
-        { role: 'test-debugger-fixer', integration: 'playwright' }
+        { role: 'test-engineer', integration: 'default' }
       ];
 
       const taskDef = buildTaskDefinition(TASK_SLUGS.RUN_TESTS, validSubagents);

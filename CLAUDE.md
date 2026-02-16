@@ -73,8 +73,8 @@ Bugzy uses a **step-based composition** architecture:
 
 **Subagents** (`src/subagents/`):
 - 6 specialized AI agents:
-  - Required: browser-automation, test-code-generator, test-debugger-fixer, team-communicator (with email fallback)
-  - Optional: documentation-researcher, issue-tracker
+  - Required: browser-automation, test-engineer, team-communicator (with email fallback)
+  - Optional: documentation-researcher, issue-tracker, changelog-historian
 - Each subagent has metadata defining role, integrations, and required MCP servers
 - Templates stored as TypeScript files in `src/subagents/templates/{role}/{integration}.ts`
 
@@ -176,7 +176,7 @@ type TaskStep =
       conditionalOnSubagent: 'issue-tracker'  // Only if configured
     }
   ],
-  requiredSubagents: ['browser-automation', 'test-code-generator', 'test-debugger-fixer'],
+  requiredSubagents: ['browser-automation', 'test-engineer'],
   optionalSubagents: ['team-communicator', 'issue-tracker']
 }
 ```
@@ -186,7 +186,7 @@ type TaskStep =
 **CRITICAL DISTINCTION:**
 
 - **Required Subagents** (4): Must ALWAYS be configured for task to work
-  - `browser-automation`, `test-code-generator`, `test-debugger-fixer` - Core test automation
+  - `browser-automation`, `test-engineer` - Core test automation
   - `team-communicator` - Falls back to email if Slack/Teams not configured
   - Listed in `requiredSubagents` array for validation
   - Their steps are always included in task execution
@@ -285,8 +285,8 @@ name?: string             # Override display name
 Defined in `src/core/tool-strings.ts`, replaced at generation time per tool profile (Claude Code / Cursor / Codex):
 
 ```
-{{INVOKE_BROWSER_AUTOMATION}}         {{INVOKE_TEST_CODE_GENERATOR}}
-{{INVOKE_TEST_DEBUGGER_FIXER}}        {{INVOKE_TEAM_COMMUNICATOR}}
+{{INVOKE_BROWSER_AUTOMATION}}         {{INVOKE_TEST_ENGINEER}}
+{{INVOKE_TEAM_COMMUNICATOR}}
 {{INVOKE_ISSUE_TRACKER}}              {{INVOKE_DOCUMENTATION_RESEARCHER}}
 {{INVOKE_CHANGELOG_HISTORIAN}}
 ```

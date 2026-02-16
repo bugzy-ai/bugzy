@@ -48,6 +48,7 @@ import { generateFinalReportStep } from './maintenance/generate-final-report';
 import { updateExplorationArtifactsStep } from './maintenance/update-exploration-artifacts';
 import { cleanupTempFilesStep } from './maintenance/cleanup-temp-files';
 import { validateTestArtifactsStep } from './maintenance/validate-test-artifacts';
+import { syncAutomationFromFeedbackStep } from './maintenance/sync-automation-from-feedback';
 
 /**
  * Global Step Library - Single source of truth for all steps
@@ -97,6 +98,7 @@ export const STEP_LIBRARY: Record<string, TaskStep> = {
   'update-exploration-artifacts': updateExplorationArtifactsStep,
   'cleanup-temp-files': cleanupTempFilesStep,
   'validate-test-artifacts': validateTestArtifactsStep,
+  'sync-automation-from-feedback': syncAutomationFromFeedbackStep,
 };
 
 /**
