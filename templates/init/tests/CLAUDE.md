@@ -3,6 +3,12 @@
 ## Framework
 Playwright with TypeScript
 
+## Environment
+
+Playwright and Chromium browser binaries are **pre-installed** in the execution environment. npm packages from `package.json` are also pre-installed in the project root.
+
+**DO NOT** run `npx playwright install` or `npm install` — all dependencies are already available.
+
 ## Test Execution
 
 Run commands from the project root directory.
