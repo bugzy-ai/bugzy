@@ -64,12 +64,14 @@ This step helps correlate what the tests cover with what the application actuall
     {
       inline: true,
       title: 'Commit Analysis Results',
-      content: `Commit all analysis artifacts to the project repository:
+      content: `Commit analysis artifacts to the **parent project repository** (the workspace root).
 
-1. The test codebase analysis report (\`.bugzy/runtime/test-codebase-analysis.md\`)
-2. Any generated CLAUDE.md draft (if the external repo was missing one)
+**IMPORTANT — Do NOT stage the \`tests\` submodule.** The \`tests/\` directory is an external git submodule. Any changes made inside it (e.g., \`reporters/parse-results.ts\`, \`tests/CLAUDE.md\`) will be committed and pushed to the external repo automatically by the post-execution handler. Staging the submodule in the parent would record a local-only commit SHA that doesn't exist on the remote, causing a broken reference.
 
-Use a clear commit message: "chore: analyze external test codebase"
+**What to commit in the parent repo:**
+1. \`git add .bugzy/\` — the test codebase analysis report and runtime files
+2. Do NOT run \`git add .\` or \`git add tests\` — this would stage the submodule pointer
+3. \`git commit -m "chore: analyze external test codebase"\`
 
 These artifacts will be available to all future task executions for this project.`,
     },
