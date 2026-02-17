@@ -95,3 +95,46 @@ Remove entries when:
 | "On Tuesday user said X, then on Friday user said Y" | "User's position on X is Y" (keep most current) |
 | Keeping every detail ever mentioned | Keeping relevant, current details |
 | "User might like coffee, user mentioned tea once, user drinks water" | "User prefers tea; also drinks coffee occasionally" |
+
+---
+
+## Extraction Schema
+
+When deciding what to save, use these structured categories as guidance. Not every session produces entries in every category — only save what genuinely qualifies.
+
+### Application Patterns
+UI flows, navigation structure, page load behaviors, API response patterns, authentication flows, state transitions.
+
+### Test Reliability
+Flaky selectors, timing-sensitive flows, environment-specific behaviors, retry patterns, stable vs unstable locators.
+
+### Team Preferences
+Communication style, channel routing, workflow expectations, review preferences, notification conventions.
+
+### Technical Constraints
+API rate limits, auth token lifetimes, infrastructure boundaries, deployment gotchas, browser compatibility issues.
+
+### Environment Facts
+URLs, credentials structure (not values), test data patterns, feature flags, environment-specific configurations.
+
+---
+
+## Provenance Format
+
+Every knowledge base entry must include provenance metadata as an HTML comment immediately after the heading:
+
+```markdown
+## Entry Title
+<!-- source: {task-or-subagent} | learned: {YYYY-MM-DD} | verified: {YYYY-MM-DD} -->
+
+Entry content here...
+```
+
+**Fields:**
+- **source**: Which task or subagent produced this knowledge (e.g., `run-tests`, `test-engineer`, `explore-application`)
+- **learned**: Date the knowledge was first discovered
+- **verified**: Date the knowledge was last confirmed as still accurate
+
+**Verification Rule:** If an entry's `verified` date is more than 30 days old and you encounter the same topic, re-verify the information and update the `verified` date. If the fact has changed, update or remove the entry.
+
+**Gradual Migration:** Existing entries without provenance remain valid. Add provenance when you next update an entry — no bulk migration needed.

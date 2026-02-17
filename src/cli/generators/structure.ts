@@ -21,7 +21,9 @@ export async function createProjectStructure(tool: ToolId = DEFAULT_TOOL): Promi
   const bugzyDirs = [
     '.bugzy',
     '.bugzy/runtime',
-    '.bugzy/runtime/templates'
+    '.bugzy/runtime/templates',
+    '.bugzy/runtime/hooks',
+    '.bugzy/runtime/logs'
   ];
 
   for (const dir of bugzyDirs) {
@@ -140,6 +142,17 @@ async function createRuntimeFiles(): Promise<void> {
     if (fs.existsSync(templatePath)) {
       const content = fs.readFileSync(templatePath, 'utf-8');
       fs.writeFileSync(subagentMemoryPath, content, 'utf-8');
+    }
+  }
+
+  // Copy hook scripts from templates (always overwrite to keep them updated)
+  const hookScripts = ['session-start.sh', 'pre-compact.sh', 'stop.sh'];
+  for (const script of hookScripts) {
+    const destPath = path.join(cwd, '.bugzy/runtime/hooks', script);
+    const templatePath = path.join(templatesDir, '.bugzy/runtime/hooks', script);
+    if (fs.existsSync(templatePath)) {
+      fs.copyFileSync(templatePath, destPath);
+      fs.chmodSync(destPath, 0o755);
     }
   }
 

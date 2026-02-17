@@ -35,10 +35,6 @@ Process webhook events from integrated systems by analyzing event content, deter
       title: 'Arguments',
       content: `Arguments: $ARGUMENTS`,
     },
-    // Step 4: Load Project Context (library)
-    'load-project-context',
-    // Step 5: Knowledge Base Read (library)
-    'read-knowledge-base',
     // Step 5: Understand Event Context (inline)
     {
       inline: true,

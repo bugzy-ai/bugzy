@@ -37,11 +37,7 @@ This task is triggered automatically when test results are submitted to the Bugz
       title: 'Arguments',
       content: `Arguments: $ARGUMENTS`,
     },
-    // Step 4: Load Project Context (library)
-    'load-project-context',
-    // Step 5: Knowledge Base Read (library)
-    'read-knowledge-base',
-    // Step 6: Normalize Test Results (library — handles URL/inline results + manifest creation)
+    // Step 5: Normalize Test Results (library — handles URL/inline results + manifest creation)
     'normalize-test-results',
     // Step 7: Triage Failures (existing library step)
     'triage-failures',
@@ -52,57 +48,13 @@ This task is triggered automatically when test results are submitted to the Bugz
       stepId: 'log-product-bugs',
       conditionalOnSubagent: 'issue-tracker',
     },
-    // Step 10: Update Knowledge Base (library)
-    'update-knowledge-base',
-    // Step 11: Notify Team (conditional — requires team-communicator)
+    // Step 10: Notify Team (conditional — requires team-communicator)
     {
       stepId: 'notify-team',
       conditionalOnSubagent: 'team-communicator',
     },
-    // Step 12: Generate Triage Report (inline)
-    {
-      inline: true,
-      title: 'Generate Triage Report',
-      content: `## Generate Triage Report
-
-Create a structured triage report as the task output. This report is stored in \`task_executions.result\` and displayed in the Bugzy dashboard.
-
-**Report Structure:**
-\`\`\`json
-{
-  "summary": {
-    "total": <number>,
-    "passed": <number>,
-    "failed": <number>,
-    "skipped": <number>,
-    "duration_ms": <number or null>
-  },
-  "ci_metadata": {
-    "pipeline_url": "<from event payload>",
-    "commit_sha": "<from event payload>",
-    "branch": "<from event payload>"
-  },
-  "triage": {
-    "product_bugs": [
-      {
-        "test_name": "<name>",
-        "error": "<brief error>",
-        "reason": "<why this is a product bug>"
-      }
-    ],
-    "test_issues": [
-      {
-        "test_name": "<name>",
-        "error": "<brief error>",
-        "reason": "<why this is a test issue>"
-      }
-    ]
-  }
-}
-\`\`\`
-
-Output this JSON as the final result of the task.`,
-    },
+    // Step 11: Knowledge Base Update (library)
+    'update-knowledge-base',
   ],
 
   requiredSubagents: ['browser-automation', 'test-engineer'],

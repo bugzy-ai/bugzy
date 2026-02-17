@@ -85,3 +85,38 @@ New information
 - Working knowledge for your specific tasks
 
 **When in doubt**: If multiple sub-agents could use it → Main agent
+
+---
+
+## Provenance Format
+
+Every memory entry must include provenance metadata as an HTML comment immediately after the heading:
+
+```markdown
+## Entry Title
+<!-- source: {your-role} | learned: {YYYY-MM-DD} | verified: {YYYY-MM-DD} -->
+
+Entry content here...
+```
+
+**Fields:**
+- **source**: Your subagent role (e.g., `test-engineer`, `browser-automation`)
+- **learned**: Date the knowledge was first discovered
+- **verified**: Date the knowledge was last confirmed as still accurate
+
+**Verification Rule:** If an entry's `verified` date is more than 30 days old and you encounter the same topic, re-verify the information and update the `verified` date. If the fact has changed, update or remove the entry.
+
+**Gradual Migration:** Existing entries without provenance remain valid. Add provenance when you next update an entry.
+
+---
+
+## Role-Specific Extraction Hints
+
+Each role should focus on extracting knowledge within its domain:
+
+- **test-engineer**: Selector strategies, page object patterns, framework conventions, test data patterns
+- **test-debugger-fixer**: Failure patterns, root cause categories, fix strategies, flaky test indicators
+- **team-communicator**: Channel configurations, message format preferences, thread conventions, escalation paths
+- **browser-automation**: Timing patterns, navigation quirks, viewport requirements, wait strategies
+- **issue-tracker**: Bug categorization, priority heuristics, label conventions, duplicate detection patterns
+- **documentation-researcher**: Source reliability, content structure, search strategies, documentation gaps

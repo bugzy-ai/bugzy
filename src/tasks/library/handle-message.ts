@@ -36,10 +36,6 @@ Process team messages and handle multi-turn conversations with the product team 
       title: 'Arguments',
       content: `Team message/thread context: $ARGUMENTS`,
     },
-    // Step 4: Load Project Context (library)
-    'load-project-context',
-    // Step 5: Knowledge Base Read (library)
-    'read-knowledge-base',
     // Step 6: Detect Intent (inline - simplified, no handler file loading)
     {
       inline: true,

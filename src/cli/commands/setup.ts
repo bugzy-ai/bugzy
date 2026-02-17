@@ -13,6 +13,7 @@ import { createProjectStructure, updateGitignore, generateClaudeMd, generateAgen
 import { generateCommands } from '../generators/commands';
 import { generateAgents } from '../generators/agents';
 import { generateMCPConfig, getMCPServersFromSubagents, buildCodexMCPCommand, getConfiguredCodexMCPServers } from '../generators/mcp';
+import { generateSettings } from '../generators/settings';
 import { MCP_SERVERS } from '../../mcp';
 import { execSync } from 'child_process';
 import { generateEnvExample } from '../generators/env';
@@ -490,6 +491,13 @@ async function regenerateAll(subagents: Record<string, string>, tool: ToolId = D
 
     // Run MCP setup for Codex with user consent
     await setupCodexMCP(mcpServers);
+  }
+
+  // Generate .claude/settings.json (Claude Code only)
+  if (tool === 'claude-code') {
+    spinner = ora('Generating settings').start();
+    await generateSettings(subagents, tool);
+    spinner.succeed(chalk.green('Generated .claude/settings.json (hooks, permissions)'));
   }
 
   // Generate .env.example

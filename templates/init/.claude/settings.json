@@ -1,7 +1,28 @@
 {
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .bugzy/runtime/hooks/session-start.sh"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .bugzy/runtime/hooks/pre-compact.sh"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": [
-      "Bash(jq:*)",
       "mcp__notion__API-post-database-query",
       "mcp__notion__API-retrieve-a-database",
       "Bash(mkdir:*)",

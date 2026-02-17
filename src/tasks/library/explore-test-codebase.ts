@@ -35,10 +35,6 @@ export const exploreTestCodebaseTask: ComposedTaskTemplate = {
 **Parse:**
 - **focus**: specific area to analyze (default: comprehensive)`,
     },
-    // Setup
-    'load-project-context',
-    'read-knowledge-base',
-
     // Core analysis
     'analyze-test-codebase',
 

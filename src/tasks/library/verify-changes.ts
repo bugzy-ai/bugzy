@@ -44,10 +44,6 @@ This task performs comprehensive change verification with:
 
 The input format determines the trigger source and context extraction strategy.`,
     },
-    // Step 4: Load Project Context (library)
-    'load-project-context',
-    // Step 5: Knowledge Base Read (library)
-    'read-knowledge-base',
     // Step 5: Detect Trigger Source (inline)
     {
       inline: true,
@@ -457,7 +453,9 @@ Include in the message:
 - Any blocking issues or critical findings`,
       conditionalOnSubagent: 'team-communicator',
     },
-    // Step 15: Documentation Research (conditional library step)
+    // Step 15: Knowledge Base Update (library)
+    'update-knowledge-base',
+    // Step 16: Documentation Research (conditional library step)
     {
       stepId: 'gather-documentation',
       conditionalOnSubagent: 'documentation-researcher',
@@ -508,9 +506,7 @@ Output to CI build log (print detailed results to stdout) and exit with appropri
 Post PR comment if GitHub context available.`,
       conditionalOnSubagent: 'team-communicator',
     },
-    // Step 17: Knowledge Base Update (library)
-    'update-knowledge-base',
-    // Step 18: Handle Special Cases (inline)
+    // Step 17: Handle Special Cases (inline)
     {
       inline: true,
       title: 'Handle Special Cases',

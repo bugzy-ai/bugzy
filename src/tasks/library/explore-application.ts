@@ -36,10 +36,6 @@ export const exploreApplicationTask: ComposedTaskTemplate = {
 - **depth**: shallow (15-20 min) or deep (45-60 min, default)
 - **system**: target system (optional for multi-system setups)`,
     },
-    // Setup
-    'load-project-context',
-    'read-knowledge-base',
-
     // Exploration Protocol (adaptive depth)
     'exploration-protocol',
 

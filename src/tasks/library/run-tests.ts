@@ -41,10 +41,6 @@ Extract the following from arguments:
   - Specific file: path to a specific test file
   - All tests: "all" or "" → runs entire test suite`,
     },
-    // Step 4: Load Project Context (library)
-    'load-project-context',
-    // Step 5: Knowledge Base Read (library)
-    'read-knowledge-base',
     // Step 5: Test Execution Strategy (library)
     'read-test-strategy',
     // Step 6: Clarification Protocol (library)

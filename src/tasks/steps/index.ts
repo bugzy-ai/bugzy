@@ -8,9 +8,7 @@
 import type { TaskStep, StepCategory } from './types';
 
 // Setup steps
-import { readKnowledgeBaseStep } from './setup/read-knowledge-base';
 import { readTestStrategyStep } from './setup/read-test-strategy';
-import { loadProjectContextStep } from './setup/load-project-context';
 import { securityNoticeStep } from './setup/security-notice';
 import { gatherDocumentationStep } from './setup/gather-documentation';
 
@@ -43,12 +41,12 @@ import { createResultsParserStep } from './generation/create-results-parser';
 import { notifyTeamStep } from './communication/notify-team';
 
 // Maintenance steps
-import { updateKnowledgeBaseStep } from './maintenance/update-knowledge-base';
 import { generateFinalReportStep } from './maintenance/generate-final-report';
 import { updateExplorationArtifactsStep } from './maintenance/update-exploration-artifacts';
 import { cleanupTempFilesStep } from './maintenance/cleanup-temp-files';
 import { validateTestArtifactsStep } from './maintenance/validate-test-artifacts';
 import { syncAutomationFromFeedbackStep } from './maintenance/sync-automation-from-feedback';
+import { updateKnowledgeBaseStep } from './maintenance/update-knowledge-base';
 
 /**
  * Global Step Library - Single source of truth for all steps
@@ -59,9 +57,7 @@ import { syncAutomationFromFeedbackStep } from './maintenance/sync-automation-fr
 export const STEP_LIBRARY: Record<string, TaskStep> = {
   // Setup
   'security-notice': securityNoticeStep,
-  'read-knowledge-base': readKnowledgeBaseStep,
   'read-test-strategy': readTestStrategyStep,
-  'load-project-context': loadProjectContextStep,
   'gather-documentation': gatherDocumentationStep,
 
   // Exploration
@@ -93,12 +89,12 @@ export const STEP_LIBRARY: Record<string, TaskStep> = {
   'notify-team': notifyTeamStep,
 
   // Maintenance
-  'update-knowledge-base': updateKnowledgeBaseStep,
   'generate-final-report': generateFinalReportStep,
   'update-exploration-artifacts': updateExplorationArtifactsStep,
   'cleanup-temp-files': cleanupTempFilesStep,
   'validate-test-artifacts': validateTestArtifactsStep,
   'sync-automation-from-feedback': syncAutomationFromFeedbackStep,
+  'update-knowledge-base': updateKnowledgeBaseStep,
 };
 
 /**
