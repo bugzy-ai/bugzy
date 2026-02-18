@@ -200,6 +200,7 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
       INTEGRATIONS.notion,
       INTEGRATIONS.jira,
       // INTEGRATIONS.confluence
+      INTEGRATIONS.asana,
     ],
     model: 'sonnet',
     color: 'cyan',

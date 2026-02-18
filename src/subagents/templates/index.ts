@@ -21,6 +21,7 @@ import * as TeamCommunicatorEmail from './team-communicator/email';
 import * as DocumentationResearcherNotion from './documentation-researcher/notion';
 import * as DocumentationResearcherConfluence from './documentation-researcher/confluence';
 import * as DocumentationResearcherJira from './documentation-researcher/jira';
+import * as DocumentationResearcherAsana from './documentation-researcher/asana';
 
 // Issue Tracker templates
 import * as IssueTrackerLinear from './issue-tracker/linear';
@@ -80,6 +81,10 @@ export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
     jira: {
       frontmatter: DocumentationResearcherJira.FRONTMATTER,
       content: DocumentationResearcherJira.CONTENT,
+    },
+    asana: {
+      frontmatter: DocumentationResearcherAsana.FRONTMATTER,
+      content: DocumentationResearcherAsana.CONTENT,
     },
   },
   'issue-tracker': {
