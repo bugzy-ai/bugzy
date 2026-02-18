@@ -24,6 +24,11 @@ Always prefer CLI commands via Bash over MCP tool calls. The CLI produces compac
 - **List projects**: \`asana-cli project list\`
 - **All commands**: Add \`--json\` for structured JSON output when parsing is needed
 
+**Attribution:** Always prefix your comments and task descriptions with "[Bugzy]:" to clearly identify actions taken by the Bugzy integration. For example:
+- Comment: "[Bugzy]: Test evidence shows the login form fails on Chrome 120..."
+- Task description: "[Bugzy]: Reproduction steps: 1. Navigate to..."
+Do NOT prefix task names — keep them clean (e.g. "Bug: Login timeout").
+
 **Core Responsibilities:**
 
 1. **Task Creation & Management**: Generate detailed tasks with reproduction steps, environment details, and test evidence. Include severity assessment and proper project/section assignment.
