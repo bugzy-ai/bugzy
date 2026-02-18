@@ -72,6 +72,13 @@ export const INTEGRATIONS: Record<string, SubAgentIntegration> = {
     requiredMCP: 'mcp__azure-devops__*',
     integrationType: 'oauth' // Uses Nango with API key auth for PAT
   },
+  asana: {
+    id: 'asana',
+    name: 'Asana',
+    provider: 'asana',
+    // No requiredMCP — uses asana-mcp-server CLI (CLI tool), not MCP server
+    integrationType: 'oauth'
+  },
   notion: {
     id: 'notion',
     name: 'Notion',
@@ -176,6 +183,7 @@ export const SUBAGENTS: Record<string, SubAgentMetadata> = {
       INTEGRATIONS.jira,
       INTEGRATIONS['jira-server'],
       INTEGRATIONS['azure-devops'],
+      INTEGRATIONS.asana,
       INTEGRATIONS.notion,
       INTEGRATIONS.slack
     ],

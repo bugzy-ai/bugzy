@@ -27,6 +27,7 @@ import * as IssueTrackerLinear from './issue-tracker/linear';
 import * as IssueTrackerJira from './issue-tracker/jira';
 import * as IssueTrackerJiraServer from './issue-tracker/jira-server';
 import * as IssueTrackerAzureDevOps from './issue-tracker/azure-devops';
+import * as IssueTrackerAsana from './issue-tracker/asana';
 import * as IssueTrackerNotion from './issue-tracker/notion';
 import * as IssueTrackerSlack from './issue-tracker/slack';
 
@@ -97,6 +98,10 @@ export const TEMPLATES: Record<string, Record<string, SubagentTemplate>> = {
     'azure-devops': {
       frontmatter: IssueTrackerAzureDevOps.FRONTMATTER,
       content: IssueTrackerAzureDevOps.CONTENT,
+    },
+    asana: {
+      frontmatter: IssueTrackerAsana.FRONTMATTER,
+      content: IssueTrackerAsana.CONTENT,
     },
     notion: {
       frontmatter: IssueTrackerNotion.FRONTMATTER,

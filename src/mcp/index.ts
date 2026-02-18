@@ -148,6 +148,9 @@ export const MCP_SERVERS: Record<string, MCPServerTemplate> = {
       },
     },
   },
+  // asana: CLI-only integration — no MCP server needed.
+  // Agent uses `asana-cli task search|create|update|comment` via Bash.
+  // Package is installed globally in the container for CLI access.
   // github-modelcontextprotocol: {
   //   provider: 'github',
   //   name: 'GitHub',
