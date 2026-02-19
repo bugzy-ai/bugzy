@@ -193,7 +193,11 @@ Use these as reference patterns for common events. The webhook routing system al
 
 **Jira Events:**
 - **Status → "Ready to Test" / "In Testing" / "Ready for QA"**: Propose \`/verify-changes\` with issue context
-- **Resolution: "Not a Bug" / "Won't Fix" / "User Error"**: Update knowledge base directly with the learning (no queue needed)
+- **Resolution: "Not a Bug" / "Won't Fix" / "User Error"**: Update knowledge base directly with the learning (no queue needed). Additionally, if the issue was linked to a triage finding (check via \`bugzy-findings list\` matching by issue tracker key), auto-dispute the finding:
+  \`\`\`bash
+  bugzy-findings dispute --finding-id <matched-finding-id> --explanation "Issue resolved as Not a Bug/Won't Fix in issue tracker"
+  \`\`\`
+  This applies a triage credit automatically when the issue tracker confirms the triage was incorrect. If \`bugzy-findings\` is not available, skip the dispute and only update the knowledge base.
 - **Bug created with relevant labels**: Propose \`/generate-test-cases\` to update related test coverage, confirm with team
 - **Backlog → To Do**: No QA action needed, log to event history only
 

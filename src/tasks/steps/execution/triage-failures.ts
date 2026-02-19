@@ -10,6 +10,16 @@ After analyzing test results, triage each failure to determine if it's a product
 
 **IMPORTANT: Do NOT report bugs without triaging first.**
 
+### 0. Read Disputed Findings (Learning Context)
+
+Before triaging, check for prior disputed findings to avoid repeating past mistakes:
+
+\`\`\`bash
+cat .bugzy/runtime/disputed-findings.md 2>/dev/null || echo "No disputed findings found"
+\`\`\`
+
+If the file exists, read it carefully. It contains past triage mistakes and lessons learned. Use this context to improve classification accuracy for similar failures.
+
 ### 1. Check Failure Classification
 
 **Before triaging any failure**, read \`new_failures\` from the latest \`test-runs/*/manifest.json\`:
@@ -67,6 +77,41 @@ For each failed test (from \`new_failures\` or all failures if field is missing)
 | Test ID | Test Name | Last Passed Run |
 |---------|-----------|-----------------|
 | TC-003 | Search | 20260210-103045 |
-\`\`\``,
+\`\`\`
+
+### 4. Record Findings
+
+After triaging, record each classified failure as a structured finding via the \`bugzy-findings\` CLI. This stores findings in the platform database for tracking, disputes, and dashboard visualization.
+
+For each triaged failure, run:
+
+\`\`\`bash
+bugzy-findings add \\
+  --title "<concise failure description>" \\
+  --description "<detailed analysis including error message and root cause>" \\
+  --severity <critical|high|medium|low> \\
+  --classification <product-bug|test-issue> \\
+  --test-case-id "<test ID from triage table>" \\
+  --test-run-timestamp "<timestamp from manifest.json>"
+\`\`\`
+
+**Severity Guidelines:**
+- **critical**: Application crash, data loss, security vulnerability
+- **high**: Major feature broken, blocking workflow
+- **medium**: Feature partially broken, workaround exists
+- **low**: Minor cosmetic issue, edge case
+
+Example:
+\`\`\`bash
+bugzy-findings add \\
+  --title "Checkout form returns 500 on submit" \\
+  --description "POST /api/checkout returns HTTP 500 when submitting with valid payment data. Stack trace shows null reference in payment processor." \\
+  --severity high \\
+  --classification product-bug \\
+  --test-case-id "TC-002" \\
+  --test-run-timestamp "20260219-103045"
+\`\`\`
+
+If \`bugzy-findings\` is not available (command not found), skip this step silently — findings recording is optional and does not block triage.`,
   tags: ['execution', 'triage', 'analysis'],
 };

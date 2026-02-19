@@ -55,7 +55,7 @@ If intent is not in the payload, detect from message patterns:
 | Condition | Intent |
 |-----------|--------|
 | Keywords: "status", "progress", "how did", "results", "how many passed" | \`status\` |
-| Keywords: "bug", "issue", "broken", "doesn't work", "failed", "error" | \`feedback\` |
+| Keywords: "bug", "issue", "broken", "doesn't work", "failed", "error", "wrong triage", "incorrect classification", "dispute", "that was wrong" | \`feedback\` |
 | Question words: "what", "which", "do we have", "is there" about tests/project | \`question\` |
 | Default (none of above) | \`feedback\` |
 
@@ -91,7 +91,26 @@ Extract the following from the message:
 - \`suggestion\`: "should", "could we", "what if", "idea"
 - \`general\`: Default for unclassified feedback
 
-### Step 2: Update Test Case Specifications
+### Step 2: Check for Dispute Intent
+
+Before processing other feedback types, check if the message is disputing a prior triage finding (e.g., "that triage was wrong", "the login timeout is actually CI flakiness not a product bug", "incorrect classification for...").
+
+**If dispute detected:**
+1. Call \`bugzy-findings list\` to retrieve recent findings
+2. Match the customer's message to a specific finding by test name, description, or ID
+3. If ambiguous (multiple possible matches), list recent findings and ask the customer to clarify which one they're disputing
+4. Once matched, call:
+   \`\`\`bash
+   bugzy-findings dispute --finding-id <matched-finding-id> --explanation "<customer's explanation>"
+   \`\`\`
+5. Confirm the dispute was recorded: "Dispute recorded for [finding title]. A triage credit has been applied and the finding is now marked as disputed. This feedback will help improve future triages."
+6. Skip the remaining feedback steps (the dispute is the action)
+
+If \`bugzy-findings\` is not available (command not found), inform the customer that dispute functionality is not available for this project and suggest contacting support.
+
+**If NOT a dispute**, continue with the standard feedback flow below.
+
+### Step 3: Update Test Case Specifications
 
 **CRITICAL**: When feedback requests changes to test behavior (e.g., "change the expected result", "update the test to check for X", "the test should verify Y instead"), you MUST update the test case markdown files to reflect the requested changes.
 
@@ -103,7 +122,7 @@ For each actionable feedback item:
 
 This step updates the **specification** (markdown test case files) only. The \`sync-automation-from-feedback\` step that follows handles syncing the **implementation** (automation code) to match.
 
-### Step 3: Acknowledge and Confirm
+### Step 4: Acknowledge and Confirm
 
 Respond confirming: feedback received, summary of what was captured, actions taken (including any test case updates), and follow-up questions if needed.
 
